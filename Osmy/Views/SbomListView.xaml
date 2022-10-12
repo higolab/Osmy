@@ -1,0 +1,22 @@
+﻿<UserControl x:Class="Osmy.Views.SbomListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Osmy.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="50" d:DesignWidth="400">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="30"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+
+    <TextBlock Grid.Row="0" Text="SBOM Files"/>
+    <ListView Grid.Row="1">
+      <ListItem/>
+      <ListItem/>
+      <ListItem/>
+    </ListView>
+  </Grid>
+</UserControl>
