@@ -1,6 +1,5 @@
-﻿using GraphSharp.Controls;
-using Osmy.Models.Sbom;
-using QuickGraph;
+﻿using MahApps.Metro.Controls;
+using Prism.Services.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,28 +12,20 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace Osmy.Views
 {
     /// <summary>
-    /// SbomListView.xaml の相互作用ロジック
+    /// MetroDialogWindow.xaml の相互作用ロジック
     /// </summary>
-    public partial class SbomListView : UserControl
+    public partial class MetroDialogWindow : MetroWindow, IDialogWindow
     {
-        public SbomListView()
+        public IDialogResult Result { get; set; } = default!;
+
+        public MetroDialogWindow()
         {
             InitializeComponent();
         }
-    }
-
-    public class DependencyGraph : BidirectionalGraph<IPackage, IEdge<IPackage>>
-    {
-
-    }
-
-    public class DependencyGraphLayout : GraphLayout<IPackage, IEdge<IPackage>, DependencyGraph>
-    {
     }
 }

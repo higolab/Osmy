@@ -2,6 +2,7 @@
 using MahApps.Metro.Controls;
 using Prism.Regions;
 using Prism.Ioc;
+using System;
 
 namespace Osmy.Views
 {
@@ -17,6 +18,14 @@ namespace Osmy.Views
             RegionManager.SetRegionName(_content, "ContentRegion");
             var regionManager = ContainerLocator.Current.Resolve<IRegionManager>();
             RegionManager.SetRegionManager(_content, regionManager);
+        }
+
+        private void MetroWindow_SourceInitialized(object sender, EventArgs e)
+        {
+            if (HamburgerMenuControl.SelectedItem is HamburgerMenuItem menuItem)
+            {
+                menuItem.Command.Execute(menuItem.CommandParameter);
+            }
         }
 
         private void HamburgerMenuControl_OnItemInvoked(object sender, HamburgerMenuItemInvokedEventArgs args)

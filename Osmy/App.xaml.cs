@@ -1,5 +1,7 @@
-﻿using Osmy.Views;
+﻿using Osmy.ViewModels;
+using Osmy.Views;
 using Prism.Ioc;
+using Prism.Mvvm;
 using System.Windows;
 
 namespace Osmy
@@ -17,6 +19,10 @@ namespace Osmy
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.RegisterForNavigation<SbomListView>();
+            containerRegistry.RegisterDialogWindow<MetroDialogWindow>();
+            containerRegistry.RegisterDialog<AddSoftwareDialog, AddSoftwareDialogViewModel>();
+
+            ViewModelLocationProvider.Register<SbomListView, SbomListViewViewModel>();
         }
     }
 }

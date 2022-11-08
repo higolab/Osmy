@@ -1,4 +1,5 @@
-﻿using Prism.Mvvm;
+﻿using Prism.Commands;
+using Prism.Mvvm;
 using Prism.Regions;
 using Reactive.Bindings;
 using System;
@@ -14,18 +15,22 @@ namespace Osmy.ViewModels
 
         public ReactivePropertySlim<string> Title { get; } = new("Osmy");
 
-        public ReactiveCommand<string> PageChangeCommand { get; }
+        public DelegateCommand<string> PageChangeCommand => _pageChangeCommand ??= new DelegateCommand<string>(PageChanged);
+        private DelegateCommand<string>? _pageChangeCommand;
 
         public MainWindowViewModel(IRegionManager regionManager)
         {
             _regionManager = regionManager;
-
-            PageChangeCommand = new ReactiveCommand<string>().WithSubscribe(PageChanged);
         }
 
         public void PageChanged(string pageName)
         {
-            _regionManager.RequestNavigate("ContentRegion", "SbomListView", OnNavigated);
+            switch (pageName)
+            {
+                case "softwares":
+                    _regionManager.RequestNavigate("ContentRegion", "SbomListView", OnNavigated);
+                    break;
+            }
         }
 
         public void OnNavigated(NavigationResult result)
