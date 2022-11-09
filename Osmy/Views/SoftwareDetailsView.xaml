@@ -14,15 +14,11 @@
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
 
-    <mah:MetroHeader Grid.Row="0" mah:HeaderedControlHelper.HeaderFontWeight="Bold"
-                     mah:HeaderedControlHelper.HeaderForeground="{DynamicResource MahApps.Brushes.Accent}"
-                     Header="Name" Margin="0 0 0 5">
+    <mah:MetroHeader Grid.Row="0" Style="{StaticResource AccentMetroHeader}" Header="Name" Margin="0 0 0 5">
       <TextBlock Text="{Binding Software.Name, RelativeSource={RelativeSource AncestorType=local:SoftwareDetailsView}}"/>
     </mah:MetroHeader>
 
-    <mah:MetroHeader Grid.Row="1" mah:HeaderedControlHelper.HeaderFontWeight="Bold"
-                     mah:HeaderedControlHelper.HeaderForeground="{DynamicResource MahApps.Brushes.Accent}"
-                     Header="Packages">
+    <mah:MetroHeader Grid.Row="1" Style="{StaticResource AccentMetroHeader}" Header="Packages">
       <ListView ItemsSource="{Binding Software.LatestSbom.Packages, RelativeSource={RelativeSource AncestorType=local:SoftwareDetailsView}}">
         <ListView.View>
           <GridView>

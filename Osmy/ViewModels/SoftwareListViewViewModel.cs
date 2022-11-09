@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace Osmy.ViewModels
 {
-    internal class SbomListViewViewModel : BindableBase
+    internal class SoftwareListViewViewModel : BindableBase
     {
         private readonly IDialogService _dialogService;
 
@@ -33,7 +33,7 @@ namespace Osmy.ViewModels
         public DelegateCommand ScanVulnsCommand => _scanVulnsCommand ??= new DelegateCommand(ScanVulns);
         private DelegateCommand? _scanVulnsCommand;
 
-        public SbomListViewViewModel(IDialogService dialogService)
+        public SoftwareListViewViewModel(IDialogService dialogService)
         {
             _dialogService = dialogService;
 

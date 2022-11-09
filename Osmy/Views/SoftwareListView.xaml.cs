@@ -19,11 +19,11 @@ using System.Windows.Shapes;
 namespace Osmy.Views
 {
     /// <summary>
-    /// SbomListView.xaml の相互作用ロジック
+    /// SoftwareListView.xaml の相互作用ロジック
     /// </summary>
-    public partial class SbomListView : UserControl
+    public partial class SoftwareListView : UserControl
     {
-        public SbomListView()
+        public SoftwareListView()
         {
             InitializeComponent();
         }

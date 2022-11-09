@@ -18,11 +18,11 @@ namespace Osmy
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
-            containerRegistry.RegisterForNavigation<SbomListView>();
+            containerRegistry.RegisterForNavigation<SoftwareListView>();
             containerRegistry.RegisterDialogWindow<MetroDialogWindow>();
             containerRegistry.RegisterDialog<AddSoftwareDialog, AddSoftwareDialogViewModel>();
 
-            ViewModelLocationProvider.Register<SbomListView, SbomListViewViewModel>();
+            ViewModelLocationProvider.Register<SoftwareListView, SoftwareListViewViewModel>();
         }
     }
 }
