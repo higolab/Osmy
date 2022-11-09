@@ -12,6 +12,8 @@ namespace Osmy.Models.Sbom
     {
         string Name { get; set; }
 
+        ISbom? LatestSbom { get; }
+
         List<ISbom> Sboms { get; }
     }
 
@@ -19,12 +21,15 @@ namespace Osmy.Models.Sbom
     {
         public string Name { get; set; }
 
+        public ISbom? LatestSbom { get; set; }
+
         public List<ISbom> Sboms { get; set; }
 
-        public Software(string name, IEnumerable<ISbom> sboms)
+        public Software(string name, IEnumerable<ISbom> sboms, ISbom latestSbom)
         {
             Name = name;
             Sboms = sboms.ToList();
+            LatestSbom = latestSbom;
         }
 
         public Software(string name)
@@ -37,7 +42,8 @@ namespace Osmy.Models.Sbom
         public Software(string name, string sbomFile)
         {
             Name = name;
-            Sboms = new List<ISbom>() { new Spdx(sbomFile) };
+            LatestSbom = new Spdx(sbomFile);
+            Sboms = new List<ISbom>() { LatestSbom };
         }
     }
 

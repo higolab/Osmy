@@ -3,56 +3,51 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:local="clr-namespace:Osmy.Views"
              xmlns:models="clr-namespace:Osmy.Models.Sbom"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
   <Grid>
     <Grid.RowDefinitions>
-      <RowDefinition Height="30"/>
+      <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
 
-    <TextBlock Grid.Row="0" Text="{Binding Software.Name, RelativeSource={RelativeSource AncestorType=local:SoftwareDetailsView}}"/>
+    <mah:MetroHeader Grid.Row="0" mah:HeaderedControlHelper.HeaderFontWeight="Bold"
+                     mah:HeaderedControlHelper.HeaderForeground="{DynamicResource MahApps.Brushes.Accent}"
+                     Header="Name" Margin="0 0 0 5">
+      <TextBlock Text="{Binding Software.Name, RelativeSource={RelativeSource AncestorType=local:SoftwareDetailsView}}"/>
+    </mah:MetroHeader>
 
-    <ItemsControl Grid.Row="1" ItemsSource="{Binding Software.Sboms, RelativeSource={RelativeSource AncestorType=local:SoftwareDetailsView}}">
-      <ItemsControl.ItemTemplate>
-        <DataTemplate DataType="{x:Type models:ISbom}">
-          <ListView ItemsSource="{Binding Packages}" IsHitTestVisible="False">
-            <ListView.View>
-              <GridView>
-                <GridViewColumn Header="Name">
-                  <GridViewColumn.CellTemplate>
-                    <DataTemplate>
-                      <TextBlock Text="{Binding Name}">
-                        <TextBlock.Style>
-                          <Style TargetType="TextBlock" BasedOn="{StaticResource MahApps.Styles.TextBlock}">
-                            <Setter Property="FontWeight" Value="Normal"/>
-                            <Style.Triggers>
-                              <DataTrigger Binding="{Binding IsRootPackage}" Value="True">
-                                <Setter Property="FontWeight" Value="Bold"/>
-                              </DataTrigger>
-                            </Style.Triggers>
-                          </Style>
-                        </TextBlock.Style>
-                      </TextBlock>
-                    </DataTemplate>
-                  </GridViewColumn.CellTemplate>
-                </GridViewColumn>
-                <GridViewColumn Header="Version" DisplayMemberBinding="{Binding Version}"/>
-              </GridView>
-            </ListView.View>
-          </ListView>
-        </DataTemplate>
-      </ItemsControl.ItemTemplate>
-
-      <ItemsControl.Template>
-        <ControlTemplate>
-          <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <ItemsPresenter/>
-          </ScrollViewer>
-        </ControlTemplate>
-      </ItemsControl.Template>
-    </ItemsControl>
+    <mah:MetroHeader Grid.Row="1" mah:HeaderedControlHelper.HeaderFontWeight="Bold"
+                     mah:HeaderedControlHelper.HeaderForeground="{DynamicResource MahApps.Brushes.Accent}"
+                     Header="Packages">
+      <ListView ItemsSource="{Binding Software.LatestSbom.Packages, RelativeSource={RelativeSource AncestorType=local:SoftwareDetailsView}}">
+        <ListView.View>
+          <GridView>
+            <GridViewColumn Header="Name">
+              <GridViewColumn.CellTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding Name}">
+                    <TextBlock.Style>
+                      <Style TargetType="TextBlock" BasedOn="{StaticResource MahApps.Styles.TextBlock}">
+                        <Setter Property="FontWeight" Value="Normal"/>
+                        <Style.Triggers>
+                          <DataTrigger Binding="{Binding IsRootPackage}" Value="True">
+                            <Setter Property="FontWeight" Value="Bold"/>
+                          </DataTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </TextBlock.Style>
+                  </TextBlock>
+                </DataTemplate>
+              </GridViewColumn.CellTemplate>
+            </GridViewColumn>
+            <GridViewColumn Header="Version" DisplayMemberBinding="{Binding Version}"/>
+          </GridView>
+        </ListView.View>
+      </ListView>
+    </mah:MetroHeader>
   </Grid>
 </UserControl>
