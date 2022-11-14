@@ -29,12 +29,12 @@ namespace Osmy.Views
         }
     }
 
-    public class DependencyGraph : BidirectionalGraph<IPackage, IEdge<IPackage>>
+    public class DependencyGraph : BidirectionalGraph<Package, IEdge<Package>>
     {
 
     }
 
-    public class DependencyGraphLayout : GraphLayout<IPackage, IEdge<IPackage>, DependencyGraph>
+    public class DependencyGraphLayout : GraphLayout<Package, IEdge<Package>, DependencyGraph>
     {
     }
 }

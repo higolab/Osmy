@@ -21,7 +21,7 @@
       <TabItem Header="Dependency Graph">
         <zoom:ZoomControl Zoom="0.2">
           <zoom:ZoomControl.Resources>
-            <DataTemplate x:Key="demoTemplate" DataType="{x:Type models:IPackage}">
+            <DataTemplate x:Key="demoTemplate" DataType="{x:Type models:Package}">
               <StackPanel Orientation="Horizontal" Margin="5">
                 <TextBlock Text="{Binding Name}" Foreground="White" />
               </StackPanel>

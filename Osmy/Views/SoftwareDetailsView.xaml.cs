@@ -21,13 +21,13 @@ namespace Osmy.Views
     /// </summary>
     public partial class SoftwareDetailsView : UserControl
     {
-        public ISoftware Software
+        public Software Software
         {
-            get { return (ISoftware)GetValue(SoftwareProperty); }
+            get { return (Software)GetValue(SoftwareProperty); }
             set { SetValue(SoftwareProperty, value); }
         }
         public static readonly DependencyProperty SoftwareProperty =
-            DependencyProperty.Register("Software", typeof(ISoftware), typeof(SoftwareDetailsView), new PropertyMetadata(default));
+            DependencyProperty.Register("Software", typeof(Software), typeof(SoftwareDetailsView), new PropertyMetadata(default));
 
         public SoftwareDetailsView()
         {

@@ -4,15 +4,8 @@ using Osmy.Views;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
-using QuickGraph;
 using Reactive.Bindings;
-using Reactive.Bindings.Extensions;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Osmy.ViewModels
@@ -21,9 +14,11 @@ namespace Osmy.ViewModels
     {
         private readonly IDialogService _dialogService;
 
-        public ReactivePropertySlim<ObservableCollection<ISoftware>> Softwares { get; }
+        private readonly ManagedSoftwareContext _managedSoftwareContext = new();
 
-        public ReactivePropertySlim<ISoftware> SelectedSouftware { get; }
+        public ReactivePropertySlim<ObservableCollection<Software>> Softwares { get; }
+
+        public ReactivePropertySlim<Software> SelectedSouftware { get; }
 
         public ReactivePropertySlim<DependencyGraph> Graph { get; } = new();
 
@@ -37,8 +32,8 @@ namespace Osmy.ViewModels
         {
             _dialogService = dialogService;
 
-            Softwares = new ReactivePropertySlim<ObservableCollection<ISoftware>>(new ObservableCollection<ISoftware>());
-            SelectedSouftware = new ReactivePropertySlim<ISoftware>();
+            Softwares = new ReactivePropertySlim<ObservableCollection<Software>>(new ObservableCollection<Software>(_managedSoftwareContext.Softwares));
+            SelectedSouftware = new ReactivePropertySlim<Software>();
         }
 
         private void OpenSoftwareAddDiaglog()
@@ -48,7 +43,11 @@ namespace Osmy.ViewModels
                 if (r.Result != ButtonResult.OK) { return; }
                 var softwareName = r.Parameters.GetValue<string>("name");
                 var sbomFile = r.Parameters.GetValue<string>("sbom");
-                Softwares.Value.Add(new Software(softwareName, sbomFile));
+                var software = new Software(softwareName, sbomFile);
+
+                _managedSoftwareContext.Softwares.Add(software);
+                _managedSoftwareContext.SaveChanges();
+                Softwares.Value.Add(software);
             });
         }
 
@@ -56,7 +55,8 @@ namespace Osmy.ViewModels
         {
             if (SelectedSouftware.Value is null) { return; }
 
-            var sbom = SelectedSouftware.Value.Sboms.First();   // TODO
+            var sbom = SelectedSouftware.Value.LatestSbom;
+            if (sbom is null) { return; }
             Graph.Value = sbom.DependencyGraph;
 
             var scanner = new VulnerabilityScanner();
