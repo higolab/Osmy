@@ -19,6 +19,9 @@ namespace Osmy.Models.Sbom
         [Key]
         public int Id { get; set; }
 
+        public int SoftwareId { get; set; }
+        public virtual Software Software { get; set; }
+
         /// <summary>
         /// SBOMファイルの内容
         /// </summary>
@@ -27,7 +30,7 @@ namespace Osmy.Models.Sbom
         /// <summary>
         /// ルートパッケージのバージョン
         /// </summary>
-        public string RootPackageVersion { get; protected set; } = string.Empty;
+        public string? RootPackageVersion { get; protected set; }
 
         /// <summary>
         /// ルートパッケージ
@@ -53,16 +56,19 @@ namespace Osmy.Models.Sbom
         /// <remarks>ORMで使用するために用意しています．</remarks>
         public Sbom()
         {
+            Software = default!;
             SbomFile = default!;
         }
 
         /// <summary>
         /// 指定したパスのファイル情報からインスタンスを作成します．
         /// </summary>
+        /// <param name="software"></param>
         /// <param name="filePath"></param>
         /// <remarks>データ新規追加時に呼び出されます．</remarks>
-        public Sbom(string filePath)
+        public Sbom(Software software, string filePath)
         {
+            Software = software;
             SbomFile = new SbomFile(filePath);
         }
     }

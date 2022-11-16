@@ -16,6 +16,8 @@ namespace Osmy.Models
 
         public DbSet<Software> Softwares { get; set; }
 
+        public DbSet<VulnerabilityScanResult> ScanResults { get; set; }
+
         public ManagedSoftwareContext()
         {
             var appDataDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -42,9 +44,9 @@ namespace Osmy.Models
                 .HasDiscriminator()
                 .HasValue<Spdx>("sbom_spdx");
 
-            //modelBuilder.Entity<Package>()
-            //    .HasDiscriminator()
-            //    .HasValue<Spdx.SpdxSoftwarePackage>("package_spdx");
+            modelBuilder.Entity<Package>()
+                .HasDiscriminator()
+                .HasValue<Spdx.SpdxSoftwarePackage>("package_spdx");
         }
     }
 }

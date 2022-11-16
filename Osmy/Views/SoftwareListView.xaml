@@ -31,7 +31,7 @@
 
       <mah:MetroHeader Grid.Row="0" Header="Softwares" Style="{StaticResource AccentMetroHeader}" VerticalAlignment="Center"/>
       <ListView Grid.Row="1" ItemsSource="{Binding Softwares.Value}"
-                SelectedItem="{Binding SelectedSouftware.Value}" SelectionMode="Single">
+                SelectedItem="{Binding SelectedSoftware.Value}" SelectionMode="Single">
         <ListView.ItemTemplate>
           <DataTemplate DataType="{x:Type models:Software}">
             <StackPanel>
@@ -56,6 +56,7 @@
 
     <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" Width="5" Margin="0 5"/>
 
-    <local:SoftwareDetailsView Grid.Column="2" Margin="5" Software="{Binding SelectedSouftware.Value}"/>
+    <local:SoftwareDetailsView Grid.Column="2" Margin="5" Software="{Binding SelectedSoftware.Value}"/>
+    <!--<TextBlock Grid.Column="2" Margin="5" Text="{Binding LatestScanResult.Value}"/>-->
   </Grid>
 </UserControl>

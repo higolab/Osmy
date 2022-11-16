@@ -5,32 +5,85 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:local="clr-namespace:Osmy.Views"
-             xmlns:models="clr-namespace:Osmy.Models.Sbom"
+             xmlns:vm="clr-namespace:Osmy.ViewModels"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="False"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-  <Grid>
+             d:DesignHeight="450" d:DesignWidth="800"
+             d:DataContext="{d:DesignInstance Type=vm:SoftwareDetailsViewViewModel}">
+  <Grid DataContext="{Binding ViewModel.Value, RelativeSource={RelativeSource AncestorType=local:SoftwareDetailsView}}">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
 
     <mah:MetroHeader Grid.Row="0" Style="{StaticResource AccentMetroHeader}" Header="Name" Margin="0 0 0 5">
-      <TextBlock Text="{Binding Software.Name, RelativeSource={RelativeSource AncestorType=local:SoftwareDetailsView}}"/>
+      <TextBlock Text="{Binding Software.Value.Name}"/>
     </mah:MetroHeader>
 
-    <mah:MetroHeader Grid.Row="1" Style="{StaticResource AccentMetroHeader}" Header="Packages">
-      <ListView ItemsSource="{Binding Software.LatestSbom.Packages, RelativeSource={RelativeSource AncestorType=local:SoftwareDetailsView}}">
+    <mah:MetroHeader Grid.Row="1" Style="{StaticResource AccentMetroHeader}" Header="Latest Scan Result">
+      <ListView ItemsSource="{Binding ScanResults.Value}" SelectionMode="Extended">
         <ListView.View>
-          <GridView>
+          <GridView AllowsColumnReorder="False">
+            <GridViewColumn>
+              <GridViewColumn.CellTemplate>
+                <DataTemplate>
+                  <iconPacks:PackIconMaterial Kind="AlertCircle" Foreground="Red">
+                    <iconPacks:PackIconMaterial.Style>
+                      <Style TargetType="iconPacks:PackIconMaterial">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                          <DataTrigger Binding="{Binding IsVulnerable}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                          </DataTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </iconPacks:PackIconMaterial.Style>
+
+                    <iconPacks:PackIconMaterial.ToolTip>
+                      <ItemsControl ItemsSource="{Binding VulnerabilityList.Vulnerabilities}">
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate>
+                            <Grid>
+                              <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                              </Grid.RowDefinitions>
+
+                              <mah:MetroHeader Grid.Row="0" Header="Summary">
+                                <TextBlock Text="{Binding Summary}"/>
+                              </mah:MetroHeader>
+
+                              <mah:MetroHeader Grid.Row="1" Header="Severity">
+                                <ItemsControl ItemsSource="{Binding Severity}">
+                                  <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                      <TextBlock>
+                                      [<Run Text="{Binding Type}"/>] <Run Text="{Binding Score}"/>
+                                      </TextBlock>
+                                    </DataTemplate>
+                                  </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                              </mah:MetroHeader>
+                            </Grid>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                    </iconPacks:PackIconMaterial.ToolTip>
+                  </iconPacks:PackIconMaterial>
+                </DataTemplate>
+              </GridViewColumn.CellTemplate>
+            </GridViewColumn>
             <GridViewColumn Header="Name">
               <GridViewColumn.CellTemplate>
                 <DataTemplate>
-                  <TextBlock Text="{Binding Name}">
+                  <TextBlock Text="{Binding Package.Name}">
                     <TextBlock.Style>
                       <Style TargetType="TextBlock" BasedOn="{StaticResource MahApps.Styles.TextBlock}">
                         <Setter Property="FontWeight" Value="Normal"/>
                         <Style.Triggers>
-                          <DataTrigger Binding="{Binding IsRootPackage}" Value="True">
+                          <DataTrigger Binding="{Binding Package.IsRootPackage}" Value="True">
                             <Setter Property="FontWeight" Value="Bold"/>
                           </DataTrigger>
                         </Style.Triggers>
@@ -40,7 +93,7 @@
                 </DataTemplate>
               </GridViewColumn.CellTemplate>
             </GridViewColumn>
-            <GridViewColumn Header="Version" DisplayMemberBinding="{Binding Version}"/>
+            <GridViewColumn Header="Version" DisplayMemberBinding="{Binding Package.Version}"/>
           </GridView>
         </ListView.View>
       </ListView>

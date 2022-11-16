@@ -6,6 +6,7 @@ using System.Linq;
 using ImTools;
 using Osmy.Views;
 using System;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Osmy.Models.Sbom.Spdx
 {
@@ -40,9 +41,10 @@ namespace Osmy.Models.Sbom.Spdx
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="software"></param>
         /// <param name="path"></param>
         /// <remarks>新規追加時に呼び出されます．</remarks>
-        public Spdx(string path) : base(path)
+        public Spdx(Software software, string path) : base(software, path)
         {
             // 作成時は内容確認を行う可能性が高いので即時に読みこむ
             _content = new Lazy<SpdxDocumentContent>(new SpdxDocumentContent(new MemoryStream(SbomFile.Data)));
@@ -158,10 +160,19 @@ namespace Osmy.Models.Sbom.Spdx
         /// <summary>
         /// SPDXに記載されたパッケージ情報
         /// </summary>
-        /// <param name="Name">名前</param>
-        /// <param name="Version">バージョン</param>
-        /// <param name="IsRootPackage">ルートパッケージか</param>
-        /// <param name="SpdxRefId">SPDX Ref ID</param>
-        private record SpdxSoftwarePackage(string Name, string Version, bool IsRootPackage, string SpdxRefId) : Package(Name, Version, IsRootPackage);
+        public class SpdxSoftwarePackage : Package
+        {
+            public string SpdxRefId { get; set; }
+
+            public SpdxSoftwarePackage() { }
+
+            public SpdxSoftwarePackage(string name, string version, bool isRootPackage, string spdxRefId)
+            {
+                Name = name;
+                Version = version;
+                IsRootPackage = isRootPackage;
+                SpdxRefId = spdxRefId;
+            }
+        }
     }
 }

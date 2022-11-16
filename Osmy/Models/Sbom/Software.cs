@@ -55,8 +55,16 @@ namespace Osmy.Models.Sbom
         public Software(string name, string sbomFile)
         {
             Name = name;
-            var sbom = new Spdx.Spdx(sbomFile);
+            var sbom = new Spdx.Spdx(this, sbomFile);
             Sboms = new List<Sbom>() { sbom };
+        }
+
+        // TODO
+        public event Action? VulnerabilityScanned;
+
+        public void RaiseVulnerabilityScanned()
+        {
+            VulnerabilityScanned?.Invoke();
         }
     }
 }

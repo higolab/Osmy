@@ -14,7 +14,8 @@
                  mah:TitleCharacterCasing="Normal"
                  Height="350" Width="525"
                  MinWidth="450"
-                 SourceInitialized="MetroWindow_SourceInitialized">
+                 SourceInitialized="MetroWindow_SourceInitialized"
+                 WindowStartupLocation="CenterScreen">
   <mah:MetroWindow.Resources>
 
     <!--  This is the template for all menu items. In this sample we use the glyph items.  -->

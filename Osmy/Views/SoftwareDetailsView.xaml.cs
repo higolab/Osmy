@@ -1,4 +1,6 @@
 ﻿using Osmy.Models.Sbom;
+using Osmy.ViewModels;
+using Reactive.Bindings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,11 +29,21 @@ namespace Osmy.Views
             set { SetValue(SoftwareProperty, value); }
         }
         public static readonly DependencyProperty SoftwareProperty =
-            DependencyProperty.Register("Software", typeof(Software), typeof(SoftwareDetailsView), new PropertyMetadata(default));
+            DependencyProperty.Register("Software", typeof(Software), typeof(SoftwareDetailsView), new PropertyMetadata(default, OnSoftwareChanged));
+
+        public ReactivePropertySlim<SoftwareDetailsViewViewModel> ViewModel { get; } = new();
 
         public SoftwareDetailsView()
         {
             InitializeComponent();
+        }
+
+        private static void OnSoftwareChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is SoftwareDetailsView view && view.Software is not null)
+            {
+                view.ViewModel.Value = new SoftwareDetailsViewViewModel(view.Software);
+            }
         }
     }
 }
