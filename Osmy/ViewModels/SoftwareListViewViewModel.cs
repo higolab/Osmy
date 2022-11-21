@@ -1,4 +1,5 @@
-﻿using Osmy.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Osmy.Models;
 using Osmy.Models.Sbom;
 using Osmy.Views;
 using OSV.Client.Models;
@@ -11,6 +12,7 @@ using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 
 namespace Osmy.ViewModels
@@ -19,15 +21,11 @@ namespace Osmy.ViewModels
     {
         private readonly IDialogService _dialogService;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <remarks>自動遅延読み込みにはオブジェクト作成時のDbContextオブジェクトが必要なので破棄せずに保持する．</remarks>
-        private readonly ManagedSoftwareContext _dbContext;
-
         public ReactivePropertySlim<ObservableCollection<Software>> Softwares { get; }
 
         public ReactivePropertySlim<Software> SelectedSoftware { get; }
+
+        public ReadOnlyReactivePropertySlim<SoftwareDetailsViewViewModel?> SelectedSoftwareVM { get; }
 
         public ReactivePropertySlim<DependencyGraph> Graph { get; } = new();
 
@@ -40,10 +38,11 @@ namespace Osmy.ViewModels
         public SoftwareListViewViewModel(IDialogService dialogService)
         {
             _dialogService = dialogService;
-            _dbContext = new ManagedSoftwareContext();
 
-            Softwares = new ReactivePropertySlim<ObservableCollection<Software>>(new ObservableCollection<Software>(_dbContext.Softwares));
+            using var dbContext = new ManagedSoftwareContext();
+            Softwares = new ReactivePropertySlim<ObservableCollection<Software>>(new ObservableCollection<Software>(dbContext.Softwares.Include(x => x.Sboms)));
             SelectedSoftware = new ReactivePropertySlim<Software>();
+            SelectedSoftwareVM = SelectedSoftware.Where(x => x is not null).Select(x => new SoftwareDetailsViewViewModel(x, _dialogService)).ToReadOnlyReactivePropertySlim();
         }
 
         private void OpenSoftwareAddDiaglog()
@@ -55,8 +54,9 @@ namespace Osmy.ViewModels
                 var sbomFile = r.Parameters.GetValue<string>("sbom");
                 var software = new Software(softwareName, sbomFile);
 
-                _dbContext.Softwares.Add(software);
-                _dbContext.SaveChanges();
+                using var dbContext = new ManagedSoftwareContext();
+                dbContext.Softwares.Add(software);
+                dbContext.SaveChanges();
                 Softwares.Value.Add(software);
             });
         }
@@ -65,16 +65,16 @@ namespace Osmy.ViewModels
         {
             if (SelectedSoftware.Value is null) { return; }
 
-            var sbom = SelectedSoftware.Value.LatestSbom;
+            var sbom = SelectedSoftware.Value.Sboms.First(x => x.IsUsed);
             if (sbom is null) { return; }
             Graph.Value = sbom.DependencyGraph;
 
             var scanner = new VulnerabilityScanner();
             var result = await Task.Run(() => scanner.Scan(sbom)).ConfigureAwait(false);
-            
-            // TODO スキャン結果を保存
-            _dbContext.ScanResults.Add(result);
-            _dbContext.SaveChanges();
+
+            using var dbContext = new ManagedSoftwareContext();
+            dbContext.ScanResults.Add(result);
+            dbContext.SaveChanges();
 
             SelectedSoftware.Value.RaiseVulnerabilityScanned();
         }

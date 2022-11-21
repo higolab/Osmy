@@ -25,13 +25,6 @@ namespace Osmy.Models.Sbom
         public string Name { get; set; }
 
         /// <summary>
-        /// 最新のSBOM
-        /// </summary>
-        // TODO 最新のSBOMの検出 知りたいのは現在使用しているバージョンのSBOMであって，最新のSBOMではない
-        [NotMapped]
-        public Sbom? LatestSbom => Sboms.MaxBy(x => x.Id);
-
-        /// <summary>
         /// このソフトウェアのSBOMリスト
         /// </summary>
         /// <remarks>遅延自動読み込みのためにvirtual</remarks>
@@ -57,6 +50,7 @@ namespace Osmy.Models.Sbom
             Name = name;
             var sbom = new Spdx.Spdx(this, sbomFile);
             Sboms = new List<Sbom>() { sbom };
+            sbom.IsUsed = true;
         }
 
         // TODO

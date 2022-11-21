@@ -35,7 +35,7 @@ namespace Osmy.Models.Sbom.Spdx
         /// <remarks>ORMで使用するために用意しています．</remarks>
         public Spdx()
         {
-            _content = new Lazy<SpdxDocumentContent>(() => new SpdxDocumentContent(new MemoryStream(SbomFile.Data)));
+            _content = new Lazy<SpdxDocumentContent>(() => new SpdxDocumentContent(new MemoryStream(Content)));
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace Osmy.Models.Sbom.Spdx
         public Spdx(Software software, string path) : base(software, path)
         {
             // 作成時は内容確認を行う可能性が高いので即時に読みこむ
-            _content = new Lazy<SpdxDocumentContent>(new SpdxDocumentContent(new MemoryStream(SbomFile.Data)));
+            _content = new Lazy<SpdxDocumentContent>(new SpdxDocumentContent(new MemoryStream(Content)));
             RootPackageVersion = RootPackage.Version;
         }
 
@@ -164,7 +164,10 @@ namespace Osmy.Models.Sbom.Spdx
         {
             public string SpdxRefId { get; set; }
 
-            public SpdxSoftwarePackage() { }
+            public SpdxSoftwarePackage()
+            {
+                SpdxRefId = default!;
+            }
 
             public SpdxSoftwarePackage(string name, string version, bool isRootPackage, string spdxRefId)
             {

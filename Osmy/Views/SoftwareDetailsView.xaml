@@ -12,27 +12,35 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance Type=vm:SoftwareDetailsViewViewModel}">
-  <Grid DataContext="{Binding ViewModel.Value, RelativeSource={RelativeSource AncestorType=local:SoftwareDetailsView}}">
-    <Grid.RowDefinitions>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="*"/>
-    </Grid.RowDefinitions>
+  <UserControl.Resources>
+    <Grid x:Key="MainGrid">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
 
-    <mah:MetroHeader Grid.Row="0" Style="{StaticResource AccentMetroHeader}" Header="Name" Margin="0 0 0 5">
-      <TextBlock Text="{Binding Software.Value.Name}"/>
-    </mah:MetroHeader>
+      <Grid.Resources>
+        <Style TargetType="mah:MetroHeader" BasedOn="{StaticResource AccentMetroHeader}"/>
+      </Grid.Resources>
 
-    <mah:MetroHeader Grid.Row="1" Style="{StaticResource AccentMetroHeader}" Header="Latest Scan Result">
+      <mah:MetroHeader Grid.Row="0" Header="Name" Margin="0 0 0 5">
+        <TextBlock Text="{Binding Software.Value.Name}"/>
+      </mah:MetroHeader>
+
+      <!--Latest Scan Result-->
+      <!--<mah:MetroHeader Grid.Row="1" Header="Latest Scan Result">
       <ListView ItemsSource="{Binding ScanResults.Value}" SelectionMode="Extended">
         <ListView.View>
-          <GridView AllowsColumnReorder="False">
+          <GridView x:Name="_scanResultGridView" AllowsColumnReorder="False">
             <GridViewColumn>
               <GridViewColumn.CellTemplate>
                 <DataTemplate>
-                  <iconPacks:PackIconMaterial Kind="AlertCircle" Foreground="Red">
+                  <iconPacks:PackIconMaterial Kind="Bug" Foreground="Red">
                     <iconPacks:PackIconMaterial.Style>
                       <Style TargetType="iconPacks:PackIconMaterial">
-                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Setter Property="Visibility" Value="Hidden"/>
                         <Style.Triggers>
                           <DataTrigger Binding="{Binding IsVulnerable}" Value="True">
                             <Setter Property="Visibility" Value="Visible"/>
@@ -96,7 +104,173 @@
             <GridViewColumn Header="Version" DisplayMemberBinding="{Binding Package.Version}"/>
           </GridView>
         </ListView.View>
+
+        <ListView.Resources>
+          <Style TargetType="ListViewItem" BasedOn="{StaticResource MahApps.Styles.ListViewItem}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding IsVulnerable}" Value="True">
+                <Setter Property="Background" Value="Pink"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+        </ListView.Resources>
       </ListView>
-    </mah:MetroHeader>
-  </Grid>
+    </mah:MetroHeader>-->
+
+      <mah:MetroHeader Grid.Row="1" Header="Latest Scan Result">
+        <StackPanel Grid.IsSharedSizeScope="True">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" SharedSizeGroup="ScanResultIcon"/>
+              <ColumnDefinition Width="Auto" SharedSizeGroup="ScanResultName"/>
+              <ColumnDefinition Width="Auto" SharedSizeGroup="ScanResultVersion"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="1" Text="Package Name" FontWeight="Bold"/>
+            <TextBlock Grid.Column="2" Text="Version" FontWeight="Bold"/>
+          </Grid>
+
+          <Separator/>
+
+          <ItemsControl ItemsSource="{Binding ScanResults.Value}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Grid Height="24">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="ScanResultIcon"/>
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="ScanResultName"/>
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="ScanResultVersion"/>
+                  </Grid.ColumnDefinitions>
+
+                  <Grid.Style>
+                    <Style TargetType="Grid">
+                      <Setter Property="Background" Value="Transparent"/>
+                      <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsVulnerable}" Value="True">
+                          <Setter Property="Background" Value="Pink"/>
+                        </DataTrigger>
+                      </Style.Triggers>
+                    </Style>
+                  </Grid.Style>
+
+                  <iconPacks:PackIconMaterial Grid.Column="0" Kind="Bug" Foreground="Red" VerticalAlignment="Center" Margin="5 0">
+                    <iconPacks:PackIconMaterial.Style>
+                      <Style TargetType="iconPacks:PackIconMaterial">
+                        <Setter Property="Visibility" Value="Hidden"/>
+                        <Style.Triggers>
+                          <DataTrigger Binding="{Binding IsVulnerable}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                          </DataTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </iconPacks:PackIconMaterial.Style>
+
+                    <iconPacks:PackIconMaterial.ToolTip>
+                      <ItemsControl ItemsSource="{Binding VulnerabilityList.Vulnerabilities}">
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate>
+                            <Grid>
+                              <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                              </Grid.RowDefinitions>
+
+                              <mah:MetroHeader Grid.Row="0" Header="Summary">
+                                <TextBlock Text="{Binding Summary}"/>
+                              </mah:MetroHeader>
+
+                              <mah:MetroHeader Grid.Row="1" Header="Severity">
+                                <ItemsControl ItemsSource="{Binding Severity}">
+                                  <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                      <TextBlock>
+                                      [<Run Text="{Binding Type}"/>] <Run Text="{Binding Score}"/>
+                                      </TextBlock>
+                                    </DataTemplate>
+                                  </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                              </mah:MetroHeader>
+                            </Grid>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                    </iconPacks:PackIconMaterial.ToolTip>
+                  </iconPacks:PackIconMaterial>
+
+                  <TextBlock Grid.Column="1" Text="{Binding Package.Name}" VerticalAlignment="Center" Margin="0 0 10 0"/>
+                  <TextBlock Grid.Column="2" Text="{Binding Package.Version}" VerticalAlignment="Center"/>
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+
+            <ItemsControl.Resources>
+              <Style TargetType="ListItem" BasedOn="{StaticResource MahApps.Styles.ListViewItem}">
+                <Setter Property="Background" Value="Transparent"/>
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding IsVulnerable}" Value="True">
+                    <Setter Property="Background" Value="Pink"/>
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </ItemsControl.Resources>
+          </ItemsControl>
+        </StackPanel>
+      </mah:MetroHeader>
+
+      <!--SBOM-->
+      <mah:MetroHeader Grid.Row="2" Header="SBOMs" Margin="0 5 0 0">
+        <ListView ItemsSource="{Binding Software.Value.Sboms}" SelectionMode="Single">
+          <ListView.View>
+            <GridView AllowsColumnReorder="False">
+              <GridViewColumn>
+                <GridViewColumn.CellTemplate>
+                  <DataTemplate>
+                    <iconPacks:PackIconMaterial Kind="CheckBold">
+                      <iconPacks:PackIconMaterial.Style>
+                        <Style TargetType="iconPacks:PackIconMaterial">
+                          <Setter Property="Visibility" Value="Hidden"/>
+                          <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsUsed}" Value="True">
+                              <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                          </Style.Triggers>
+                        </Style>
+                      </iconPacks:PackIconMaterial.Style>
+                    </iconPacks:PackIconMaterial>
+                  </DataTemplate>
+                </GridViewColumn.CellTemplate>
+              </GridViewColumn>
+              <GridViewColumn Header="Software Name" DisplayMemberBinding="{Binding RootPackage.Name}"/>
+              <GridViewColumn Header="Software Version" DisplayMemberBinding="{Binding RootPackage.Version}"/>
+            </GridView>
+          </ListView.View>
+        </ListView>
+      </mah:MetroHeader>
+
+      <StackPanel Grid.Row="3" Height="30" Margin="0 0 5 5" 
+                HorizontalAlignment="Right" Orientation="Horizontal">
+        <Button ToolTip="Add Software" Command="{Binding AddSbomCommand}">
+          <iconPacks:PackIconMaterial Kind="Plus"/>
+        </Button>
+      </StackPanel>
+    </Grid>
+
+    <Grid x:Key="NotSelectedGrid" Background="LightGray">
+      <TextBlock Text="Software is not selected" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Grid>
+  </UserControl.Resources>
+
+  <ContentControl>
+    <ContentControl.Style>
+      <Style TargetType="ContentControl">
+        <Setter Property="Content" Value="{StaticResource MainGrid}"/>
+        <Style.Triggers>
+          <Trigger Property="DataContext" Value="{x:Null}">
+            <Setter Property="Content" Value="{StaticResource NotSelectedGrid}"/>
+          </Trigger>
+        </Style.Triggers>
+      </Style>
+    </ContentControl.Style>
+  </ContentControl>
 </UserControl>

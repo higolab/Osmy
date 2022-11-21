@@ -1,10 +1,9 @@
 ﻿using Osmy.Views;
-using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
-using System.Linq;
+using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace Osmy.Models.Sbom
 {
@@ -16,16 +15,24 @@ namespace Osmy.Models.Sbom
         /// <summary>
         /// ID
         /// </summary>
-        [Key]
         public int Id { get; set; }
 
-        public int SoftwareId { get; set; }
-        public virtual Software Software { get; set; }
+        public Software Software { get; set; }
 
         /// <summary>
-        /// SBOMファイルの内容
+        /// 現在使用中か
         /// </summary>
-        public virtual SbomFile SbomFile { get; set; }
+        public bool IsUsed { get; set; }
+
+        /// <summary>
+        /// ファイル内容のバイト配列
+        /// </summary>
+        public byte[] Content { get; set; }
+
+        /// <summary>
+        /// SBOMファイルのハッシュ値
+        /// </summary>
+        public byte[] ContentHash { get; set; }
 
         /// <summary>
         /// ルートパッケージのバージョン
@@ -57,7 +64,8 @@ namespace Osmy.Models.Sbom
         public Sbom()
         {
             Software = default!;
-            SbomFile = default!;
+            Content = default!;
+            ContentHash = default!;
         }
 
         /// <summary>
@@ -69,45 +77,36 @@ namespace Osmy.Models.Sbom
         public Sbom(Software software, string filePath)
         {
             Software = software;
-            SbomFile = new SbomFile(filePath);
-        }
-    }
-
-    /// <summary>
-    /// SBOMファイル
-    /// </summary>
-    /// <remarks>このクラスでファイル内容のバイト配列を保持することで，DBから不要なデータが取得されないようにします．</remarks>
-    public class SbomFile
-    {
-        /// <summary>
-        /// ID
-        /// </summary>
-        [Key]
-        public int Id { get; set; }
-
-        /// <summary>
-        /// ファイル内容のバイト配列
-        /// </summary>
-        public byte[] Data { get; set; }
-
-        /// <summary>
-        /// 空のファイルを作成します．
-        /// </summary>
-        /// <remarks>ORMで使用するために用意しています．</remarks>
-        public SbomFile()
-        {
-            Data = Array.Empty<byte>();
+            Content = File.ReadAllBytes(filePath);
+            ContentHash = ComputeHash();
         }
 
-        /// <summary>
-        /// 指定したパスのファイルからインスタンスを作成します．
-        /// </summary>
-        /// <param name="path">SBOMファイルのパス</param>
-        public SbomFile(string path)
+        public byte[] ComputeHash()
         {
+            return ComputeHash(Content);
+        }
+
+        public static async Task<byte[]> ComputeHashAsync(string path)
+        {
+            if (!File.Exists(path))
+            {
+                throw new FileNotFoundException();
+            }
+
             using var stream = File.OpenRead(path);
-            Data = new byte[stream.Length];
-            stream.Read(Data, 0, Data.Length);
+            return await ComputeHashAsync(stream);
+        }
+
+        public static async Task<byte[]> ComputeHashAsync(Stream stream)
+        {
+            var provider = HashAlgorithm.Create("MD5")!;
+            return await provider.ComputeHashAsync(stream);
+        }
+
+        public static byte[] ComputeHash(byte[] buffer)
+        {
+            var provider = HashAlgorithm.Create("MD5")!;
+            return provider.ComputeHash(buffer);
         }
     }
 }

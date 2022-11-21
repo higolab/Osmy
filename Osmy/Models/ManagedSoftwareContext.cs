@@ -33,16 +33,19 @@ namespace Osmy.Models
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             options.UseSqlite($"Data Source={DbPath}");
-            options.UseLazyLoadingProxies();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Sbom.Sbom>()
-                .HasDiscriminator()
+            modelBuilder.Entity<Software>()
+                .HasMany(x => x.Sboms);
+
+            var sbomEntityTypeBuilder = modelBuilder.Entity<Sbom.Sbom>();
+            sbomEntityTypeBuilder.HasDiscriminator()
                 .HasValue<Spdx>("sbom_spdx");
+            sbomEntityTypeBuilder.HasOne(x => x.Software);
 
             modelBuilder.Entity<Package>()
                 .HasDiscriminator()

@@ -56,7 +56,8 @@
 
     <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" Width="5" Margin="0 5"/>
 
-    <local:SoftwareDetailsView Grid.Column="2" Margin="5" Software="{Binding SelectedSoftware.Value}"/>
+    <local:SoftwareDetailsView Grid.Column="2" Margin="5" DataContext="{Binding SelectedSoftwareVM.Value}"/>
+
     <!--<TextBlock Grid.Column="2" Margin="5" Text="{Binding LatestScanResult.Value}"/>-->
   </Grid>
 </UserControl>
