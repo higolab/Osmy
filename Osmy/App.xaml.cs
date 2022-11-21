@@ -24,13 +24,14 @@ namespace Osmy
             containerRegistry.RegisterForNavigation<SoftwareListView>();
             containerRegistry.RegisterDialogWindow<MetroDialogWindow>();
             containerRegistry.RegisterDialog<AddSoftwareDialog, AddSoftwareDialogViewModel>();
+            containerRegistry.RegisterDialog<AddSbomDialog, AddSbomDialogViewModel>();
 
             ViewModelLocationProvider.Register<SoftwareListView, SoftwareListViewViewModel>();
         }
 
         private void InitDb()
         {
-            var context = new ManagedSoftwareContext();
+            using var context = new ManagedSoftwareContext();
             var dir = Path.GetDirectoryName(context.DbPath);
 
             if (dir is not null)
