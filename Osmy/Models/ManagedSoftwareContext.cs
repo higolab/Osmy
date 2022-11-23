@@ -47,9 +47,9 @@ namespace Osmy.Models
                 .HasValue<Spdx>("sbom_spdx");
             sbomEntityTypeBuilder.HasOne(x => x.Software);
 
-            modelBuilder.Entity<Package>()
+            modelBuilder.Entity<SbomPackage>()
                 .HasDiscriminator()
-                .HasValue<Spdx.SpdxSoftwarePackage>("package_spdx");
+                .HasValue<SpdxSoftwarePackage>("package_spdx");
         }
     }
 }

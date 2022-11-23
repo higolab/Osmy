@@ -65,7 +65,7 @@ namespace Osmy.ViewModels
         {
             if (SelectedSoftware.Value is null) { return; }
 
-            var sbom = SelectedSoftware.Value.Sboms.First(x => x.IsUsed);
+            var sbom = SelectedSoftware.Value.Sboms.First(x => x.IsUsing);
             if (sbom is null) { return; }
             Graph.Value = sbom.DependencyGraph;
 
@@ -73,6 +73,8 @@ namespace Osmy.ViewModels
             var result = await Task.Run(() => scanner.Scan(sbom)).ConfigureAwait(false);
 
             using var dbContext = new ManagedSoftwareContext();
+            var software = dbContext.Softwares.First(x => x.Id == result.Software.Id);
+            result.Software = software;
             dbContext.ScanResults.Add(result);
             dbContext.SaveChanges();
 

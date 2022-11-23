@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Osmy.Extensions;
 using Osmy.Models;
 using Osmy.Models.Sbom;
 using Osmy.Models.Sbom.Spdx;
@@ -27,7 +28,10 @@ namespace Osmy.ViewModels
         /// </summary>
         public ReactivePropertySlim<Software> Software { get; }
 
-        public ReactivePropertySlim<List<PackageScanResult>> ScanResults { get; }
+        public ReactivePropertySlim<List<PackageScanResult>?> ScanResults { get; }
+
+        public ReadOnlyReactivePropertySlim<Sbom?> UsingSbom { get; }
+
 
         public DelegateCommand AddSbomCommand { get; }
 
@@ -36,26 +40,39 @@ namespace Osmy.ViewModels
             _dialogService = dialogService;
 
             Software = new ReactivePropertySlim<Software>(software);
-            //Software.Value.VulnerabilityScanned += OnSoftwareVulnerabilityScanned;  // TODO Softwareの値変更に対応
+            UsingSbom = Software.Select(x => x.Sboms.First(sbom => sbom.IsUsing)).ToReadOnlyReactivePropertySlim();
 
-            ScanResults = new ReactivePropertySlim<List<PackageScanResult>>();
+            software.VulnerabilityScanned += OnSoftwareVulnerabilityScanned;
+            // TODO Disposableの処理
+            Software.Subscribe((oldValue, newValue) =>
+            {
+                if (oldValue is not null)
+                {
+                    oldValue.VulnerabilityScanned -= OnSoftwareVulnerabilityScanned;
+                }
 
-            FetchLatestScanResult();
+                if (newValue is not null)
+                {
+                    newValue.VulnerabilityScanned += OnSoftwareVulnerabilityScanned;
+                }
+            });
+
+            ScanResults = new ReactivePropertySlim<List<PackageScanResult>?>(FetchLatestScanResult());
 
             AddSbomCommand = new DelegateCommand(AddSbom);
         }
 
         private void OnSoftwareVulnerabilityScanned()
         {
-            FetchLatestScanResult();
+            ScanResults.Value = FetchLatestScanResult();
         }
 
-        private void FetchLatestScanResult()
+        private List<PackageScanResult>? FetchLatestScanResult()
         {
             using var dbContext = new ManagedSoftwareContext();
-            if (Software is null || !dbContext.ScanResults.Any()) { return; }
+            if (Software is null || !dbContext.ScanResults.Any()) { return null; }
 
-            ScanResults.Value = dbContext.ScanResults.FirstOrDefault(r => r.SoftwareId == Software.Value.Id)?.Results ?? new List<PackageScanResult>();
+            return dbContext.ScanResults.Include(x => x.Results).ThenInclude(x => x.Package).FirstOrDefault(r => r.SoftwareId == Software.Value.Id)?.Results ?? new List<PackageScanResult>();
         }
 
         private void AddSbom()

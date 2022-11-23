@@ -21,13 +21,16 @@ namespace Osmy.Models.Sbom.Spdx
         private readonly Lazy<SpdxDocumentContent> _content;
 
         /// <inheritdoc/>
-        public override List<Package> Packages => _content.Value.Packages.Cast<Package>().ToList();
+        public override List<SbomPackage> Packages => _content.Value.Packages.Cast<SbomPackage>().ToList();
 
         /// <inheritdoc/>
-        public override Package RootPackage => _content.Value.RootPackage;
+        public override SbomPackage RootPackage => _content.Value.RootPackage;
 
         /// <inheritdoc/>
         public override DependencyGraph DependencyGraph => _content.Value.DependencyGraph;
+
+        /// <inheritdoc/>
+        public override List<SbomFile> Files => _content.Value.Files;
 
         /// <summary>
         /// 
@@ -43,8 +46,9 @@ namespace Osmy.Models.Sbom.Spdx
         /// </summary>
         /// <param name="software"></param>
         /// <param name="path"></param>
+        /// <param name="isUsing"></param>
         /// <remarks>新規追加時に呼び出されます．</remarks>
-        public Spdx(Software software, string path) : base(software, path)
+        public Spdx(Software software, string path, bool isUsing = false) : base(software, path, isUsing)
         {
             // 作成時は内容確認を行う可能性が高いので即時に読みこむ
             _content = new Lazy<SpdxDocumentContent>(new SpdxDocumentContent(new MemoryStream(Content)));
@@ -64,12 +68,17 @@ namespace Osmy.Models.Sbom.Spdx
             /// <summary>
             /// ルートパッケージ
             /// </summary>
-            public Package RootPackage { get; }
+            public SbomPackage RootPackage { get; }
 
             /// <summary>
             /// パッケージの依存関係グラフ
             /// </summary>
             public DependencyGraph DependencyGraph { get; }
+
+            /// <summary>
+            /// ファイル情報リスト
+            /// </summary>
+            public List<SbomFile> Files { get; set; }
 
             /// <summary>
             /// 
@@ -90,6 +99,7 @@ namespace Osmy.Models.Sbom.Spdx
                     .ToList();
                 RootPackage = Packages.First(x => x.IsRootPackage);
                 DependencyGraph = CreateDependencyGraph(document);
+                Files = document.Files?.Select(x => new SbomFile(x.FileName, x.Checksums)).ToList() ?? new List<SbomFile>();
             }
 
             private static string FindRootPackage(string documentId, List<SpdxModels.Relationship> relationships)
@@ -101,7 +111,7 @@ namespace Osmy.Models.Sbom.Spdx
                 return describes.RelatedSpdxElement;
             }
 
-            private Package FindPackageById(string id)
+            private SbomPackage FindPackageById(string id)
             {
                 return Packages.FindFirst(x => x.SpdxRefId == id);
             }
@@ -130,7 +140,7 @@ namespace Osmy.Models.Sbom.Spdx
                         case SpdxModels.RelationshipType.STATIC_LINK:
                         case SpdxModels.RelationshipType.HAS_PREREQUISITE:
                         case SpdxModels.RelationshipType.DEPENDS_ON:
-                            graph.AddVerticesAndEdge(new SEdge<Package>(pkgA, pkgB));
+                            graph.AddVerticesAndEdge(new SEdge<SbomPackage>(pkgA, pkgB));
                             break;
                         // B -> A 方向の依存関係
                         case SpdxModels.RelationshipType.CONTAINED_BY:
@@ -142,39 +152,18 @@ namespace Osmy.Models.Sbom.Spdx
                         case SpdxModels.RelationshipType.DEPENDENCY_OF:
                         case SpdxModels.RelationshipType.OPTIONAL_DEPENDENCY_OF:
                         case SpdxModels.RelationshipType.RUNTIME_DEPENDENCY_OF:
-                            graph.AddVerticesAndEdge(new SEdge<Package>(pkgB, pkgA));
+                            graph.AddVerticesAndEdge(new SEdge<SbomPackage>(pkgB, pkgA));
                             break;
                         // A <=> B の関係
                         case SpdxModels.RelationshipType.COPY_OF:
                         case SpdxModels.RelationshipType.PACKAGE_OF:
                         case SpdxModels.RelationshipType.VARIANT_OF:
-                            graph.AddVerticesAndEdge(new SEdge<Package>(pkgA, pkgB)); // TODO 他の関係と区別
+                            graph.AddVerticesAndEdge(new SEdge<SbomPackage>(pkgA, pkgB)); // TODO 他の関係と区別
                             break;
                     }
                 }
 
                 return graph;
-            }
-        }
-
-        /// <summary>
-        /// SPDXに記載されたパッケージ情報
-        /// </summary>
-        public class SpdxSoftwarePackage : Package
-        {
-            public string SpdxRefId { get; set; }
-
-            public SpdxSoftwarePackage()
-            {
-                SpdxRefId = default!;
-            }
-
-            public SpdxSoftwarePackage(string name, string version, bool isRootPackage, string spdxRefId)
-            {
-                Name = name;
-                Version = version;
-                IsRootPackage = isRootPackage;
-                SpdxRefId = spdxRefId;
             }
         }
     }

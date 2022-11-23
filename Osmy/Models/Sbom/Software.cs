@@ -48,9 +48,9 @@ namespace Osmy.Models.Sbom
         public Software(string name, string sbomFile)
         {
             Name = name;
-            var sbom = new Spdx.Spdx(this, sbomFile);
+            var sbom = new Spdx.Spdx(this, sbomFile, true);
             Sboms = new List<Sbom>() { sbom };
-            sbom.IsUsed = true;
+            sbom.IsUsing = true;
         }
 
         // TODO

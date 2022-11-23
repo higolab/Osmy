@@ -5,7 +5,7 @@ namespace Osmy.Models.Sbom
     /// <summary>
     /// パッケージ
     /// </summary>
-    public abstract class Package
+    public abstract class SbomPackage
     {
         [Key]
         public int Id { get; set; }
@@ -13,9 +13,9 @@ namespace Osmy.Models.Sbom
         public string? Version { get; set; }
         public bool IsRootPackage { get; set; }
 
-        public Package() { }
+        public SbomPackage() { }
 
-        public Package(string name, string version, bool isRootPackage)
+        public SbomPackage(string name, string version, bool isRootPackage)
         {
             Name = name;
             Version = version;

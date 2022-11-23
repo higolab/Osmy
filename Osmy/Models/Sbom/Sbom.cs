@@ -22,7 +22,7 @@ namespace Osmy.Models.Sbom
         /// <summary>
         /// 現在使用中か
         /// </summary>
-        public bool IsUsed { get; set; }
+        public bool IsUsing { get; set; }
 
         /// <summary>
         /// ファイル内容のバイト配列
@@ -43,19 +43,22 @@ namespace Osmy.Models.Sbom
         /// ルートパッケージ
         /// </summary>
         [NotMapped]
-        public abstract Package RootPackage { get; }
+        public abstract SbomPackage RootPackage { get; }
 
         /// <summary>
         /// パッケージリスト
         /// </summary>
         [NotMapped]
-        public abstract List<Package> Packages { get; }
+        public abstract List<SbomPackage> Packages { get; }
 
         /// <summary>
         /// パッケージの依存関係グラフ
         /// </summary>
         [NotMapped]
         public abstract DependencyGraph DependencyGraph { get; }
+
+        [NotMapped]
+        public abstract List<SbomFile> Files { get; }
 
         /// <summary>
         /// インスタンスを作成します．
@@ -73,10 +76,12 @@ namespace Osmy.Models.Sbom
         /// </summary>
         /// <param name="software"></param>
         /// <param name="filePath"></param>
+        /// <param name="isUsing"></param>
         /// <remarks>データ新規追加時に呼び出されます．</remarks>
-        public Sbom(Software software, string filePath)
+        public Sbom(Software software, string filePath, bool isUsing = false)
         {
             Software = software;
+            IsUsing = isUsing;
             Content = File.ReadAllBytes(filePath);
             ContentHash = ComputeHash();
         }
