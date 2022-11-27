@@ -11,13 +11,13 @@ namespace Osmy.Views
     /// </summary>
     public partial class MainWindow
     {
+        private const string ContentRegionName = "ContentRegion";
+
         public MainWindow()
         {
             InitializeComponent();
 
-            RegionManager.SetRegionName(_content, "ContentRegion");
-            var regionManager = ContainerLocator.Current.Resolve<IRegionManager>();
-            RegionManager.SetRegionManager(_content, regionManager);
+            RegisterRegions();
         }
 
         private void MetroWindow_SourceInitialized(object sender, EventArgs e)
@@ -35,6 +35,26 @@ namespace Osmy.Views
                 // You can close the menu if an item was selected
                 HamburgerMenuControl.SetCurrentValue(HamburgerMenu.IsPaneOpenProperty, false);
             }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+
+            UnregisterRegions();
+        }
+
+        private void RegisterRegions()
+        {
+            RegionManager.SetRegionName(_content, ContentRegionName);
+            var regionManager = ContainerLocator.Current.Resolve<IRegionManager>();
+            RegionManager.SetRegionManager(_content, regionManager);
+        }
+
+        private void UnregisterRegions()
+        {
+            var regionManager = ContainerLocator.Current.Resolve<IRegionManager>();
+            regionManager.Regions.Remove(ContentRegionName);
         }
     }
 }

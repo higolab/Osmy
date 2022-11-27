@@ -1,11 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Osmy.Models;
+using Osmy.Services;
 using Osmy.ViewModels;
 using Osmy.Views;
 using Prism.Ioc;
 using Prism.Mvvm;
+using Prism.Regions;
+using System;
 using System.IO;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace Osmy
 {
@@ -14,6 +19,8 @@ namespace Osmy
     /// </summary>
     public partial class App
     {
+        private readonly BackgroundServiceManager _backgroundServiceManager = new();
+
         protected override Window CreateShell()
         {
             return Container.Resolve<MainWindow>();
@@ -40,6 +47,33 @@ namespace Osmy
             }
 
             context.Database.Migrate();
+        }
+
+        protected override async void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+            Current.Dispatcher.UnhandledException += Dispatcher_UnhandledException;
+
+            _backgroundServiceManager.Register(new NotifyIconService());
+            await _backgroundServiceManager.StartAsync();
+
+            //InitDb(); // TODO
+        }
+
+        private void Dispatcher_UnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        {
+            // TODO logging
+            //throw new NotImplementedException();
+        }
+
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            // TODO logging
+            //throw new NotImplementedException();
         }
     }
 }
