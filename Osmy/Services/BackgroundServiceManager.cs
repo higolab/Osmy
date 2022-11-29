@@ -9,18 +9,23 @@ namespace Osmy.Services
 {
     internal class BackgroundServiceManager
     {
-        private readonly HashSet<BackgroundService> _services = new();
+        private readonly Dictionary<Type, BackgroundService> _services = new();
 
-        public void Register(BackgroundService backgroundService)
+        public void Register<T>(T backgroundService) where T : BackgroundService
         {
-            _services.Add(backgroundService);
+            _services.Add(typeof(T), backgroundService);
+        }
+
+        public T Resolve<T>() where T : BackgroundService
+        {
+            return (T)_services[typeof(T)];
         }
 
         public async Task StartAsync()
         {
             var cancellationTokenSource = new CancellationTokenSource();
 
-            foreach (BackgroundService service in _services)
+            foreach (BackgroundService service in _services.Values)
             {
                 await service.StartAsync(cancellationTokenSource.Token).ConfigureAwait(false);
             }
@@ -30,7 +35,7 @@ namespace Osmy.Services
         {
             var cancellationTokenSource = new CancellationTokenSource();
 
-            foreach (BackgroundService service in _services)
+            foreach (BackgroundService service in _services.Values)
             {
                 await service.StopAsync(cancellationTokenSource.Token).ConfigureAwait(false);
             }

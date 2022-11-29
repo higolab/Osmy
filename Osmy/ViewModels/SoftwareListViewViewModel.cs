@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Osmy.Models;
 using Osmy.Models.Sbom;
+using Osmy.Services;
 using Osmy.Views;
 using OSV.Client.Models;
 using Prism.Commands;
+using Prism.Ioc;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
 using QuickGraph;
@@ -13,6 +15,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Osmy.ViewModels
@@ -26,8 +29,6 @@ namespace Osmy.ViewModels
         public ReactivePropertySlim<Software> SelectedSoftware { get; }
 
         public ReadOnlyReactivePropertySlim<SoftwareDetailsViewViewModel?> SelectedSoftwareVM { get; }
-
-        public ReactivePropertySlim<DependencyGraph> Graph { get; } = new();
 
         public DelegateCommand AddSoftwareCommand => _addSoftwareCommand ??= new DelegateCommand(OpenSoftwareAddDiaglog);
         private DelegateCommand? _addSoftwareCommand;
@@ -67,16 +68,16 @@ namespace Osmy.ViewModels
 
             var sbom = SelectedSoftware.Value.Sboms.First(x => x.IsUsing);
             if (sbom is null) { return; }
-            Graph.Value = sbom.DependencyGraph;
 
-            var scanner = new VulnerabilityScanner();
-            var result = await Task.Run(() => scanner.Scan(sbom)).ConfigureAwait(false);
+            var container = ContainerLocator.Container;
+            var serviceManager = container.Resolve<BackgroundServiceManager>();
+            var result = await Task.Run(() => serviceManager.Resolve<VulnerabilityScanService>().Scan(sbom, CancellationToken.None)).ConfigureAwait(false);
 
             using var dbContext = new ManagedSoftwareContext();
             var software = dbContext.Softwares.First(x => x.Id == result.Software.Id);
             result.Software = software;
             dbContext.ScanResults.Add(result);
-            dbContext.SaveChanges();
+            await dbContext.SaveChangesAsync().ConfigureAwait(false);
 
             SelectedSoftware.Value.RaiseVulnerabilityScanned();
         }

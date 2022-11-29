@@ -34,6 +34,8 @@ namespace Osmy
             containerRegistry.RegisterDialog<AddSbomDialog, AddSbomDialogViewModel>();
 
             ViewModelLocationProvider.Register<SoftwareListView, SoftwareListViewViewModel>();
+
+            containerRegistry.RegisterInstance(_backgroundServiceManager);
         }
 
         private void InitDb()
@@ -59,6 +61,7 @@ namespace Osmy
             Current.Dispatcher.UnhandledException += Dispatcher_UnhandledException;
 
             _backgroundServiceManager.Register(new NotifyIconService());
+            _backgroundServiceManager.Register(new VulnerabilityScanService());
             await _backgroundServiceManager.StartAsync();
 
             //InitDb(); // TODO
