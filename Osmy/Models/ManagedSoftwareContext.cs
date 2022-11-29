@@ -16,6 +16,8 @@ namespace Osmy.Models
 
         public DbSet<Software> Softwares { get; set; }
 
+        public DbSet<Sbom.Sbom> Sboms { get; set; }
+
         public DbSet<VulnerabilityScanResult> ScanResults { get; set; }
 
         public ManagedSoftwareContext()

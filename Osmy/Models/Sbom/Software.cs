@@ -27,8 +27,17 @@ namespace Osmy.Models.Sbom
         /// <summary>
         /// このソフトウェアのSBOMリスト
         /// </summary>
-        /// <remarks>遅延自動読み込みのためにvirtual</remarks>
-        public virtual List<Sbom> Sboms { get; set; }
+        public List<Sbom> Sboms { get; set; }
+
+        /// <summary>
+        /// 使用しているSBOM
+        /// </summary>
+        public Sbom UsingSbom => Sboms.First(x => x.IsUsing);
+
+        /// <summary>
+        /// ソフトウェアのディスク上の位置
+        /// </summary>
+        public string? LocalDirectory { get; set; }
 
         /// <summary>
         /// 空のインスタンスを作成します．
