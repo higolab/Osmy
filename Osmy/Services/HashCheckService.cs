@@ -23,35 +23,21 @@ namespace Osmy.Services
                     foreach (SbomFile file in sbom.Files)
                     {
                         var path = Path.Combine(sbom.Software.LocalDirectory!, file.FileName);
-                        foreach (var checksum in file.Checksums)
+                        var sha1Hash = file.Checksums.First(x => x.Algorithm == CycloneDX.Spdx.Models.v2_2.ChecksumAlgorithm.SHA1);
+                        var localFileHash = await ComputeSHA1Async(path, stoppingToken);
+
+                        if (!sha1Hash.ChecksumValue.Equals(localFileHash, StringComparison.OrdinalIgnoreCase))
                         {
-                            var localFileHash = await ComputeHashAsync(checksum.Algorithm, path, stoppingToken);
-                            if (!checksum.ChecksumValue.Equals(localFileHash, StringComparison.OrdinalIgnoreCase))
-                            {
-                                // TODO ハッシュの不一致を記録
-                            }
+                            // TODO ハッシュの不一致を記録
                         }
                     }
                 }
             }
         }
 
-        private static async Task<string> ComputeHashAsync(CycloneDX.Spdx.Models.v2_2.ChecksumAlgorithm checksumAlgorithm, string filePath, CancellationToken cancellationToken)
+        private static async Task<string> ComputeSHA1Async(string filePath, CancellationToken cancellationToken)
         {
-            // TODO 残りのアルゴリズムへの対応
-            HashAlgorithm hashAlgorithm = checksumAlgorithm switch
-            {
-                CycloneDX.Spdx.Models.v2_2.ChecksumAlgorithm.SHA256 => SHA256.Create(),
-                CycloneDX.Spdx.Models.v2_2.ChecksumAlgorithm.SHA1 => SHA1.Create(),
-                CycloneDX.Spdx.Models.v2_2.ChecksumAlgorithm.SHA384 => SHA384.Create(),
-                CycloneDX.Spdx.Models.v2_2.ChecksumAlgorithm.MD2 => throw new NotSupportedException(),
-                CycloneDX.Spdx.Models.v2_2.ChecksumAlgorithm.MD4 => throw new NotSupportedException(),
-                CycloneDX.Spdx.Models.v2_2.ChecksumAlgorithm.SHA512 => SHA512.Create(),
-                CycloneDX.Spdx.Models.v2_2.ChecksumAlgorithm.MD6 => throw new NotSupportedException(),
-                CycloneDX.Spdx.Models.v2_2.ChecksumAlgorithm.MD5 => MD5.Create(),
-                CycloneDX.Spdx.Models.v2_2.ChecksumAlgorithm.SHA224 => throw new NotSupportedException(),
-                _ => throw new NotSupportedException()
-            };
+            HashAlgorithm hashAlgorithm = SHA1.Create();
 
             using var stream = File.OpenRead(filePath);
             var localFileHash = await hashAlgorithm.ComputeHashAsync(stream, cancellationToken);
