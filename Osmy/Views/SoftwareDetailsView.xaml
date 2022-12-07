@@ -168,25 +168,46 @@
 
         <!--Files-->
         <mah:MetroHeader Grid.Row="3" Header="Files" Margin="0 5 0 0">
-          <ListView ItemsSource="{Binding UsingSbom.Value.Files}" SelectionMode="Single">
+          <ListView ItemsSource="{Binding HashValidationResults.Value}" SelectionMode="Single">
             <ListView.View>
               <GridView AllowsColumnReorder="False">
-                <GridViewColumn Header="Name" DisplayMemberBinding="{Binding FileName}"/>
-                <GridViewColumn Header="Checksum">
+                <GridViewColumn Header="Name" DisplayMemberBinding="{Binding SbomFile.FileName}"/>
+                <GridViewColumn Header="Result">
                   <GridViewColumn.CellTemplate>
                     <DataTemplate>
-                      <ItemsControl ItemsSource="{Binding Checksums}">
+                      <iconPacks:PackIconMaterial Kind="Alert" Foreground="Red">
+                        <iconPacks:PackIconMaterial.Style>
+                          <Style TargetType="iconPacks:PackIconMaterial">
+                            <Setter Property="Visibility" Value="Hidden"/>
+                            <Style.Triggers>
+                              <DataTrigger Binding="{Binding IsValid}" Value="False">
+                                <Setter Property="Visibility" Value="Visible"/>
+                              </DataTrigger>
+                            </Style.Triggers>
+                          </Style>
+                        </iconPacks:PackIconMaterial.Style>
+                      </iconPacks:PackIconMaterial>
+                    </DataTemplate>
+                  </GridViewColumn.CellTemplate>
+                </GridViewColumn>
+                <GridViewColumn Header="Checksum" Width="600">
+                  <GridViewColumn.CellTemplate>
+                    <DataTemplate>
+                      <ItemsControl x:Name="checksums" ItemsSource="{Binding SbomFile.Checksums}">
                         <ItemsControl.ItemTemplate>
                           <DataTemplate>
-                            <StackPanel Orientation="Horizontal" Margin="0 1">
-                              <Border BorderBrush="Gray" BorderThickness="1" CornerRadius="2" Padding="5 0" Margin="0 0 3 0"
-                                      HorizontalAlignment="Left" Width="60">
-                                <TextBlock Text="{Binding Algorithm}" HorizontalAlignment="Center"/>
-                              </Border>
-                              <TextBlock Text="{Binding ChecksumValue}"/>
-                            </StackPanel>
+                            <Border BorderBrush="Gray" BorderThickness="1" CornerRadius="2" Padding="5 0" Margin="0 0 3 0"
+                                    HorizontalAlignment="Left" Width="60" ToolTip="{Binding Value}" Background="Transparent">
+                              <TextBlock Text="{Binding Algorithm}" HorizontalAlignment="Center"/>
+                            </Border>
                           </DataTemplate>
                         </ItemsControl.ItemTemplate>
+
+                        <ItemsControl.ItemsPanel>
+                          <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" IsItemsHost="True"/>
+                          </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
                       </ItemsControl>
                     </DataTemplate>
                   </GridViewColumn.CellTemplate>

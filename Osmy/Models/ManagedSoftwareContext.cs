@@ -20,6 +20,8 @@ namespace Osmy.Models
 
         public DbSet<VulnerabilityScanResult> ScanResults { get; set; }
 
+        public DbSet<HashValidationResult> HashValidationResults { get; set; }
+
         public ManagedSoftwareContext()
         {
             var appDataDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);

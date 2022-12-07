@@ -17,11 +17,9 @@ namespace Osmy.ViewModels
 
         public ReactiveProperty<string> SoftwareName { get; }
         public ReactivePropertySlim<string> SbomFile { get; }
+        public ReactiveProperty<string> LocalDirectoryPath { get; }
 
         public ReactiveCommand<string> CloseDialogCommand { get; }
-
-        public DelegateCommand SelectSbomFileCommand => _selectSbomFileComamnd ??= new DelegateCommand(SelectSbomFile);
-        private DelegateCommand? _selectSbomFileComamnd;
 
         public event Action<IDialogResult>? RequestClose;
 
@@ -30,6 +28,7 @@ namespace Osmy.ViewModels
             SoftwareName = new ReactiveProperty<string>()
                 .SetValidateNotifyError(value => string.IsNullOrWhiteSpace(value) ? "Enter a correct value" : null);
             SbomFile = new ReactivePropertySlim<string>();
+            LocalDirectoryPath = new ReactiveProperty<string>();
 
             CloseDialogCommand = SoftwareName.ObserveHasErrors
                 .Select(x => !x)
@@ -57,7 +56,8 @@ namespace Osmy.ViewModels
             ButtonResult result = ButtonResult.None;
             DialogParameters parameters = new() {
                 { "name", SoftwareName.Value },
-                { "sbom", SbomFile.Value }
+                { "sbom", SbomFile.Value },
+                { "localDirectory", LocalDirectoryPath.Value }
             };
 
             if (parameter.Equals("ok", StringComparison.OrdinalIgnoreCase))
@@ -66,20 +66,6 @@ namespace Osmy.ViewModels
             }
 
             RaiseRequestClose(new DialogResult(result, parameters));
-        }
-
-        public void SelectSbomFile()
-        {
-            // TODO
-            var dialog = new Microsoft.Win32.OpenFileDialog
-            {
-                Multiselect = false
-            };
-
-            if (dialog.ShowDialog() == true)
-            {
-                SbomFile.Value = dialog.FileName;
-            }
         }
 
         private void RaiseRequestClose(IDialogResult result)

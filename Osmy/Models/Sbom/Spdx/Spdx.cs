@@ -6,7 +6,7 @@ using System.Linq;
 using ImTools;
 using Osmy.Views;
 using System;
-using System.Reflection.Metadata.Ecma335;
+using Osmy.Models.Sbom;
 
 namespace Osmy.Models.Sbom.Spdx
 {
@@ -29,9 +29,6 @@ namespace Osmy.Models.Sbom.Spdx
         /// <inheritdoc/>
         public override DependencyGraph DependencyGraph => _content.Value.DependencyGraph;
 
-        /// <inheritdoc/>
-        public override List<SbomFile> Files => _content.Value.Files;
-
         /// <summary>
         /// 
         /// </summary>
@@ -53,6 +50,10 @@ namespace Osmy.Models.Sbom.Spdx
             // 作成時は内容確認を行う可能性が高いので即時に読みこむ
             _content = new Lazy<SpdxDocumentContent>(new SpdxDocumentContent(new MemoryStream(Content)));
             RootPackageVersion = RootPackage.Version;
+
+            using var stream = new MemoryStream(Content);
+            var document = SpdxDeserializer.Deserialize(stream);
+            Files = document.Files?.Select(x => new SbomFile(this, x.FileName, x.Checksums.Select(y => y.ToSbomFileChecksum()))).ToList() ?? new List<SbomFile>();
         }
 
         /// <summary>
@@ -76,11 +77,6 @@ namespace Osmy.Models.Sbom.Spdx
             public DependencyGraph DependencyGraph { get; }
 
             /// <summary>
-            /// ファイル情報リスト
-            /// </summary>
-            public List<SbomFile> Files { get; set; }
-
-            /// <summary>
             /// 
             /// </summary>
             /// <param name="stream"></param>
@@ -99,7 +95,6 @@ namespace Osmy.Models.Sbom.Spdx
                     .ToList();
                 RootPackage = Packages.First(x => x.IsRootPackage);
                 DependencyGraph = CreateDependencyGraph(document);
-                Files = document.Files?.Select(x => new SbomFile(x.FileName, x.Checksums)).ToList() ?? new List<SbomFile>();
             }
 
             private static string FindRootPackage(string documentId, List<SpdxModels.Relationship> relationships)

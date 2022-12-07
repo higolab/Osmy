@@ -29,6 +29,7 @@ namespace Osmy.ViewModels
         public ReactivePropertySlim<Software> Software { get; }
 
         public ReactivePropertySlim<List<PackageScanResult>?> ScanResults { get; }
+        public ReactivePropertySlim<List<HashValidationResult>> HashValidationResults { get; }
 
         public ReadOnlyReactivePropertySlim<Sbom?> UsingSbom { get; }
 
@@ -41,6 +42,7 @@ namespace Osmy.ViewModels
 
             Software = new ReactivePropertySlim<Software>(software);
             UsingSbom = Software.Select(x => x.Sboms.First(sbom => sbom.IsUsing)).ToReadOnlyReactivePropertySlim();
+            HashValidationResults = new ReactivePropertySlim<List<HashValidationResult>>(FetchFileHashValidationResult());
 
             software.VulnerabilityScanned += OnSoftwareVulnerabilityScanned;
             // TODO Disposableの処理
@@ -54,6 +56,7 @@ namespace Osmy.ViewModels
                 if (newValue is not null)
                 {
                     newValue.VulnerabilityScanned += OnSoftwareVulnerabilityScanned;
+                    HashValidationResults.Value = FetchFileHashValidationResult();
                 }
             });
 
@@ -73,6 +76,26 @@ namespace Osmy.ViewModels
             if (Software is null || !dbContext.ScanResults.Any()) { return null; }
 
             return dbContext.ScanResults.Include(x => x.Results).ThenInclude(x => x.Package).FirstOrDefault(r => r.SoftwareId == Software.Value.Id)?.Results ?? new List<PackageScanResult>();
+        }
+
+        private List<HashValidationResult> FetchFileHashValidationResult()
+        {
+            using var dbContext = new ManagedSoftwareContext();
+            return dbContext.HashValidationResults
+                .Include(x => x.SbomFile)
+                .ThenInclude(x => x.Sbom)
+                .Where(x => x.SbomFile.Sbom.Id == Software.Value.UsingSbom.Id)
+                .Include(x => x.SbomFile)
+                .ThenInclude(x => x.Checksums)
+                .ToArray()
+                .GroupBy(x => x.SbomFile.Id)
+                .Select(g => g.MaxBy(x => x.Executed)!)
+                .Select(x =>
+                {
+                    x.SbomFile.Checksums = x.SbomFile.Checksums.OrderBy(checksum => checksum.Algorithm).ToList();
+                    return x;
+                })
+                .ToList();
         }
 
         private void AddSbom()

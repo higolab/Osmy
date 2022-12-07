@@ -53,7 +53,8 @@ namespace Osmy.ViewModels
                 if (r.Result != ButtonResult.OK) { return; }
                 var softwareName = r.Parameters.GetValue<string>("name");
                 var sbomFile = r.Parameters.GetValue<string>("sbom");
-                var software = new Software(softwareName, sbomFile);
+                var localDirectory = r.Parameters.GetValue<string>("localDirectory");
+                var software = new Software(softwareName, sbomFile) { LocalDirectory = localDirectory };
 
                 using var dbContext = new ManagedSoftwareContext();
                 dbContext.Softwares.Add(software);

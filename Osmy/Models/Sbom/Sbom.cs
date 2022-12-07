@@ -38,6 +38,11 @@ namespace Osmy.Models.Sbom
         /// ルートパッケージのバージョン
         /// </summary>
         public string? RootPackageVersion { get; protected set; }
+        
+        /// <summary>
+        /// ファイルリスト
+        /// </summary>
+        public List<SbomFile> Files { get; set; }
 
         /// <summary>
         /// ルートパッケージ
@@ -57,8 +62,6 @@ namespace Osmy.Models.Sbom
         [NotMapped]
         public abstract DependencyGraph DependencyGraph { get; }
 
-        [NotMapped]
-        public abstract List<SbomFile> Files { get; }
 
         /// <summary>
         /// インスタンスを作成します．
