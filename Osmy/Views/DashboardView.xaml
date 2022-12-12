@@ -21,23 +21,105 @@
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
 
-    <mah:MetroHeader Grid.Row="0" Grid.Column="0" Header="Overview" Style="{StaticResource AccentMetroHeader}">
+    <mah:MetroHeader Grid.Row="0" Grid.Column="0" Header="Dashboard" Style="{StaticResource AccentMetroHeader}">
       <Grid>
         <Grid.RowDefinitions>
-          <RowDefinition Height="24"/>
-          <RowDefinition Height="24"/>
+          <RowDefinition Height="26"/>
+          <RowDefinition Height="Auto" MaxHeight="150"/>
+          <RowDefinition Height="26"/>
+          <RowDefinition Height="Auto" MaxHeight="150"/>
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="24"/>
+          <ColumnDefinition Width="26"/>
           <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
-        <iconPacks:PackIconMaterial Grid.Column="0" Kind="Bug" Foreground="Red" Height="20" Width="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-        <TextBlock Grid.Column="1" Text="{Binding VulnerableSoftwareNum, StringFormat={}{0} vulnerable software(s)}" Foreground="Red" FontSize="18" VerticalAlignment="Center"/>
+        <iconPacks:PackIconMaterial Grid.Row="0" Grid.Column="0" Height="20" Width="20" VerticalAlignment="Center" HorizontalAlignment="Center">
+          <iconPacks:PackIconMaterial.Style>
+            <Style TargetType="iconPacks:PackIconMaterial">
+              <Setter Property="Kind" Value="ArchiveAlert"/>
+              <Setter Property="Foreground" Value="Red"/>
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding VulnerableSoftwares.Value.Length}" Value="0">
+                  <Setter Property="Kind" Value="ArchiveCheck"/>
+                  <Setter Property="Foreground" Value="Green"/>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </iconPacks:PackIconMaterial.Style>
+        </iconPacks:PackIconMaterial>
+        
+        <TextBlock Grid.Row="0" Grid.Column="1" FontSize="18" VerticalAlignment="Center" Margin="5 0 0 0">
+          <TextBlock.Style>
+            <Style TargetType="TextBlock">
+              <Setter Property="Text" Value="{Binding VulnerableSoftwares.Value.Length, StringFormat={}{0} vulnerable softwares}"/>
+              <Setter Property="Foreground" Value="Red"/>
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding VulnerableSoftwares.Value.Length}" Value="1">
+                  <Setter Property="Text" Value="{Binding VulnerableSoftwares.Value.Length, StringFormat={}{0} vulnerable software}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding VulnerableSoftwares.Value.Length}" Value="0">
+                  <Setter Property="Text" Value="No vulnerale software"/>
+                  <Setter Property="Foreground" Value="Green"/>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </TextBlock.Style>
+        </TextBlock>
+        
+        <ItemsControl Grid.Row="1" Grid.Column="1" ItemsSource="{Binding VulnerableSoftwares.Value}" Margin="0 0 0 10">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding Name}" Margin="0 0 0 2"/>
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
 
-        <iconPacks:PackIconMaterial Grid.Row="1" Grid.Column="0" Kind="FileAlert" Foreground="Orange" Height="20" Width="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding InvalidHashNum, StringFormat={}{0} file hash mismatch(es)}" Foreground="Orange" FontSize="18" VerticalAlignment="Center"/>
+        <iconPacks:PackIconMaterial Grid.Row="2" Grid.Column="0" Height="20" Width="20" VerticalAlignment="Center" HorizontalAlignment="Center">
+          <iconPacks:PackIconMaterial.Style>
+            <Style TargetType="iconPacks:PackIconMaterial">
+              <Setter Property="Kind" Value="FileAlert"/>
+              <Setter Property="Foreground" Value="Orange"/>
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding InvalidHashes.Value.Length}" Value="0">
+                  <Setter Property="Kind" Value="FileCheck"/>
+                  <Setter Property="Foreground" Value="Green"/>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </iconPacks:PackIconMaterial.Style>
+        </iconPacks:PackIconMaterial>
+
+        <TextBlock Grid.Row="2" Grid.Column="1" FontSize="18" VerticalAlignment="Center" Margin="5 0 0 0">
+          <TextBlock.Style>
+            <Style TargetType="TextBlock">
+              <Setter Property="Text" Value="{Binding InvalidHashes.Value.Length, StringFormat={}{0} file hash mismatches}"/>
+              <Setter Property="Foreground" Value="Orange"/>
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding InvalidHashes.Value.Length}" Value="1">
+                  <Setter Property="Text" Value="{Binding InvalidHashes.Value.Length, StringFormat={}{0} file hash mismatch}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding InvalidHashes.Value.Length}" Value="0">
+                  <Setter Property="Text" Value="No file hash mismatch"/>
+                  <Setter Property="Foreground" Value="Green"/>
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </TextBlock.Style>
+        </TextBlock>
+
+        <ItemsControl Grid.Row="3" Grid.Column="1" ItemsSource="{Binding InvalidHashes.Value}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding}" Margin="0 0 0 2"/>
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
       </Grid>
     </mah:MetroHeader>
   </Grid>

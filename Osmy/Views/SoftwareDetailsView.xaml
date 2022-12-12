@@ -10,10 +10,10 @@
              xmlns:prism="http://prismlibrary.com/"
              prism:ViewModelLocator.AutoWireViewModel="False"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800"
+             d:DesignHeight="450" d:DesignWidth="400"
              d:DataContext="{d:DesignInstance Type=vm:SoftwareDetailsViewViewModel}">
   <UserControl.Resources>
-    <ScrollViewer x:Key="MainGrid">
+    <ScrollViewer x:Key="MainGrid" HorizontalScrollBarVisibility="Auto">
       <ScrollViewer.Resources>
         <Style TargetType="ListView">
           <!--ListView上でマウスホイールによるスクロールを可能にする-->
@@ -105,7 +105,7 @@
                   <GridViewColumn.CellTemplate>
                     <DataTemplate>
                       <TextBlock Text="{Binding Package.Name}">
-                        <TextBlock.Style>
+                        <!--<TextBlock.Style>
                           <Style TargetType="TextBlock" BasedOn="{StaticResource MahApps.Styles.TextBlock}">
                             <Setter Property="FontWeight" Value="Normal"/>
                             <Style.Triggers>
@@ -114,7 +114,7 @@
                               </DataTrigger>
                             </Style.Triggers>
                           </Style>
-                        </TextBlock.Style>
+                        </TextBlock.Style>-->
                       </TextBlock>
                     </DataTemplate>
                   </GridViewColumn.CellTemplate>
@@ -166,16 +166,25 @@
           </ListView>
         </mah:MetroHeader>
 
+        <StackPanel Grid.Row="3" Height="30" Margin="0 0 5 5" 
+                HorizontalAlignment="Right" Orientation="Horizontal">
+          <Button ToolTip="Add SBOM" Command="{Binding AddSbomCommand}">
+            <StackPanel Orientation="Horizontal">
+              <iconPacks:PackIconMaterial Kind="FilePlus"/>
+              <TextBlock Text="Add SBOM" Margin="5 0 0 0"/>
+            </StackPanel>
+          </Button>
+        </StackPanel>
+
         <!--Files-->
-        <mah:MetroHeader Grid.Row="3" Header="Files" Margin="0 5 0 0">
+        <mah:MetroHeader Grid.Row="4" Header="Files" Margin="0 5 0 0">
           <ListView ItemsSource="{Binding HashValidationResults.Value}" SelectionMode="Single">
             <ListView.View>
               <GridView AllowsColumnReorder="False">
-                <GridViewColumn Header="Name" DisplayMemberBinding="{Binding SbomFile.FileName}"/>
                 <GridViewColumn Header="Result">
                   <GridViewColumn.CellTemplate>
                     <DataTemplate>
-                      <iconPacks:PackIconMaterial Kind="Alert" Foreground="Red">
+                      <iconPacks:PackIconMaterial Kind="FileAlert" Foreground="Orange" ToolTip="File hash mismatched">
                         <iconPacks:PackIconMaterial.Style>
                           <Style TargetType="iconPacks:PackIconMaterial">
                             <Setter Property="Visibility" Value="Hidden"/>
@@ -190,7 +199,9 @@
                     </DataTemplate>
                   </GridViewColumn.CellTemplate>
                 </GridViewColumn>
-                <GridViewColumn Header="Checksum" Width="600">
+                <GridViewColumn Header="Name" DisplayMemberBinding="{Binding SbomFile.FileName}"/>
+                <!--TODO 幅の動的な調整-->
+                <GridViewColumn Header="Checksum" Width="200">
                   <GridViewColumn.CellTemplate>
                     <DataTemplate>
                       <ItemsControl x:Name="checksums" ItemsSource="{Binding SbomFile.Checksums}">
@@ -205,7 +216,7 @@
 
                         <ItemsControl.ItemsPanel>
                           <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" IsItemsHost="True"/>
+                            <UniformGrid Columns="3" IsItemsHost="True"/>
                           </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                       </ItemsControl>
@@ -214,20 +225,24 @@
                 </GridViewColumn>
               </GridView>
             </ListView.View>
+
+            <ListView.Resources>
+              <Style TargetType="ListViewItem" BasedOn="{StaticResource MahApps.Styles.ListViewItem}">
+                <Setter Property="Background" Value="Transparent"/>
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding IsValid}" Value="False">
+                    <Setter Property="Background" Value="#3FFFA500"/>
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </ListView.Resources>
           </ListView>
         </mah:MetroHeader>
-
-        <StackPanel Grid.Row="4" Height="30" Margin="0 0 5 5" 
-                HorizontalAlignment="Right" Orientation="Horizontal">
-          <Button ToolTip="Add Software" Command="{Binding AddSbomCommand}">
-            <iconPacks:PackIconMaterial Kind="Plus"/>
-          </Button>
-        </StackPanel>
       </Grid>
     </ScrollViewer>
 
     <Grid x:Key="NotSelectedGrid" Background="LightGray">
-      <TextBlock Text="Software is not selected" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <TextBlock Text="Please select software" HorizontalAlignment="Center" VerticalAlignment="Center"/>
     </Grid>
   </UserControl.Resources>
 

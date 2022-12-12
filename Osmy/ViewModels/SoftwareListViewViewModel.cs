@@ -2,16 +2,11 @@
 using Osmy.Models;
 using Osmy.Models.Sbom;
 using Osmy.Services;
-using Osmy.Views;
-using OSV.Client.Models;
 using Prism.Commands;
 using Prism.Ioc;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
-using QuickGraph;
 using Reactive.Bindings;
-using Reactive.Bindings.Extensions;
-using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;

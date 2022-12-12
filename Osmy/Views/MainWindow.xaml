@@ -12,8 +12,8 @@
                  mc:Ignorable="d"
                  Title="{Binding Title}"
                  mah:TitleCharacterCasing="Normal"
-                 Height="350" Width="525"
-                 MinWidth="450"
+                 Height="500" Width="750"
+                 MinHeight="260" MinWidth="600"
                  SourceInitialized="MetroWindow_SourceInitialized"
                  WindowStartupLocation="CenterScreen">
   <mah:MetroWindow.Resources>
