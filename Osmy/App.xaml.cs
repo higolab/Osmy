@@ -28,12 +28,14 @@ namespace Osmy
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
+            containerRegistry.RegisterForNavigation<DashboardView>();
             containerRegistry.RegisterForNavigation<SoftwareListView>();
             containerRegistry.RegisterDialogWindow<MetroDialogWindow>();
             containerRegistry.RegisterDialog<AddSoftwareDialog, AddSoftwareDialogViewModel>();
             containerRegistry.RegisterDialog<AddSbomDialog, AddSbomDialogViewModel>();
 
             ViewModelLocationProvider.Register<SoftwareListView, SoftwareListViewViewModel>();
+            ViewModelLocationProvider.Register<DashboardView, DashboardViewViewModel>();
 
             containerRegistry.RegisterInstance(_backgroundServiceManager);
         }

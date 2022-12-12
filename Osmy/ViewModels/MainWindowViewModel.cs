@@ -27,9 +27,17 @@ namespace Osmy.ViewModels
         {
             switch (pageName)
             {
-                case "softwares":
-                    _regionManager.RequestNavigate("ContentRegion", "SoftwareListView", OnNavigated);
+                case "dashboard":
+                    SetContentView("DashboardView");
                     break;
+                case "softwares":
+                    SetContentView("SoftwareListView");
+                    break;
+            }
+
+            void SetContentView(string viewName)
+            {
+                _regionManager.RequestNavigate("ContentRegion", viewName, OnNavigated);
             }
         }
 
