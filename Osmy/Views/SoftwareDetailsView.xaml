@@ -49,62 +49,69 @@
 
         <!--Latest Scan Result-->
         <mah:MetroHeader Grid.Row="1" Header="Latest Scan Result">
-          <ListView ItemsSource="{Binding ScanResults.Value}" SelectionMode="Extended">
-            <ListView.View>
-              <GridView x:Name="_scanResultGridView" AllowsColumnReorder="False">
-                <GridViewColumn>
-                  <GridViewColumn.CellTemplate>
-                    <DataTemplate>
-                      <iconPacks:PackIconMaterial Kind="Bug" Foreground="Red">
-                        <iconPacks:PackIconMaterial.Style>
-                          <Style TargetType="iconPacks:PackIconMaterial">
-                            <Setter Property="Visibility" Value="Hidden"/>
-                            <Style.Triggers>
-                              <DataTrigger Binding="{Binding IsVulnerable}" Value="True">
-                                <Setter Property="Visibility" Value="Visible"/>
-                              </DataTrigger>
-                            </Style.Triggers>
-                          </Style>
-                        </iconPacks:PackIconMaterial.Style>
+          <TabControl ItemsSource="{Binding ScanResults.Value}">
+            <TabControl.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding Sbom.RootPackageVersion}"/>
+              </DataTemplate>
+            </TabControl.ItemTemplate>
 
-                        <iconPacks:PackIconMaterial.ToolTip>
-                          <ItemsControl ItemsSource="{Binding VulnerabilityList.Vulnerabilities}">
-                            <ItemsControl.ItemTemplate>
-                              <DataTemplate>
-                                <Grid>
-                                  <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                  </Grid.RowDefinitions>
+            <TabControl.ContentTemplate>
+              <DataTemplate>
+                <ListView ItemsSource="{Binding Results}" SelectionMode="Extended">
+                  <ListView.View>
+                    <GridView AllowsColumnReorder="False">
+                      <GridViewColumn>
+                        <GridViewColumn.CellTemplate>
+                          <DataTemplate>
+                            <iconPacks:PackIconMaterial Kind="Bug" Foreground="Red">
+                              <iconPacks:PackIconMaterial.Style>
+                                <Style TargetType="iconPacks:PackIconMaterial">
+                                  <Setter Property="Visibility" Value="Hidden"/>
+                                  <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsVulnerable}" Value="True">
+                                      <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                  </Style.Triggers>
+                                </Style>
+                              </iconPacks:PackIconMaterial.Style>
 
-                                  <mah:MetroHeader Grid.Row="0" Header="Summary">
-                                    <TextBlock Text="{Binding Summary}"/>
-                                  </mah:MetroHeader>
+                              <iconPacks:PackIconMaterial.ToolTip>
+                                <ItemsControl ItemsSource="{Binding VulnerabilityList.Vulnerabilities}">
+                                  <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                      <Grid>
+                                        <Grid.RowDefinitions>
+                                          <RowDefinition Height="Auto"/>
+                                          <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
 
-                                  <mah:MetroHeader Grid.Row="1" Header="Severity">
-                                    <ItemsControl ItemsSource="{Binding Severity}">
-                                      <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                          <TextBlock>
-                                      [<Run Text="{Binding Type}"/>] <Run Text="{Binding Score}"/>
-                                          </TextBlock>
-                                        </DataTemplate>
-                                      </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                  </mah:MetroHeader>
-                                </Grid>
-                              </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                          </ItemsControl>
-                        </iconPacks:PackIconMaterial.ToolTip>
-                      </iconPacks:PackIconMaterial>
-                    </DataTemplate>
-                  </GridViewColumn.CellTemplate>
-                </GridViewColumn>
-                <GridViewColumn Header="Name">
-                  <GridViewColumn.CellTemplate>
-                    <DataTemplate>
-                      <TextBlock Text="{Binding Package.Name}">
+                                        <mah:MetroHeader Grid.Row="0" Header="Summary">
+                                          <TextBlock Text="{Binding Summary}"/>
+                                        </mah:MetroHeader>
+
+                                        <mah:MetroHeader Grid.Row="1" Header="Severity">
+                                          <ItemsControl ItemsSource="{Binding Severity}">
+                                            <ItemsControl.ItemTemplate>
+                                              <DataTemplate>
+                                                <TextBlock>[<Run Text="{Binding Type}"/>] <Run Text="{Binding Score}"/></TextBlock>
+                                              </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                          </ItemsControl>
+                                        </mah:MetroHeader>
+                                      </Grid>
+                                    </DataTemplate>
+                                  </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                              </iconPacks:PackIconMaterial.ToolTip>
+                            </iconPacks:PackIconMaterial>
+                          </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                      </GridViewColumn>
+                      <GridViewColumn Header="Name">
+                        <GridViewColumn.CellTemplate>
+                          <DataTemplate>
+                            <TextBlock Text="{Binding Package.Name}">
                         <!--<TextBlock.Style>
                           <Style TargetType="TextBlock" BasedOn="{StaticResource MahApps.Styles.TextBlock}">
                             <Setter Property="FontWeight" Value="Normal"/>
@@ -115,15 +122,18 @@
                             </Style.Triggers>
                           </Style>
                         </TextBlock.Style>-->
-                      </TextBlock>
-                    </DataTemplate>
-                  </GridViewColumn.CellTemplate>
-                </GridViewColumn>
-                <GridViewColumn Header="Version" DisplayMemberBinding="{Binding Package.Version}"/>
-              </GridView>
-            </ListView.View>
+                            </TextBlock>
+                          </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                      </GridViewColumn>
+                      <GridViewColumn Header="Version" DisplayMemberBinding="{Binding Package.Version}"/>
+                    </GridView>
+                  </ListView.View>
+                </ListView>
+              </DataTemplate>
+            </TabControl.ContentTemplate>
 
-            <ListView.Resources>
+            <TabControl.Resources>
               <Style TargetType="ListViewItem" BasedOn="{StaticResource MahApps.Styles.ListViewItem}">
                 <Setter Property="Background" Value="Transparent"/>
                 <Style.Triggers>
@@ -132,8 +142,8 @@
                   </DataTrigger>
                 </Style.Triggers>
               </Style>
-            </ListView.Resources>
-          </ListView>
+            </TabControl.Resources>
+          </TabControl>
         </mah:MetroHeader>
 
         <!--SBOM-->

@@ -18,12 +18,14 @@ namespace Osmy.ViewModels
             using var dbContext = new ManagedSoftwareContext();
 
             var vulnerableSoftwares = dbContext.ScanResults
-                .Include(x => x.Software)
-                .GroupBy(x => x.SoftwareId)
+                .Include(x => x.Sbom)
+                .ThenInclude(x => x.Software)
+                .GroupBy(x => x.SbomId)
                 .AsEnumerable()
                 .Select(g => g.MaxBy(x => x.Executed)!)
                 .Where(x => x.IsVulnerable)
-                .Select(x => x.Software)
+                .Select(x => x.Sbom.Software)
+                .Distinct()
                 .ToArray();
             VulnerableSoftwares = new ReactivePropertySlim<Software[]>(vulnerableSoftwares);
 

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.Json;
 
-namespace Osmy.Models
+namespace Osmy.Models.Sbom
 {
     public class PackageScanResult
     {

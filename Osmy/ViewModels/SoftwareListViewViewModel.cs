@@ -70,8 +70,8 @@ namespace Osmy.ViewModels
             var result = await Task.Run(() => serviceManager.Resolve<VulnerabilityScanService>().Scan(sbom, CancellationToken.None)).ConfigureAwait(false);
 
             using var dbContext = new ManagedSoftwareContext();
-            var software = dbContext.Softwares.First(x => x.Id == result.Software.Id);
-            result.Software = software;
+            var tmpSbom = dbContext.Sboms.First(x => x.Id == result.Sbom.Id);
+            result.Sbom = tmpSbom;
             dbContext.ScanResults.Add(result);
             await dbContext.SaveChangesAsync().ConfigureAwait(false);
 

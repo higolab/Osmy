@@ -28,7 +28,7 @@ namespace Osmy.ViewModels
         /// </summary>
         public ReactivePropertySlim<Software> Software { get; }
 
-        public ReactivePropertySlim<List<PackageScanResult>?> ScanResults { get; }
+        public ReactivePropertySlim<VulnerabilityScanResult[]> ScanResults { get; }
         public ReactivePropertySlim<List<HashValidationResult>> HashValidationResults { get; }
 
         public ReadOnlyReactivePropertySlim<Sbom?> UsingSbom { get; }
@@ -60,7 +60,7 @@ namespace Osmy.ViewModels
                 }
             });
 
-            ScanResults = new ReactivePropertySlim<List<PackageScanResult>?>(FetchLatestScanResult());
+            ScanResults = new ReactivePropertySlim<VulnerabilityScanResult[]>(FetchLatestScanResult());
 
             AddSbomCommand = new DelegateCommand(AddSbom);
         }
@@ -70,12 +70,19 @@ namespace Osmy.ViewModels
             ScanResults.Value = FetchLatestScanResult();
         }
 
-        private List<PackageScanResult>? FetchLatestScanResult()
+        private VulnerabilityScanResult[] FetchLatestScanResult()
         {
             using var dbContext = new ManagedSoftwareContext();
-            if (Software is null || !dbContext.ScanResults.Any()) { return null; }
+            if (Software is null || !dbContext.ScanResults.Any()) { return Array.Empty<VulnerabilityScanResult>(); }
 
-            return dbContext.ScanResults.Include(x => x.Results).ThenInclude(x => x.Package).FirstOrDefault(r => r.SoftwareId == Software.Value.Id)?.Results ?? new List<PackageScanResult>();
+            return dbContext.ScanResults
+                .Include(x => x.Results).ThenInclude(x => x.Package)
+                .Include(x => x.Sbom)
+                .Where(x => x.Sbom.Software.Id == Software.Value.Id)
+                .GroupBy(x => x.SbomId)
+                .AsEnumerable()
+                .Select(g => g.MaxBy(x => x.Executed)!)
+                .ToArray() ?? Array.Empty<VulnerabilityScanResult>();
         }
 
         private List<HashValidationResult> FetchFileHashValidationResult()
