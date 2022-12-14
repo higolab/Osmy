@@ -12,6 +12,7 @@ namespace Osmy.Models.Sbom
         public int Id { get; set; }
 
         public Sbom Sbom { get; set; }
+        public int SbomId { get; set; }
 
         public string FileName { get; set; }
 

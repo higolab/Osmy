@@ -7,6 +7,7 @@ namespace Osmy.Models.Sbom
         public int Id { get; set; }
         public DateTime Executed { get; set; }
         public SbomFile SbomFile { get; set; }
+        public int SbomFileId { get; set; }
         public HashValidationResult Result { get; set; }
 
         public HashValidation(DateTime executed, SbomFile sbomFile, HashValidationResult result)

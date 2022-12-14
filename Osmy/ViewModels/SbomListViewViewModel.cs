@@ -8,6 +8,7 @@ using Prism.Ioc;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
 using Reactive.Bindings;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
@@ -20,9 +21,9 @@ namespace Osmy.ViewModels
     {
         private readonly IDialogService _dialogService;
 
-        public ReactivePropertySlim<ObservableCollection<Sbom>> Sboms { get; }
+        public ReactivePropertySlim<ObservableCollection<SbomInfo>> SbomInfos { get; }
 
-        public ReactivePropertySlim<Sbom> SelectedSbom { get; }
+        public ReactivePropertySlim<SbomInfo> SelectedSbomInfo { get; }
 
         public ReadOnlyReactivePropertySlim<SbomDetailsViewViewModel?> SelectedSbomVM { get; }
 
@@ -37,9 +38,10 @@ namespace Osmy.ViewModels
             _dialogService = dialogService;
 
             using var dbContext = new ManagedSoftwareContext();
-            Sboms = new ReactivePropertySlim<ObservableCollection<Sbom>>(new ObservableCollection<Sbom>(dbContext.Sboms));
-            SelectedSbom = new ReactivePropertySlim<Sbom>();
-            SelectedSbomVM = SelectedSbom.Where(x => x is not null).Select(x => new SbomDetailsViewViewModel(x, _dialogService)).ToReadOnlyReactivePropertySlim();
+
+            SbomInfos = new ReactivePropertySlim<ObservableCollection<SbomInfo>>(new ObservableCollection<SbomInfo>(FetchSbomInfos()));
+            SelectedSbomInfo = new ReactivePropertySlim<SbomInfo>();
+            SelectedSbomVM = SelectedSbomInfo.Where(x => x is not null).Select(x => new SbomDetailsViewViewModel(x.Sbom, _dialogService)).ToReadOnlyReactivePropertySlim();
         }
 
         private void OpenSbomAddDiaglog()
@@ -55,23 +57,48 @@ namespace Osmy.ViewModels
                 using var dbContext = new ManagedSoftwareContext();
                 dbContext.Sboms.Add(sbom);
                 dbContext.SaveChanges();
-                Sboms.Value.Add(sbom);
+                SbomInfos.Value.Add(new SbomInfo(sbom, false, false));
             });
         }
 
         private async void ScanVulns()
         {
-            if (SelectedSbom.Value is null) { return; }
+            if (SelectedSbomInfo.Value is null) { return; }
 
             var container = ContainerLocator.Container;
             var serviceManager = container.Resolve<BackgroundServiceManager>();
-            var result = await Task.Run(() => serviceManager.Resolve<VulnerabilityScanService>().Scan(SelectedSbom.Value, CancellationToken.None)).ConfigureAwait(false);
+            var result = await Task.Run(() => serviceManager.Resolve<VulnerabilityScanService>().Scan(SelectedSbomInfo.Value.Sbom, CancellationToken.None)).ConfigureAwait(false);
 
             using var dbContext = new ManagedSoftwareContext();
             var tmpSbom = dbContext.Sboms.First(x => x.Id == result.Sbom.Id);
             result.Sbom = tmpSbom;
             dbContext.ScanResults.Add(result);
             await dbContext.SaveChangesAsync().ConfigureAwait(false);
+        }
+
+        private IEnumerable<SbomInfo> FetchSbomInfos()
+        {
+            using var dbContext = new ManagedSoftwareContext();
+            foreach (var sbom in dbContext.Sboms)
+            {
+                var isVulnerable = dbContext.ScanResults.SingleOrDefault(x => x.SbomId == sbom.Id)?.IsVulnerable ?? false;
+                var hasFileError = dbContext.HashValidationResults.Include(x => x.SbomFile).Where(x => x.SbomFile.SbomId == sbom.Id).Any(x => x.Result != HashValidationResult.Valid);
+                yield return new SbomInfo(sbom, isVulnerable, hasFileError);
+            }
+        }
+    }
+
+    class SbomInfo
+    {
+        public Sbom Sbom { get; set; }
+        public bool IsVulnerable { get; set; }
+        public bool HasFileError { get; set; }
+
+        public SbomInfo(Sbom sbom, bool isVulnerable, bool hasFileError)
+        {
+            Sbom = sbom;
+            IsVulnerable = isVulnerable;
+            HasFileError = hasFileError;
         }
     }
 }

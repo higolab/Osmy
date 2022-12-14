@@ -31,16 +31,50 @@
       </Grid.RowDefinitions>
 
       <mah:MetroHeader Grid.Row="0" Header="Sboms" Style="{StaticResource AccentMetroHeader}" VerticalAlignment="Center"/>
-      <ListView Grid.Row="1" ItemsSource="{Binding Sboms.Value}"
-                SelectedItem="{Binding SelectedSbom.Value}" SelectionMode="Single">
-        <ListView.ItemTemplate>
-          <DataTemplate DataType="{x:Type models:Sbom}">
-            <StackPanel>
-              <TextBlock Text="{Binding Name}"/>
-              <!--<TextBlock Text="{Binding Sboms[0]}"/>-->
-            </StackPanel>
-          </DataTemplate>
-        </ListView.ItemTemplate>
+      <ListView Grid.Row="1" ItemsSource="{Binding SbomInfos.Value}"
+                SelectedItem="{Binding SelectedSbomInfo.Value}" SelectionMode="Single">
+        <ListView.View>
+          <GridView AllowsColumnReorder="False">
+            <GridView.Columns>
+              <GridViewColumn>
+                <GridViewColumn.CellTemplate>
+                  <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                      <!--脆弱性-->
+                      <iconPacks:PackIconMaterial Kind="Bug" Foreground="Red" Margin="0">
+                        <iconPacks:PackIconMaterial.Style>
+                          <Style TargetType="iconPacks:PackIconMaterial">
+                            <Setter Property="Visibility" Value="Hidden"/>
+                            <Style.Triggers>
+                              <DataTrigger Binding="{Binding IsVulnerable}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                              </DataTrigger>
+                            </Style.Triggers>
+                          </Style>
+                        </iconPacks:PackIconMaterial.Style>
+                      </iconPacks:PackIconMaterial>
+                      
+                      <!--ファイルエラー-->
+                      <iconPacks:PackIconMaterial Kind="File" Foreground="Orange">
+                        <iconPacks:PackIconMaterial.Style>
+                          <Style TargetType="iconPacks:PackIconMaterial">
+                            <Setter Property="Visibility" Value="Hidden"/>
+                            <Style.Triggers>
+                              <DataTrigger Binding="{Binding HasFileError}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                              </DataTrigger>
+                            </Style.Triggers>
+                          </Style>
+                        </iconPacks:PackIconMaterial.Style>
+                      </iconPacks:PackIconMaterial>
+                    </StackPanel>
+                  </DataTemplate>
+                </GridViewColumn.CellTemplate>
+              </GridViewColumn>
+              <GridViewColumn DisplayMemberBinding="{Binding Sbom.Name}"/>
+            </GridView.Columns>
+          </GridView>
+        </ListView.View>
       </ListView>
 
       <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
