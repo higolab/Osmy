@@ -198,17 +198,6 @@
                 </GridViewColumn>
               </GridView>
             </ListView.View>
-
-            <ListView.Resources>
-              <Style TargetType="ListViewItem" BasedOn="{StaticResource MahApps.Styles.ListViewItem}">
-                <Setter Property="Background" Value="Transparent"/>
-                <Style.Triggers>
-                  <DataTrigger Binding="{Binding IsValid}" Value="False">
-                    <Setter Property="Background" Value="#3FFFA500"/>
-                  </DataTrigger>
-                </Style.Triggers>
-              </Style>
-            </ListView.Resources>
           </ListView>
         </mah:MetroHeader>
       </Grid>
