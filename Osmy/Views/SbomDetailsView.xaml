@@ -49,8 +49,8 @@
         </mah:MetroHeader>
 
         <mah:MetroHeader Grid.Row="1" Header="Local Directory" Margin="0 0 0 5">
-          <!--TODO 選択時にDBに保存-->
-          <controls:PathSelector SelectedPath="{Binding Sbom.Value.LocalDirectory}" PathSelectionMode="Directory" Width="300"/>
+          <controls:PathSelector SelectedPath="{Binding Sbom.Value.LocalDirectory}" PathSelectionMode="Directory"
+                                 PathSelectedCommand="{Binding PathSelectedCommand}"/>
         </mah:MetroHeader>
 
         <!--Latest Scan Result-->
@@ -215,7 +215,7 @@
     </ScrollViewer>
 
     <Grid x:Key="NotSelectedGrid" Background="LightGray">
-      <TextBlock Text="Please select software" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <TextBlock Text="Please select SBOM" HorizontalAlignment="Center" VerticalAlignment="Center"/>
     </Grid>
   </UserControl.Resources>
 

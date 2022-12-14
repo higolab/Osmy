@@ -31,6 +31,9 @@ namespace Osmy.ViewModels
         public ReactivePropertySlim<VulnerabilityScanResult?> ScanResult { get; }
         public ReactivePropertySlim<HashValidation[]> HashValidationResults { get; }
 
+        public DelegateCommand PathSelectedCommand => _pathSelectedCommand ??= new DelegateCommand(OnPathSelected);
+        private DelegateCommand? _pathSelectedCommand;
+
         public SbomDetailsViewViewModel(Sbom sbom, IDialogService dialogService)
         {
             _dialogService = dialogService;
@@ -93,6 +96,14 @@ namespace Osmy.ViewModels
                     return x;
                 })
                 .ToArray();
+        }
+
+        private async void OnPathSelected()
+        {
+            using var dbContext = new ManagedSoftwareContext();
+            var sbom = dbContext.Sboms.First(x => x.Id == Sbom.Value.Id);
+            sbom.LocalDirectory = Sbom.Value.LocalDirectory;
+            await dbContext.SaveChangesAsync();
         }
     }
 }

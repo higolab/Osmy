@@ -44,6 +44,22 @@ namespace Osmy.Controls
         public static readonly DependencyProperty PathSelectionModeProperty =
             DependencyProperty.Register("PathSelectionMode", typeof(PathSelectionMode), typeof(PathSelector), new PropertyMetadata(PathSelectionMode.File));
 
+        public ICommand? PathSelectedCommand
+        {
+            get { return (ICommand?)GetValue(PathSelectedCommandProperty); }
+            set { SetValue(PathSelectedCommandProperty, value); }
+        }
+        public static readonly DependencyProperty PathSelectedCommandProperty =
+            DependencyProperty.Register("PathSelectedCommand", typeof(ICommand), typeof(PathSelector), new PropertyMetadata(default));
+
+        public object? PathSelectedCommandParameter
+        {
+            get { return GetValue(PathSelectedCommandParameterProperty); }
+            set { SetValue(PathSelectedCommandParameterProperty, value); }
+        }
+        public static readonly DependencyProperty PathSelectedCommandParameterProperty =
+            DependencyProperty.Register("PathSelectedCommandParameter", typeof(object), typeof(PathSelector), new PropertyMetadata(default));
+
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             switch (PathSelectionMode)
@@ -68,6 +84,7 @@ namespace Osmy.Controls
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
                 SelectedPath = dialog.FileName;
+                PathSelectedCommand?.Execute(PathSelectedCommandParameter);
             }
         }
     }
