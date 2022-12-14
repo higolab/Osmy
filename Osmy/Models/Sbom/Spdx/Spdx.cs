@@ -41,11 +41,11 @@ namespace Osmy.Models.Sbom.Spdx
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="software"></param>
+        /// <param name="name"></param>
         /// <param name="path"></param>
-        /// <param name="isUsing"></param>
+        /// <param name="localDirectory"></param>
         /// <remarks>新規追加時に呼び出されます．</remarks>
-        public Spdx(Software software, string path, bool isUsing = false) : base(software, path, isUsing)
+        public Spdx(string name, string path, string localDirectory) : base(name, path, localDirectory)
         {
             // 作成時は内容確認を行う可能性が高いので即時に読みこむ
             _content = new Lazy<SpdxDocumentContent>(new SpdxDocumentContent(new MemoryStream(Content)));

@@ -17,12 +17,15 @@ namespace Osmy.Models.Sbom
         /// </summary>
         public int Id { get; set; }
 
-        public Software Software { get; set; }
+        /// <summary>
+        /// 管理名
+        /// </summary>
+        public string Name { get; set; }
 
         /// <summary>
-        /// 現在使用中か
+        /// ローカルファイルが存在するディレクトリのパス
         /// </summary>
-        public bool IsUsing { get; set; }
+        public string? LocalDirectory { get; set; }
 
         /// <summary>
         /// ファイル内容のバイト配列
@@ -38,7 +41,7 @@ namespace Osmy.Models.Sbom
         /// ルートパッケージのバージョン
         /// </summary>
         public string? RootPackageVersion { get; protected set; }
-        
+
         /// <summary>
         /// ファイルリスト
         /// </summary>
@@ -69,23 +72,25 @@ namespace Osmy.Models.Sbom
         /// <remarks>ORMで使用するために用意しています．</remarks>
         public Sbom()
         {
-            Software = default!;
+            Name = default!;
             Content = default!;
             ContentHash = default!;
+            Files = default!;
         }
 
         /// <summary>
         /// 指定したパスのファイル情報からインスタンスを作成します．
         /// </summary>
-        /// <param name="software"></param>
+        /// <param name="name"></param>
         /// <param name="filePath"></param>
-        /// <param name="isUsing"></param>
+        /// <param name="localDirectory"></param>
         /// <remarks>データ新規追加時に呼び出されます．</remarks>
-        public Sbom(Software software, string filePath, bool isUsing = false)
+        public Sbom(string name, string filePath, string? localDirectory = null)
         {
-            Software = software;
-            IsUsing = isUsing;
+            Name = name;
             Content = File.ReadAllBytes(filePath);
+            LocalDirectory = localDirectory;
+            Files = default!;
             ContentHash = ComputeHash();
         }
 

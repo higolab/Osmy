@@ -21,9 +21,9 @@ namespace Osmy.Views
     /// <summary>
     /// SoftwareListView.xaml の相互作用ロジック
     /// </summary>
-    public partial class SoftwareListView : UserControl
+    public partial class SbomListView : UserControl
     {
-        public SoftwareListView()
+        public SbomListView()
         {
             InitializeComponent();
         }

@@ -5,9 +5,9 @@ namespace Osmy.Views
     /// <summary>
     /// SoftwareDetailsView.xaml の相互作用ロジック
     /// </summary>
-    public partial class SoftwareDetailsView : UserControl
+    public partial class SbomDetailsView : UserControl
     {
-        public SoftwareDetailsView()
+        public SbomDetailsView()
         {
             InitializeComponent();
         }

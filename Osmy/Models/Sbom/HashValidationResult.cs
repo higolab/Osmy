@@ -1,28 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Osmy.Models.Sbom
 {
-    public class HashValidationResult
+    public class HashValidation
     {
         public int Id { get; set; }
         public DateTime Executed { get; set; }
         public SbomFile SbomFile { get; set; }
-        public bool IsValid { get; set; }
+        public HashValidationResult Result { get; set; }
 
-        public HashValidationResult(DateTime executed, SbomFile sbomFile, bool isValid)
+        public HashValidation(DateTime executed, SbomFile sbomFile, HashValidationResult result)
         {
             Executed = executed;
             SbomFile = sbomFile;
-            IsValid = isValid;
+            Result = result;
         }
 
-        public HashValidationResult()
+        public HashValidation()
         {
             SbomFile = default!;
         }
+    }
+
+    public enum HashValidationResult
+    {
+        Invalid,
+        Valid,
+        FileNotFound,
     }
 }

@@ -20,21 +20,24 @@ namespace Osmy.Services
                 // TODO 最近チェックしていないものだけチェックする
                 using var context = new ManagedSoftwareContext();
                 var validatableSboms = context.Sboms
-                    .Where(x => x.IsUsing)
-                    .Include(x => x.Software)
-                    .Where(x => x.Software.LocalDirectory != null)
+                    .Where(x => x.LocalDirectory != null)
                     .Include(x => x.Files)
                     .ThenInclude(x => x.Checksums);
                 foreach (Sbom sbom in validatableSboms)
                 {
                     foreach (SbomFile file in sbom.Files)
                     {
-                        string path = Path.Combine(sbom.Software.LocalDirectory!, file.FileName);
-                        string sha1Hash = file.Checksums.First(x => x.Algorithm == ChecksumAlgorithm.SHA1).Value;
-                        string localFileHash = await ComputeSHA1Async(path, stoppingToken);
-                        bool isValid = !sha1Hash.Equals(localFileHash, StringComparison.OrdinalIgnoreCase);
+                        string path = Path.Combine(sbom.LocalDirectory!, file.FileName);
+                        HashValidationResult result = HashValidationResult.FileNotFound;
+                        if (File.Exists(path))
+                        {
+                            string sha1Hash = file.Checksums.First(x => x.Algorithm == ChecksumAlgorithm.SHA1).Value;
+                            string localFileHash = await ComputeSHA1Async(path, stoppingToken);
+                            bool isValid = !sha1Hash.Equals(localFileHash, StringComparison.OrdinalIgnoreCase);
+                            result = isValid ? HashValidationResult.Valid : HashValidationResult.Invalid;
+                        }
 
-                        context.HashValidationResults.Add(new HashValidationResult(DateTime.Now, file, isValid));
+                        context.HashValidationResults.Add(new HashValidation(DateTime.Now, file, result));
                         await context.SaveChangesAsync(stoppingToken);
                     }
                 }

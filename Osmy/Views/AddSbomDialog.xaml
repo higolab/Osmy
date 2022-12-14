@@ -4,12 +4,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:controls="clr-namespace:Osmy.Controls"
              xmlns:local="clr-namespace:Osmy.Views"
              xmlns:viewmodels="clr-namespace:Osmy.ViewModels"
              mc:Ignorable="d" 
+             d:DesignHeight="150" d:DesignWidth="400"
              d:DataContext="{d:DesignInstance Type=viewmodels:AddSbomDialogViewModel}"
-             d:DesignHeight="100" d:DesignWidth="400"
-             Height="100" Width="400">
+             Height="180" Width="400">
   <Grid Margin="5">
     <Grid.Resources>
       <Style TargetType="TextBlock" BasedOn="{StaticResource MahApps.Styles.TextBlock}">
@@ -25,6 +26,10 @@
     <Grid Grid.Row="0">
       <Grid.RowDefinitions>
         <RowDefinition Height="30"/>
+        <RowDefinition Height="10"/>
+        <RowDefinition Height="30"/>
+        <RowDefinition Height="30"/>
+        <RowDefinition Height="30"/>
       </Grid.RowDefinitions>
 
       <Grid.ColumnDefinitions>
@@ -32,14 +37,17 @@
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
 
-      <TextBlock Grid.Row="0" Grid.Column="0" Text="SBOM File"/>
-      <!--TODO ファイル選択欄はユーザーコントロール化する-->
-      <DockPanel Grid.Row="0" Grid.Column="1">
-        <Button DockPanel.Dock="Right" VerticalAlignment="Stretch" Command="{Binding SelectSbomFileCommand}">
-          <iconPacks:PackIconMaterial Kind="DotsHorizontal"/>
-        </Button>
-        <TextBox Text="{Binding SbomFilePath.Value}" IsReadOnly="True" VerticalAlignment="Stretch"/>
-      </DockPanel>
+      <TextBlock Grid.Row="2" Grid.Column="0" Text="Name"/>
+      <TextBox Grid.Row="2" Grid.Column="1" x:Name="sbomName"
+               Text="{Binding Name.Value, UpdateSourceTrigger=PropertyChanged}"/>
+
+      <TextBlock Grid.Row="3" Grid.Column="0" Text="SBOM File"/>
+      <controls:PathSelector Grid.Row="3" Grid.Column="1" SelectedPath="{Binding SbomFileName.Value}"/>
+
+      <TextBlock Grid.Row="4" Grid.Column="0" Text="Local Directory"/>
+      <controls:PathSelector Grid.Row="4" Grid.Column="1"
+                             SelectedPath="{Binding LocalDirectoryPath.Value}"
+                             PathSelectionMode="Directory"/>
     </Grid>
 
     <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0 10 0 0">

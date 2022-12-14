@@ -31,7 +31,7 @@ namespace Osmy.ViewModels
                     SetContentView("DashboardView");
                     break;
                 case "softwares":
-                    SetContentView("SoftwareListView");
+                    SetContentView("SbomListView");
                     break;
             }
 

@@ -14,13 +14,11 @@ namespace Osmy.Models
     {
         public string DbPath { get; }
 
-        public DbSet<Software> Softwares { get; set; }
-
         public DbSet<Sbom.Sbom> Sboms { get; set; }
 
         public DbSet<VulnerabilityScanResult> ScanResults { get; set; }
 
-        public DbSet<HashValidationResult> HashValidationResults { get; set; }
+        public DbSet<HashValidation> HashValidationResults { get; set; }
 
         public ManagedSoftwareContext()
         {
@@ -43,13 +41,8 @@ namespace Osmy.Models
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Software>()
-                .HasMany(x => x.Sboms);
-
-            var sbomEntityTypeBuilder = modelBuilder.Entity<Sbom.Sbom>();
-            sbomEntityTypeBuilder.HasDiscriminator()
+            modelBuilder.Entity<Sbom.Sbom>().HasDiscriminator()
                 .HasValue<Spdx>("sbom_spdx");
-            sbomEntityTypeBuilder.HasOne(x => x.Software);
 
             modelBuilder.Entity<SbomPackage>()
                 .HasDiscriminator()

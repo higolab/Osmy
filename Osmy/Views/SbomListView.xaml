@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Osmy.Views.SoftwareListView"
+﻿<UserControl x:Class="Osmy.Views.SbomListView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -15,7 +15,7 @@
              xmlns:viewmodels="clr-namespace:Osmy.ViewModels"
              mc:Ignorable="d" 
              d:DesignHeight="400" d:DesignWidth="700"
-             d:DataContext="{d:DesignInstance Type=viewmodels:SoftwareListViewViewModel}">
+             d:DataContext="{d:DesignInstance Type=viewmodels:SbomListViewViewModel}">
   <Grid>
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="1*" MinWidth="200"/>
@@ -30,11 +30,11 @@
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
-      <mah:MetroHeader Grid.Row="0" Header="Softwares" Style="{StaticResource AccentMetroHeader}" VerticalAlignment="Center"/>
-      <ListView Grid.Row="1" ItemsSource="{Binding Softwares.Value}"
-                SelectedItem="{Binding SelectedSoftware.Value}" SelectionMode="Single">
+      <mah:MetroHeader Grid.Row="0" Header="Sboms" Style="{StaticResource AccentMetroHeader}" VerticalAlignment="Center"/>
+      <ListView Grid.Row="1" ItemsSource="{Binding Sboms.Value}"
+                SelectedItem="{Binding SelectedSbom.Value}" SelectionMode="Single">
         <ListView.ItemTemplate>
-          <DataTemplate DataType="{x:Type models:Software}">
+          <DataTemplate DataType="{x:Type models:Sbom}">
             <StackPanel>
               <TextBlock Text="{Binding Name}"/>
               <!--<TextBlock Text="{Binding Sboms[0]}"/>-->
@@ -44,11 +44,11 @@
       </ListView>
 
       <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
-        <Button ToolTip="Add Software" Height="30"
-                Command="{Binding AddSoftwareCommand}">
+        <Button ToolTip="Add Sboms" Height="30"
+                Command="{Binding AddSbomCommand}">
           <StackPanel Orientation="Horizontal">
             <iconPacks:PackIconMaterial Kind="ArchivePlus"/>
-            <TextBlock Text="Add Software" Margin="5 0 0 0"/>
+            <TextBlock Text="Add Sboms" Margin="5 0 0 0"/>
           </StackPanel>
         </Button>
 
@@ -58,7 +58,7 @@
 
     <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" Width="5" Margin="0 5"/>
 
-    <local:SoftwareDetailsView Grid.Column="2" Margin="5" DataContext="{Binding SelectedSoftwareVM.Value}"/>
+    <local:SbomDetailsView Grid.Column="2" Margin="5" DataContext="{Binding SelectedSbomVM.Value}"/>
 
     <!--<TextBlock Grid.Column="2" Margin="5" Text="{Binding LatestScanResult.Value}"/>-->
   </Grid>
