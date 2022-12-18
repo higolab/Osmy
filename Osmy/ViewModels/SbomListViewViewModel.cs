@@ -81,7 +81,7 @@ namespace Osmy.ViewModels
             using var dbContext = new ManagedSoftwareContext();
             foreach (var sbom in dbContext.Sboms)
             {
-                var isVulnerable = dbContext.ScanResults.SingleOrDefault(x => x.SbomId == sbom.Id)?.IsVulnerable ?? false;
+                var isVulnerable = dbContext.ScanResults.Where(x => x.SbomId == sbom.Id).AsEnumerable().MaxBy(x => x.Executed)?.IsVulnerable ?? false;
                 var hasFileError = dbContext.HashValidationResults.Include(x => x.SbomFile).Where(x => x.SbomFile.SbomId == sbom.Id).Any(x => x.Result != HashValidationResult.Valid);
                 yield return new SbomInfo(sbom, isVulnerable, hasFileError);
             }
