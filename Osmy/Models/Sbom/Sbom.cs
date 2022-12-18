@@ -85,10 +85,18 @@ namespace Osmy.Models.Sbom
         /// <param name="filePath"></param>
         /// <param name="localDirectory"></param>
         /// <remarks>データ新規追加時に呼び出されます．</remarks>
-        public Sbom(string name, string filePath, string? localDirectory = null)
+        public Sbom(string name, string filePath, string? localDirectory = null) : this(name, File.ReadAllBytes(filePath), localDirectory) { }
+
+        /// <summary>
+        /// 指定したコンテンツからインスタンスを作成します．
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="content"></param>
+        /// <param name="localDirectory"></param>
+        public Sbom(string name, byte[] content, string? localDirectory = null)
         {
             Name = name;
-            Content = File.ReadAllBytes(filePath);
+            Content = content;
             LocalDirectory = localDirectory;
             Files = default!;
             ContentHash = ComputeHash();

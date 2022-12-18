@@ -45,7 +45,7 @@ namespace Osmy.Models.Sbom.Spdx
         /// <param name="path"></param>
         /// <param name="localDirectory"></param>
         /// <remarks>新規追加時に呼び出されます．</remarks>
-        public Spdx(string name, string path, string localDirectory) : base(name, path, localDirectory)
+        public Spdx(string name, string path, string localDirectory) : base(name, SpdxConverter.ConvertToJson(path), localDirectory)
         {
             // 作成時は内容確認を行う可能性が高いので即時に読みこむ
             _content = new Lazy<SpdxDocumentContent>(new SpdxDocumentContent(new MemoryStream(Content)));
@@ -101,14 +101,14 @@ namespace Osmy.Models.Sbom.Spdx
             {
                 var describes = relationships
                     .Where(x => x.RelationshipType == SpdxModels.RelationshipType.DESCRIBES)
-                    .FindFirst(x => x.SpdxElementId == documentId);
+                    .First(x => x.SpdxElementId == documentId);
 
                 return describes.RelatedSpdxElement;
             }
 
             private SbomPackage FindPackageById(string id)
             {
-                return Packages.FindFirst(x => x.SpdxRefId == id);
+                return Packages.First(x => x.SpdxRefId == id);
             }
 
             private DependencyGraph CreateDependencyGraph(SpdxModels.SpdxDocument document)
