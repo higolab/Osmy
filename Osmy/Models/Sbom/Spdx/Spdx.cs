@@ -3,10 +3,9 @@ using QuickGraph;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ImTools;
 using Osmy.Views;
 using System;
-using Osmy.Models.Sbom;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Osmy.Models.Sbom.Spdx
 {
@@ -106,9 +105,10 @@ namespace Osmy.Models.Sbom.Spdx
                 return describes.RelatedSpdxElement;
             }
 
-            private SbomPackage FindPackageById(string id)
+            private bool TryFindPackageById(string id, [NotNullWhen(true)] out SbomPackage? package)
             {
-                return Packages.First(x => x.SpdxRefId == id);
+                package = Packages.FirstOrDefault(x => x.SpdxRefId == id);
+                return package is not null;
             }
 
             private DependencyGraph CreateDependencyGraph(SpdxModels.SpdxDocument document)
@@ -120,8 +120,14 @@ namespace Osmy.Models.Sbom.Spdx
 
                 foreach (var relationship in relationships)
                 {
-                    var pkgA = FindPackageById(relationship.SpdxElementId);
-                    var pkgB = FindPackageById(relationship.RelatedSpdxElement);
+                    if (!TryFindPackageById(relationship.SpdxElementId, out var pkgA))
+                    {
+                        continue;
+                    }
+                    if (!TryFindPackageById(relationship.RelatedSpdxElement, out var pkgB))
+                    {
+                        continue;
+                    }
 
                     switch (relationship.RelationshipType)
                     {
