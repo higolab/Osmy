@@ -1,12 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Osmy.Models;
+using Osmy.Models.Sbom.Spdx;
 using Osmy.Services;
 using Osmy.ViewModels;
 using Osmy.Views;
 using Prism.Ioc;
 using Prism.Mvvm;
-using Prism.Regions;
 using System;
 using System.IO;
 using System.Windows;
@@ -60,6 +59,8 @@ namespace Osmy
 
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
             Current.Dispatcher.UnhandledException += Dispatcher_UnhandledException;
+
+            await SpdxConverter.FetchConverterAsync();
 
             _backgroundServiceManager.Register(new NotifyIconService());
             _backgroundServiceManager.Register(new VulnerabilityScanService());
