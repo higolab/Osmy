@@ -33,11 +33,6 @@ namespace Osmy.Models.Sbom
         public byte[] Content { get; set; }
 
         /// <summary>
-        /// SBOMファイルのハッシュ値
-        /// </summary>
-        public byte[] ContentHash { get; set; }
-
-        /// <summary>
         /// ファイルリスト
         /// </summary>
         public List<SbomFile> Files { get; set; }
@@ -69,7 +64,6 @@ namespace Osmy.Models.Sbom
         {
             Name = default!;
             Content = default!;
-            ContentHash = default!;
             Files = default!;
         }
 
@@ -94,35 +88,6 @@ namespace Osmy.Models.Sbom
             Content = content;
             LocalDirectory = localDirectory;
             Files = default!;
-            ContentHash = ComputeHash();
-        }
-
-        public byte[] ComputeHash()
-        {
-            return ComputeHash(Content);
-        }
-
-        public static async Task<byte[]> ComputeHashAsync(string path)
-        {
-            if (!File.Exists(path))
-            {
-                throw new FileNotFoundException();
-            }
-
-            using var stream = File.OpenRead(path);
-            return await ComputeHashAsync(stream);
-        }
-
-        public static async Task<byte[]> ComputeHashAsync(Stream stream)
-        {
-            var provider = HashAlgorithm.Create("MD5")!;
-            return await provider.ComputeHashAsync(stream);
-        }
-
-        public static byte[] ComputeHash(byte[] buffer)
-        {
-            var provider = HashAlgorithm.Create("MD5")!;
-            return provider.ComputeHash(buffer);
         }
     }
 }

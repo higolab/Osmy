@@ -86,17 +86,7 @@ namespace Osmy.ViewModels
 
             if (dialog.ShowDialog() == true)
             {
-                // 同じファイルは重複登録不可
-                var selectedFileHash = await Sbom.ComputeHashAsync(dialog.FileName);
-                using var dbContext = new ManagedSoftwareContext();
-                if (dbContext.Sboms.Any(x => x.ContentHash.SequenceEqual(selectedFileHash)))
-                {
-                    // TODO エラーメッセージ
-                }
-                else
-                {
-                    SbomFileName.Value = dialog.FileName;
-                }
+                SbomFileName.Value = dialog.FileName;
             }
         }
     }
