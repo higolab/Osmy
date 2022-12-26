@@ -1,4 +1,5 @@
 ﻿using Octokit;
+using Reactive.Bindings.ObjectExtensions;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -33,20 +34,35 @@ namespace Osmy.Models.Sbom.Spdx
             var process = Process.Start(startInfo)!;
             process.WaitForExit();
 
-            var document = SpdxSerializer.Deserialize(path);
-
-            // 最後のパッケージのHasFilesにすべてのファイルが記載されてしまう不具合の回避処理
-            if (document.Packages.Count >= 2)
+            try
             {
-                var removeFiles = document.Packages.SkipLast(1).SelectMany(pkg => pkg.HasFiles).Distinct().ToArray();
-                var lastPackage = document.Packages.Last();
-                lastPackage.HasFiles = lastPackage.HasFiles.Except(removeFiles).ToList();
-                SpdxSerializer.Serialize(document, path);
-            }
+                var document = SpdxSerializer.Deserialize(path);
 
-            var bytes = File.ReadAllBytes(outputPath);
-            File.Delete(outputPath);
-            return bytes;
+                // 最後のパッケージのHasFilesにすべてのファイルが記載されてしまう不具合の回避処理
+                if (document.Packages.Count >= 2)
+                {
+                    var removeFiles = document.Packages.SkipLast(1).Where(pkg => pkg.HasFiles is not null).SelectMany(pkg => pkg.HasFiles).Distinct().ToArray();
+                    var lastPackage = document.Packages.Last();
+                    if (lastPackage.HasFiles is not null)
+                    {
+                        lastPackage.HasFiles = lastPackage.HasFiles.Except(removeFiles).ToList();
+                        using var ms = new MemoryStream();
+                        SpdxSerializer.Serialize(document, ms);
+                        return ms.ToArray();
+                    }
+                }
+
+                var bytes = File.ReadAllBytes(outputPath);
+                return bytes;
+            }
+            finally
+            {
+                try
+                {
+                    File.Delete(outputPath);
+                }
+                catch { }
+            }
         }
 
         /// <summary>
@@ -57,6 +73,8 @@ namespace Osmy.Models.Sbom.Spdx
         {
             var pattern = new Regex(@"tools-java-\d+\.\d+\.\d+\.zip");
             var filePattern = new Regex(@"tools-java-\d+\.\d+\.\d+-jar-with-dependencies\.jar");
+
+            if (File.Exists(ConverterPath)) { return true; }
 
             var gitHubClient = new GitHubClient(new ProductHeaderValue("Osmy"));
             var latestRelease = await gitHubClient.Repository.Release.GetLatest("spdx", "tools-java").ConfigureAwait(false);
