@@ -38,20 +38,15 @@ namespace Osmy.Models.Sbom
         public byte[] ContentHash { get; set; }
 
         /// <summary>
-        /// ルートパッケージのバージョン
-        /// </summary>
-        public string? RootPackageVersion { get; protected set; }
-
-        /// <summary>
         /// ファイルリスト
         /// </summary>
         public List<SbomFile> Files { get; set; }
 
         /// <summary>
-        /// ルートパッケージ
+        /// ルートパッケージリスト
         /// </summary>
         [NotMapped]
-        public abstract SbomPackage RootPackage { get; }
+        public abstract IReadOnlyCollection<SbomPackage> RootPackages { get; }
 
         /// <summary>
         /// パッケージリスト

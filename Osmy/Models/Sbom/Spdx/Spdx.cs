@@ -6,6 +6,7 @@ using System.Linq;
 using Osmy.Views;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Collections.ObjectModel;
 
 namespace Osmy.Models.Sbom.Spdx
 {
@@ -23,7 +24,7 @@ namespace Osmy.Models.Sbom.Spdx
         public override List<SbomPackage> Packages => _content.Value.Packages.Cast<SbomPackage>().ToList();
 
         /// <inheritdoc/>
-        public override SbomPackage RootPackage => _content.Value.RootPackage;
+        public override IReadOnlyCollection<SbomPackage> RootPackages => _content.Value.RootPackages;
 
         /// <inheritdoc/>
         public override DependencyGraph DependencyGraph => _content.Value.DependencyGraph;
@@ -48,7 +49,6 @@ namespace Osmy.Models.Sbom.Spdx
         {
             // 作成時は内容確認を行う可能性が高いので即時に読みこむ
             _content = new Lazy<SpdxDocumentContent>(new SpdxDocumentContent(new MemoryStream(Content)));
-            RootPackageVersion = RootPackage.Version;
 
             using var stream = new MemoryStream(Content);
             var document = SpdxSerializer.Deserialize(stream);
@@ -66,9 +66,9 @@ namespace Osmy.Models.Sbom.Spdx
             public List<SpdxSoftwarePackage> Packages { get; }
 
             /// <summary>
-            /// ルートパッケージ
+            /// ルートパッケージリスト
             /// </summary>
-            public SbomPackage RootPackage { get; }
+            public IReadOnlyCollection<SbomPackage> RootPackages { get; }
 
             /// <summary>
             /// パッケージの依存関係グラフ
@@ -88,21 +88,11 @@ namespace Osmy.Models.Sbom.Spdx
                     stream.Dispose();
                 }
 
-                var rootPackageId = FindRootPackage(document.SPDXID, document.Relationships);
                 Packages = document.Packages
-                    .Select(x => new SpdxSoftwarePackage(x.Name, x.VersionInfo, x.SPDXID == rootPackageId, x.SPDXID))
+                    .Select(x => new SpdxSoftwarePackage(x.Name, x.VersionInfo, document.DocumentDescribes.Contains(x.SPDXID), x.SPDXID))
                     .ToList();
-                RootPackage = Packages.First(x => x.IsRootPackage);
+                RootPackages = Packages.Where(x => x.IsRootPackage).ToList().AsReadOnly();
                 DependencyGraph = CreateDependencyGraph(document);
-            }
-
-            private static string FindRootPackage(string documentId, List<SpdxModels.Relationship> relationships)
-            {
-                var describes = relationships
-                    .Where(x => x.RelationshipType == SpdxModels.RelationshipType.DESCRIBES)
-                    .First(x => x.SpdxElementId == documentId);
-
-                return describes.RelatedSpdxElement;
             }
 
             private bool TryFindPackageById(string id, [NotNullWhen(true)] out SbomPackage? package)
