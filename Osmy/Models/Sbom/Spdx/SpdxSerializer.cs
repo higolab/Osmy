@@ -10,7 +10,7 @@ using System.IO;
 
 namespace Osmy.Models.Sbom.Spdx
 {
-    internal class SpdxDeserializer
+    internal class SpdxSerializer
     {
         /// <summary>
         /// SPDX文書を解析します．
@@ -38,6 +38,20 @@ namespace Osmy.Models.Sbom.Spdx
             options.Converters.Insert(0, new ExternalRefCategoryJsonConverter());
 
             return JsonSerializer.Deserialize<SpdxModels.SpdxDocument>(stream, options) ?? throw new FileFormatException();
+        }
+
+        public static void Serialize(SpdxModels.SpdxDocument document, string path)
+        {
+            using var stream = File.OpenWrite(path);
+            Serialize(document, stream);
+        }
+
+        public static void Serialize(SpdxModels.SpdxDocument document, Stream stream)
+        {
+            var options = CycloneDX.Spdx.Serialization.JsonSerializer.GetJsonSerializerOptions_v2_2();
+            options.Converters.Insert(0, new ExternalRefCategoryJsonConverter());
+
+            JsonSerializer.Serialize<SpdxModels.SpdxDocument>(stream, document, options);
         }
     }
 

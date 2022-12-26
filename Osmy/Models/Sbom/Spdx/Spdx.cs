@@ -51,7 +51,7 @@ namespace Osmy.Models.Sbom.Spdx
             RootPackageVersion = RootPackage.Version;
 
             using var stream = new MemoryStream(Content);
-            var document = SpdxDeserializer.Deserialize(stream);
+            var document = SpdxSerializer.Deserialize(stream);
             Files = document.Files?.Select(x => new SbomFile(this, x.FileName, x.Checksums.Select(y => y.ToSbomFileChecksum()))).ToList() ?? new List<SbomFile>();
         }
 
@@ -82,7 +82,7 @@ namespace Osmy.Models.Sbom.Spdx
             /// <param name="leaveOpen"><paramref name="stream"/>をDisposeしない場合はtrue</param>
             public SpdxDocumentContent(Stream stream, bool leaveOpen = false)
             {
-                var document = SpdxDeserializer.Deserialize(stream);
+                var document = SpdxSerializer.Deserialize(stream);
                 if (!leaveOpen)
                 {
                     stream.Dispose();

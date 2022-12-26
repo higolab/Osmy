@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Osmy.Models.Sbom.Spdx
 {
@@ -18,7 +15,7 @@ namespace Osmy.Models.Sbom.Spdx
             if (!File.Exists(converterPath)) { throw new FileNotFoundException(null, path); }
 
             //string source = @"D:\rio\Download\tools-java-1.1.3\anacron.Cycle.spdx";
-            string outputPath = $"{path}.{Guid.NewGuid()}.spdx.json";
+            var outputPath = $"{Path.GetTempFileName()}.spdx.json";
 
             var startInfo = new ProcessStartInfo()
             {
@@ -30,7 +27,16 @@ namespace Osmy.Models.Sbom.Spdx
             var process = Process.Start(startInfo)!;
             process.WaitForExit();
 
-            // TODO RootPackageとFilesセクションの修復
+            var document = SpdxSerializer.Deserialize(path);
+
+            // 最後のパッケージのHasFilesにすべてのファイルが記載されてしまう不具合の回避処理
+            if (document.Packages.Count >= 2)
+            {
+                var removeFiles = document.Packages.SkipLast(1).SelectMany(pkg => pkg.HasFiles).Distinct().ToArray();
+                var lastPackage = document.Packages.Last();
+                lastPackage.HasFiles = lastPackage.HasFiles.Except(removeFiles).ToList();
+                SpdxSerializer.Serialize(document, path);
+            }
 
             var bytes = File.ReadAllBytes(outputPath);
             File.Delete(outputPath);
