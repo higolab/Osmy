@@ -1,25 +1,18 @@
-﻿using Osmy.Models;
-using Osmy.Models.Sbom;
-using Prism.Commands;
-using Prism.Mvvm;
+﻿using Prism.Mvvm;
 using Prism.Services.Dialogs;
 using Reactive.Bindings;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Microsoft.WindowsAPICodePack.Shell.PropertySystem.SystemProperties.System;
 
 namespace Osmy.ViewModels
 {
     internal class AddSbomDialogViewModel : BindableBase, IDialogAware
     {
-        public string Title => "Add Sbom";
+        public string Title => "Add SBOM";
 
         public ReactiveProperty<string> Name { get; }
-        public ReactivePropertySlim<string> SbomFileName { get; }
+        public ReactiveProperty<string> SbomFileName { get; }
         public ReactiveProperty<string> LocalDirectoryPath { get; }
 
         public ReactiveCommand<string> CloseDialogCommand { get; }
@@ -29,8 +22,9 @@ namespace Osmy.ViewModels
         public AddSbomDialogViewModel()
         {
             Name = new ReactiveProperty<string>()
-                .SetValidateNotifyError(value => string.IsNullOrWhiteSpace(value) ? "Enter a correct value" : null);
-            SbomFileName = new ReactivePropertySlim<string>();
+                .SetValidateNotifyError(value => string.IsNullOrWhiteSpace(value) ? "Name cannot be empty." : null);
+            SbomFileName = new ReactiveProperty<string>()
+                .SetValidateNotifyError(value => string.IsNullOrWhiteSpace(value) ? "Select a SBOM file." : null);
             LocalDirectoryPath = new ReactiveProperty<string>();
 
             CloseDialogCommand = Name.ObserveHasErrors
@@ -74,20 +68,6 @@ namespace Osmy.ViewModels
         private void RaiseRequestClose(IDialogResult result)
         {
             RequestClose?.Invoke(result);
-        }
-
-        // TODO 重複ファイルの登録防止
-        private async System.Threading.Tasks.Task ValidateSbomFile()
-        {
-            var dialog = new Microsoft.Win32.OpenFileDialog
-            {
-                Multiselect = false
-            };
-
-            if (dialog.ShowDialog() == true)
-            {
-                SbomFileName.Value = dialog.FileName;
-            }
         }
     }
 }

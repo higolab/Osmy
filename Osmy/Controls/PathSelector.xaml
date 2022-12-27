@@ -11,6 +11,8 @@
     <Button DockPanel.Dock="Right" VerticalAlignment="Stretch" Click="Button_Click">
       <iconPacks:PackIconMaterial Kind="DotsHorizontal"/>
     </Button>
-    <TextBox Text="{Binding SelectedPath, RelativeSource={RelativeSource AncestorType=local:PathSelector}}" IsReadOnly="True" VerticalAlignment="Stretch"/>
+    <TextBox Text="{Binding SelectedPath, RelativeSource={RelativeSource AncestorType=local:PathSelector}}"
+             ToolTip="{Binding SelectedPath, RelativeSource={RelativeSource AncestorType=local:PathSelector}}"
+             IsReadOnly="True" VerticalAlignment="Stretch" IsTabStop="False"/>
   </DockPanel>
 </UserControl>

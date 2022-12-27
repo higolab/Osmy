@@ -8,9 +8,9 @@
              xmlns:local="clr-namespace:Osmy.Views"
              xmlns:viewmodels="clr-namespace:Osmy.ViewModels"
              mc:Ignorable="d" 
-             d:DesignHeight="150" d:DesignWidth="400"
+             d:DesignHeight="170" d:DesignWidth="400"
              d:DataContext="{d:DesignInstance Type=viewmodels:AddSbomDialogViewModel}"
-             Height="180" Width="400">
+             Height="170" Width="400">
   <Grid Margin="5">
     <Grid.Resources>
       <Style TargetType="TextBlock" BasedOn="{StaticResource MahApps.Styles.TextBlock}">
@@ -25,11 +25,9 @@
 
     <Grid Grid.Row="0">
       <Grid.RowDefinitions>
-        <RowDefinition Height="30"/>
-        <RowDefinition Height="10"/>
-        <RowDefinition Height="30"/>
-        <RowDefinition Height="30"/>
-        <RowDefinition Height="30"/>
+        <RowDefinition Height="40"/>
+        <RowDefinition Height="40"/>
+        <RowDefinition Height="40"/>
       </Grid.RowDefinitions>
 
       <Grid.ColumnDefinitions>
@@ -37,15 +35,16 @@
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
 
-      <TextBlock Grid.Row="2" Grid.Column="0" Text="Name"/>
-      <TextBox Grid.Row="2" Grid.Column="1" x:Name="sbomName"
+      <TextBlock Grid.Row="0" Grid.Column="0" Text="Name"/>
+      <TextBox Grid.Row="0" Grid.Column="1" x:Name="sbomName" Margin="0 5"
                Text="{Binding Name.Value, UpdateSourceTrigger=PropertyChanged}"/>
 
-      <TextBlock Grid.Row="3" Grid.Column="0" Text="SBOM File"/>
-      <controls:PathSelector Grid.Row="3" Grid.Column="1" SelectedPath="{Binding SbomFileName.Value}"/>
+      <TextBlock Grid.Row="1" Grid.Column="0" Text="SBOM File"/>
+      <controls:PathSelector Grid.Row="1" Grid.Column="1" Margin="0 5"
+                             SelectedPath="{Binding SbomFileName.Value}"/>
 
-      <TextBlock Grid.Row="4" Grid.Column="0" Text="Local Directory"/>
-      <controls:PathSelector Grid.Row="4" Grid.Column="1"
+      <TextBlock Grid.Row="2" Grid.Column="0" Text="Local Directory"/>
+      <controls:PathSelector Grid.Row="2" Grid.Column="1" Margin="0 5"
                              SelectedPath="{Binding LocalDirectoryPath.Value}"
                              PathSelectionMode="Directory"/>
     </Grid>

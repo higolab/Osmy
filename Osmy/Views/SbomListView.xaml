@@ -30,7 +30,7 @@
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
-      <mah:MetroHeader Grid.Row="0" Header="Sboms" Style="{StaticResource AccentMetroHeader}" VerticalAlignment="Center"/>
+      <mah:MetroHeader Grid.Row="0" Header="SBOMs" Style="{StaticResource AccentMetroHeader}" VerticalAlignment="Center"/>
       <ListBox Grid.Row="1" ItemsSource="{Binding SbomInfos.Value}"
                SelectedItem="{Binding SelectedSbomInfo.Value}" SelectionMode="Single">
         <ListBox.ItemTemplate>
@@ -71,11 +71,11 @@
       </ListBox>
 
       <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
-        <Button ToolTip="Add Sboms" Height="30"
+        <Button ToolTip="Add SBOM" Height="30"
                 Command="{Binding AddSbomCommand}">
           <StackPanel Orientation="Horizontal">
             <iconPacks:PackIconMaterial Kind="ArchivePlus"/>
-            <TextBlock Text="Add Sboms" Margin="5 0 0 0"/>
+            <TextBlock Text="Add SBOM" Margin="5 0 0 0"/>
           </StackPanel>
         </Button>
 
