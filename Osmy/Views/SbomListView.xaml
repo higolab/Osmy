@@ -74,8 +74,16 @@
         <Button ToolTip="Add SBOM" Height="30"
                 Command="{Binding AddSbomCommand}">
           <StackPanel Orientation="Horizontal">
-            <iconPacks:PackIconMaterial Kind="ArchivePlus"/>
-            <TextBlock Text="Add SBOM" Margin="5 0 0 0"/>
+            <iconPacks:PackIconMaterial Kind="Plus"/>
+            <TextBlock Text="Add" Margin="5 0 0 0"/>
+          </StackPanel>
+        </Button>
+
+        <Button ToolTip="Remove SBOM" Height="30" Margin="5 0 0 0"
+                Command="{Binding DeleteSbomCommand}">
+          <StackPanel Orientation="Horizontal">
+            <iconPacks:PackIconMaterial Kind="TrashCan"/>
+            <TextBlock Text="Remove" Margin="5 0 0 0"/>
           </StackPanel>
         </Button>
 

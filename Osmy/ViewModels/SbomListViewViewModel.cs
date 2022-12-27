@@ -23,12 +23,14 @@ namespace Osmy.ViewModels
 
         public ReactivePropertySlim<ObservableCollection<SbomInfo>> SbomInfos { get; }
 
-        public ReactivePropertySlim<SbomInfo> SelectedSbomInfo { get; }
+        public ReactivePropertySlim<SbomInfo?> SelectedSbomInfo { get; }
 
         public ReadOnlyReactivePropertySlim<SbomDetailsViewViewModel?> SelectedSbomVM { get; }
 
         public DelegateCommand AddSbomCommand => _addSbomCommand ??= new DelegateCommand(OpenSbomAddDiaglog);
         private DelegateCommand? _addSbomCommand;
+
+        public ReactiveCommand DeleteSbomCommand { get; }
 
         public DelegateCommand ScanVulnsCommand => _scanVulnsCommand ??= new DelegateCommand(ScanVulns);
         private DelegateCommand? _scanVulnsCommand;
@@ -40,8 +42,12 @@ namespace Osmy.ViewModels
             using var dbContext = new ManagedSoftwareContext();
 
             SbomInfos = new ReactivePropertySlim<ObservableCollection<SbomInfo>>(new ObservableCollection<SbomInfo>(FetchSbomInfos()));
-            SelectedSbomInfo = new ReactivePropertySlim<SbomInfo>();
-            SelectedSbomVM = SelectedSbomInfo.Where(x => x is not null).Select(x => new SbomDetailsViewViewModel(x.Sbom, _dialogService)).ToReadOnlyReactivePropertySlim();
+            SelectedSbomInfo = new ReactivePropertySlim<SbomInfo?>();
+            SelectedSbomVM = SelectedSbomInfo
+                .Select(x => x is null ? null : new SbomDetailsViewViewModel(x.Sbom, _dialogService))
+                .ToReadOnlyReactivePropertySlim();
+            DeleteSbomCommand = new ReactiveCommand(SelectedSbomInfo.Select(x => x is not null), false)
+                .WithSubscribe(DeleteSbom, out var disposable);  // TODO disposableの適切なタイミングでの破棄
         }
 
         private void OpenSbomAddDiaglog()
@@ -59,6 +65,17 @@ namespace Osmy.ViewModels
                 dbContext.SaveChanges();
                 SbomInfos.Value.Add(new SbomInfo(sbom, false, false));
             });
+        }
+
+        private async void DeleteSbom()
+        {
+            if (SelectedSbomInfo.Value is null) { return; }
+
+            using var dbContext = new ManagedSoftwareContext();
+            var sbom = dbContext.Sboms.First(x => x.Id == SelectedSbomInfo.Value.Sbom.Id);
+            dbContext.Sboms.Remove(sbom);
+            SbomInfos.Value.Remove(SelectedSbomInfo.Value);
+            await dbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
         private async void ScanVulns()

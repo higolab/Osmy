@@ -1,4 +1,4 @@
-﻿using Osmy.Models.Sbom;
+﻿using Microsoft.EntityFrameworkCore;
 using OSV.Client.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -10,7 +10,10 @@ namespace Osmy.Models.Sbom
     {
         [Key]
         public int Id { get; set; }
-        public virtual SbomPackage Package { get; set; }
+
+        [DeleteBehavior(DeleteBehavior.Cascade)]
+        public SbomPackage Package { get; set; }
+
         public bool IsVulnerable { get; set; }
 
         /// <summary>

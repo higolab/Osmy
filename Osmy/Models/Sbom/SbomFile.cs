@@ -1,4 +1,5 @@
 ﻿using CycloneDX.Spdx.Models.v2_2;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,7 @@ namespace Osmy.Models.Sbom
 
         public string FileName { get; set; }
 
+        [DeleteBehavior(DeleteBehavior.Cascade)]
         public List<SbomFileChecksum> Checksums { get; set; }
 
         public SbomFile()
