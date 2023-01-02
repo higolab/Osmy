@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Osmy.Models;
+using Osmy.Models.HashValidation;
 using Osmy.Models.Sbom;
 using Osmy.Models.Sbom.Spdx;
 using Osmy.Services;
@@ -52,7 +53,7 @@ namespace Osmy.ViewModels
 
         private void OpenSbomAddDiaglog()
         {
-            _dialogService.ShowDialog("AddSbomDialog", r =>
+            _dialogService.ShowDialog("AddSbomDialog", async r =>
             {
                 if (r.Result != ButtonResult.OK) { return; }
                 var name = r.Parameters.GetValue<string>("name");
@@ -62,8 +63,22 @@ namespace Osmy.ViewModels
 
                 using var dbContext = new ManagedSoftwareContext();
                 dbContext.Sboms.Add(sbom);
-                dbContext.SaveChanges();
-                SbomInfos.Value.Add(new SbomInfo(sbom, false, false));
+                await dbContext.SaveChangesAsync();
+
+                var container = ContainerLocator.Container;
+                var serviceManager = container.Resolve<BackgroundServiceManager>();
+                var vulnsScanResult = await Task.Run(() => serviceManager.Resolve<VulnerabilityScanService>().Scan(sbom));
+                dbContext.ScanResults.Add(vulnsScanResult);
+
+                HashValidationResultCollection? hashValidationResult = null;
+                if (sbom.LocalDirectory is not null)
+                {
+                    hashValidationResult = await Task.Run(() => serviceManager.Resolve<HashValidationService>().Validate(sbom));
+                    dbContext.HashValidationResults.Add(hashValidationResult);
+                }
+                await dbContext.SaveChangesAsync();
+
+                SbomInfos.Value.Add(new SbomInfo(sbom, vulnsScanResult.IsVulnerable, hashValidationResult?.HasError ?? false));
             });
         }
 
@@ -99,7 +114,7 @@ namespace Osmy.ViewModels
             foreach (var sbom in dbContext.Sboms)
             {
                 var isVulnerable = dbContext.ScanResults.Where(x => x.SbomId == sbom.Id).AsEnumerable().MaxBy(x => x.Executed)?.IsVulnerable ?? false;
-                var hasFileError = dbContext.HashValidationResults.Include(x => x.SbomFile).Where(x => x.SbomFile.SbomId == sbom.Id).Any(x => x.Result != HashValidationResult.Valid);
+                var hasFileError = dbContext.HashValidationResults.Where(x => x.SbomId == sbom.Id).OrderByDescending(x => x.Executed).FirstOrDefault()?.HasError ?? false;
                 yield return new SbomInfo(sbom, isVulnerable, hasFileError);
             }
         }

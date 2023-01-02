@@ -25,10 +25,8 @@ namespace Osmy.Services
         {
             var cancellationTokenSource = new CancellationTokenSource();
 
-            foreach (BackgroundService service in _services.Values)
-            {
-                await service.StartAsync(cancellationTokenSource.Token).ConfigureAwait(false);
-            }
+            var tasks = _services.Values.Select(service => service.StartAsync(cancellationTokenSource.Token));
+            await Task.WhenAll(tasks).ConfigureAwait(false);
         }
 
         public async Task StopAsync()

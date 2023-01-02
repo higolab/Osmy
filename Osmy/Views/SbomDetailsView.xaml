@@ -4,9 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-             xmlns:local="clr-namespace:Osmy.Views"
              xmlns:vm="clr-namespace:Osmy.ViewModels"
-             xmlns:sbom="clr-namespace:Osmy.Models.Sbom"
+             xmlns:hashValidation="clr-namespace:Osmy.Models.HashValidation"
              xmlns:controls="clr-namespace:Osmy.Controls"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              xmlns:prism="http://prismlibrary.com/"
@@ -155,12 +154,12 @@
                             <Setter Property="Foreground" Value="Green"/>
                             <Setter Property="ToolTip" Value="Valid"/>
                             <Style.Triggers>
-                              <DataTrigger Binding="{Binding Result}" Value="{x:Static sbom:HashValidationResult.Invalid}">
+                              <DataTrigger Binding="{Binding Result}" Value="{x:Static hashValidation:HashValidity.Invalid}">
                                 <Setter Property="Kind" Value="FileAlert"/>
                                 <Setter Property="Foreground" Value="Orange"/>
                                 <Setter Property="ToolTip" Value="File hash mismatched"/>
                               </DataTrigger>
-                              <DataTrigger Binding="{Binding Result}" Value="{x:Static sbom:HashValidationResult.FileNotFound}">
+                              <DataTrigger Binding="{Binding Result}" Value="{x:Static hashValidation:HashValidity.FileNotFound}">
                                 <Setter Property="Kind" Value="FileHidden"/>
                                 <Setter Property="Foreground" Value="Gray"/>
                                 <Setter Property="ToolTip" Value="File Not Found"/>

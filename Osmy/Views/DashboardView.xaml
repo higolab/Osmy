@@ -84,7 +84,7 @@
               <Setter Property="Kind" Value="FileAlert"/>
               <Setter Property="Foreground" Value="Orange"/>
               <Style.Triggers>
-                <DataTrigger Binding="{Binding InvalidHashes.Value.Length}" Value="0">
+                <DataTrigger Binding="{Binding FileErrorSoftwares.Value.Length}" Value="0">
                   <Setter Property="Kind" Value="FileCheck"/>
                   <Setter Property="Foreground" Value="Green"/>
                 </DataTrigger>
@@ -96,14 +96,14 @@
         <TextBlock Grid.Row="2" Grid.Column="1" FontSize="18" VerticalAlignment="Center" Margin="5 0 0 0">
           <TextBlock.Style>
             <Style TargetType="TextBlock">
-              <Setter Property="Text" Value="{Binding InvalidHashes.Value.Length, StringFormat={}{0} file hash mismatches}"/>
+              <Setter Property="Text" Value="{Binding FileErrorSoftwares.Value.Length, StringFormat={}{0} softwares have file hash mismatch}"/>
               <Setter Property="Foreground" Value="Orange"/>
               <Style.Triggers>
-                <DataTrigger Binding="{Binding InvalidHashes.Value.Length}" Value="1">
-                  <Setter Property="Text" Value="{Binding InvalidHashes.Value.Length, StringFormat={}{0} file hash mismatch}"/>
+                <DataTrigger Binding="{Binding FileErrorSoftwares.Value.Length}" Value="1">
+                  <Setter Property="Text" Value="{Binding InvalidHashes.Value.Length, StringFormat={}{0} software has file hash mismatch}"/>
                 </DataTrigger>
-                <DataTrigger Binding="{Binding InvalidHashes.Value.Length}" Value="0">
-                  <Setter Property="Text" Value="No file hash mismatch"/>
+                <DataTrigger Binding="{Binding FileErrorSoftwares.Value.Length}" Value="0">
+                  <Setter Property="Text" Value="No softwares has file hash mismatch"/>
                   <Setter Property="Foreground" Value="Green"/>
                 </DataTrigger>
               </Style.Triggers>
@@ -111,11 +111,11 @@
           </TextBlock.Style>
         </TextBlock>
 
-        <ItemsControl Grid.Row="3" Grid.Column="1" ItemsSource="{Binding InvalidHashes.Value}">
+        <ItemsControl Grid.Row="3" Grid.Column="1" ItemsSource="{Binding FileErrorSoftwares.Value}">
           <ItemsControl.ItemTemplate>
             <DataTemplate>
               <StackPanel Orientation="Horizontal">
-                <TextBlock Text="{Binding}" Margin="0 0 0 2"/>
+                <TextBlock Text="{Binding Name}" Margin="0 0 0 2"/>
               </StackPanel>
             </DataTemplate>
           </ItemsControl.ItemTemplate>

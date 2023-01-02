@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Osmy.Models;
+using Osmy.Models.HashValidation;
 using Osmy.Models.Sbom;
 using Prism.Mvvm;
 using Reactive.Bindings;
@@ -11,7 +12,7 @@ namespace Osmy.ViewModels
     public class DashboardViewViewModel : BindableBase
     {
         public ReactivePropertySlim<Sbom[]> VulnerableSoftwares { get; }
-        public ReactivePropertySlim<string[]> InvalidHashes { get; set; }
+        public ReactivePropertySlim<Sbom[]> FileErrorSoftwares { get; set; }
 
         public DashboardViewViewModel()
         {
@@ -28,16 +29,15 @@ namespace Osmy.ViewModels
                 .ToArray();
             VulnerableSoftwares = new ReactivePropertySlim<Sbom[]>(vulnerableSoftwares);
 
-            var invalidHashes = dbContext.HashValidationResults
-                .Include(x => x.SbomFile)
-                .ThenInclude(x => x.Sbom)
-                .GroupBy(x => x.SbomFile)
+            var fileErrorSoftwares = dbContext.HashValidationResults
+                .Include(x => x.Sbom)
                 .AsEnumerable()
+                .GroupBy(x => x.SbomId)
                 .Select(g => g.MaxBy(x => x.Executed)!)
-                .Where(x => x.Result != HashValidationResult.Valid)
-                .Select(x => Path.GetFullPath(Path.Join(x.SbomFile.Sbom.LocalDirectory, x.SbomFile.FileName)))
+                .Where(x => x.HasError)
+                .Select(x => x.Sbom)
                 .ToArray();
-            InvalidHashes = new ReactivePropertySlim<string[]>(invalidHashes);
+            FileErrorSoftwares = new ReactivePropertySlim<Sbom[]>(fileErrorSoftwares);
         }
 
 

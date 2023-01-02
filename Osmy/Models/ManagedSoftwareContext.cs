@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Osmy.Models.HashValidation;
 using Osmy.Models.Sbom;
 using Osmy.Models.Sbom.Spdx;
 using System;
@@ -18,7 +19,7 @@ namespace Osmy.Models
 
         public DbSet<VulnerabilityScanResult> ScanResults { get; set; }
 
-        public DbSet<HashValidation> HashValidationResults { get; set; }
+        public DbSet<HashValidationResultCollection> HashValidationResults { get; set; }
 
         public ManagedSoftwareContext()
         {
