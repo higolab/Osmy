@@ -2,6 +2,7 @@
 using Osmy.Models;
 using Osmy.Models.HashValidation;
 using Osmy.Models.Sbom;
+using Osmy.Properties;
 using System;
 using System.IO;
 using System.Linq;
@@ -18,11 +19,6 @@ namespace Osmy.Services
         /// 自動診断が必要なソフトウェアが存在するかをチェックする間隔
         /// </summary>
         public TimeSpan AutoScanCheckInterval { get; set; } = TimeSpan.FromMinutes(5);
-
-        /// <summary>
-        /// 自動診断を行う間隔
-        /// </summary>
-        public TimeSpan AutoScanInterval { get; set; } = TimeSpan.FromDays(1);
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -45,7 +41,7 @@ namespace Osmy.Services
             while (true)
             {
                 using var context = new ManagedSoftwareContext();
-                var before = DateTime.Now.Subtract(AutoScanInterval);
+                var before = DateTime.Now.Subtract(Settings.Default.HashValidationInterval);
 
                 // 前回スキャンから一定期間経過しているソフトウェアのIDリストを作成
                 var sbomIdsNotScannedRecently = context.Sboms
