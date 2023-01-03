@@ -29,11 +29,13 @@ namespace Osmy
         {
             containerRegistry.RegisterForNavigation<DashboardView>();
             containerRegistry.RegisterForNavigation<SbomListView>();
+            containerRegistry.RegisterForNavigation<SettingView>();
             containerRegistry.RegisterDialogWindow<MetroDialogWindow>();
             containerRegistry.RegisterDialog<AddSbomDialog, AddSbomDialogViewModel>();
 
             ViewModelLocationProvider.Register<DashboardView, DashboardViewViewModel>();
             ViewModelLocationProvider.Register<SbomListView, SbomListViewViewModel>();
+            ViewModelLocationProvider.Register<SettingView, SettingViewViewModel>();
 
             containerRegistry.RegisterInstance(_backgroundServiceManager);
         }

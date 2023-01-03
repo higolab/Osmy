@@ -2,9 +2,6 @@
 using Prism.Mvvm;
 using Prism.Regions;
 using Reactive.Bindings;
-using System;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
 
 namespace Osmy.ViewModels
 {
@@ -33,6 +30,9 @@ namespace Osmy.ViewModels
                 case "softwares":
                     SetContentView("SbomListView");
                     break;
+                case "setting":
+                    SetContentView("SettingView");
+                    break;
             }
 
             void SetContentView(string viewName)
@@ -43,8 +43,8 @@ namespace Osmy.ViewModels
 
         public void OnNavigated(NavigationResult result)
         {
-            System.Diagnostics.Debug.WriteLine(result.Result);
-            System.Diagnostics.Debug.WriteLine(result.Error);
+            //System.Diagnostics.Debug.WriteLine(result.Result);
+            //System.Diagnostics.Debug.WriteLine(result.Error);
         }
     }
 }

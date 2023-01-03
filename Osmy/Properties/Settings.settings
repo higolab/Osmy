@@ -8,5 +8,8 @@
     <Setting Name="VulnsScanInterval" Type="System.TimeSpan" Scope="User">
       <Value Profile="(Default)">1.00:00:00</Value>
     </Setting>
+    <Setting Name="StartWithWindows" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

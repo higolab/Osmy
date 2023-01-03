@@ -108,7 +108,16 @@
     <!--  Options  -->
     <mah:HamburgerMenu.OptionsItemsSource>
       <mah:HamburgerMenuItemCollection>
-        <mah:HamburgerMenuIconItem Label="About">
+        <mah:HamburgerMenuIconItem Label="Setting" Command="{Binding PageChangeCommand}" CommandParameter="setting">
+          <mah:HamburgerMenuIconItem.Icon>
+            <iconPacks:PackIconMaterial Width="22"
+                                        Height="22"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Kind="Cog" />
+          </mah:HamburgerMenuIconItem.Icon>
+        </mah:HamburgerMenuIconItem>
+        <!--<mah:HamburgerMenuIconItem Label="About">
           <mah:HamburgerMenuIconItem.Icon>
             <iconPacks:PackIconMaterial Width="22"
                                         Height="22"
@@ -116,7 +125,7 @@
                                         VerticalAlignment="Center"
                                         Kind="Help" />
           </mah:HamburgerMenuIconItem.Icon>
-        </mah:HamburgerMenuIconItem>
+        </mah:HamburgerMenuIconItem>-->
       </mah:HamburgerMenuItemCollection>
     </mah:HamburgerMenu.OptionsItemsSource>
 
