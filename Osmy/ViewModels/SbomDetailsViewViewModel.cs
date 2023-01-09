@@ -1,22 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Osmy.Extensions;
 using Osmy.Models;
 using Osmy.Models.HashValidation;
 using Osmy.Models.Sbom;
-using Osmy.Models.Sbom.Spdx;
-using OSV.Client.Models;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
-using QuickGraph;
 using Reactive.Bindings;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Osmy.ViewModels
 {
@@ -30,7 +22,7 @@ namespace Osmy.ViewModels
         public ReactivePropertySlim<Sbom> Sbom { get; }
 
         public ReactivePropertySlim<VulnerabilityScanResult?> ScanResult { get; }
-        public ReactivePropertySlim<HashValidationResult[]> HashValidationResults { get; }
+        public ReactivePropertySlim<HashValidationResultCollection?> HashValidationResults { get; }
 
         public DelegateCommand PathSelectedCommand => _pathSelectedCommand ??= new DelegateCommand(OnPathSelected);
         private DelegateCommand? _pathSelectedCommand;
@@ -40,7 +32,7 @@ namespace Osmy.ViewModels
             _dialogService = dialogService;
 
             Sbom = new ReactivePropertySlim<Sbom>(sbom);
-            HashValidationResults = new ReactivePropertySlim<HashValidationResult[]>(FetchFileHashValidationResult());
+            HashValidationResults = new ReactivePropertySlim<HashValidationResultCollection?>(FetchFileHashValidationResult());
 
             //sbom.VulnerabilityScanned += OnSoftwareVulnerabilityScanned;
             //// TODO Disposableの処理
@@ -79,23 +71,26 @@ namespace Osmy.ViewModels
                 .MaxBy(x => x.Executed);
         }
 
-        private HashValidationResult[] FetchFileHashValidationResult()
+        private HashValidationResultCollection? FetchFileHashValidationResult()
         {
             using var dbContext = new ManagedSoftwareContext();
-            return dbContext.HashValidationResults
+            var resultCollection = dbContext.HashValidationResults
                 .Where(x => x.SbomId == Sbom.Value.Id)
                 .OrderByDescending(x => x.Executed)
                 .Include(x => x.Results)
                 .ThenInclude(x => x.SbomFile)
                 .ThenInclude(x => x.Checksums)
-                .FirstOrDefault()
-                ?.Results
-                ?.Select(x =>
+                .FirstOrDefault();
+
+            if (resultCollection is not null)
+            {
+                foreach (var result in resultCollection.Results)
                 {
-                    x.SbomFile.Checksums = x.SbomFile.Checksums.OrderBy(checksum => checksum.Algorithm).ToList();
-                    return x;
-                })
-                ?.ToArray() ?? Array.Empty<HashValidationResult>();
+                    result.SbomFile.Checksums = result.SbomFile.Checksums.OrderBy(checksum => checksum.Algorithm).ToList();
+                }
+            }
+
+            return resultCollection;
         }
 
         private async void OnPathSelected()

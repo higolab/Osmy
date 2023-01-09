@@ -16,7 +16,7 @@
   <UserControl.Resources>
     <ScrollViewer x:Key="MainGrid" HorizontalScrollBarVisibility="Auto">
       <ScrollViewer.Resources>
-        <Style TargetType="ListView">
+        <Style x:Key="hoge" TargetType="ListView">
           <!--ListView上でマウスホイールによるスクロールを可能にする-->
           <Setter Property="Template">
             <Setter.Value>
@@ -36,7 +36,6 @@
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
-          <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <Grid.Resources>
@@ -49,156 +48,155 @@
 
         <mah:MetroHeader Grid.Row="1" Header="Local Directory" Margin="0 0 0 5">
           <controls:PathSelector SelectedPath="{Binding Sbom.Value.LocalDirectory}" PathSelectionMode="Directory"
-                                 PathSelectedCommand="{Binding PathSelectedCommand}"/>
+                                 PathSelectedCommand="{Binding PathSelectedCommand}" MaxWidth="{Binding ViewportWidth, RelativeSource={RelativeSource AncestorType=ScrollViewer}}"/>
         </mah:MetroHeader>
 
-        <!--Latest Scan Result-->
-        <mah:MetroHeader Grid.Row="2" Header="Latest Scan Result">
-          <ListView ItemsSource="{Binding ScanResult.Value.Results}" SelectionMode="Extended">
-            <ListView.View>
-              <GridView AllowsColumnReorder="False">
-                <GridViewColumn>
-                  <GridViewColumn.CellTemplate>
-                    <DataTemplate>
-                      <iconPacks:PackIconMaterial Kind="Bug" Foreground="Red">
-                        <iconPacks:PackIconMaterial.Style>
-                          <Style TargetType="iconPacks:PackIconMaterial">
-                            <Setter Property="Visibility" Value="Hidden"/>
-                            <Style.Triggers>
-                              <DataTrigger Binding="{Binding IsVulnerable}" Value="True">
-                                <Setter Property="Visibility" Value="Visible"/>
-                              </DataTrigger>
-                            </Style.Triggers>
-                          </Style>
-                        </iconPacks:PackIconMaterial.Style>
+        <TabControl Grid.Row="2" mah:HeaderedControlHelper.HeaderFontSize="14">
+          <TabItem Header="Packages">
+            <StackPanel>
+              <TextBlock Text="{Binding ScanResult.Value.Executed, StringFormat=Last Scan: {0:yyyy/MM/dd HH:mm:ss}}" Foreground="Gray"/>
 
-                        <iconPacks:PackIconMaterial.ToolTip>
-                          <ItemsControl ItemsSource="{Binding VulnerabilityList.Vulnerabilities}">
-                            <ItemsControl.ItemTemplate>
+              <ListView ItemsSource="{Binding ScanResult.Value.Results}" SelectionMode="Extended" Margin="0 5 0 0">
+                <ListView.View>
+                  <GridView AllowsColumnReorder="False">
+                    <GridViewColumn>
+                      <GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                          <iconPacks:PackIconMaterial Kind="Bug" Foreground="Red">
+                            <iconPacks:PackIconMaterial.Style>
+                              <Style TargetType="iconPacks:PackIconMaterial">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                                <Style.Triggers>
+                                  <DataTrigger Binding="{Binding IsVulnerable}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                  </DataTrigger>
+                                </Style.Triggers>
+                              </Style>
+                            </iconPacks:PackIconMaterial.Style>
+
+                            <!--TODO ToolTipで確認するのは大変かもしれない-->
+                            <iconPacks:PackIconMaterial.ToolTip>
+                              <ItemsControl ItemsSource="{Binding VulnerabilityList.Vulnerabilities}">
+                                <ItemsControl.ItemTemplate>
+                                  <DataTemplate>
+                                    <Grid>
+                                      <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                      </Grid.RowDefinitions>
+
+                                      <mah:MetroHeader Grid.Row="0" Header="Summary">
+                                        <TextBlock Text="{Binding Summary}"/>
+                                      </mah:MetroHeader>
+
+                                      <mah:MetroHeader Grid.Row="1" Header="Severity">
+                                        <ItemsControl ItemsSource="{Binding Severity}">
+                                          <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                              <TextBlock>[<Run Text="{Binding Type}"/>] <Run Text="{Binding Score}"/></TextBlock>
+                                            </DataTemplate>
+                                          </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                      </mah:MetroHeader>
+                                    </Grid>
+                                  </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                              </ItemsControl>
+                            </iconPacks:PackIconMaterial.ToolTip>
+                          </iconPacks:PackIconMaterial>
+                        </DataTemplate>
+                      </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Package.Name}"/>
+                    <GridViewColumn Header="Version" DisplayMemberBinding="{Binding Package.Version}"/>
+                  </GridView>
+                </ListView.View>
+
+                <ListView.Resources>
+                  <Style TargetType="ListViewItem" BasedOn="{StaticResource MahApps.Styles.ListViewItem}">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding IsVulnerable}" Value="True">
+                        <Setter Property="Background" Value="Pink"/>
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </ListView.Resources>
+              </ListView>
+            </StackPanel>
+          </TabItem>
+
+          <TabItem Header="Files">
+            <StackPanel>
+              <TextBlock Text="{Binding HashValidationResults.Value.Executed, StringFormat=Last Check: {0:yyyy/MM/dd HH:mm:ss}}" Foreground="Gray"/>
+
+              <ListView ItemsSource="{Binding HashValidationResults.Value.Results}" SelectionMode="Single" Margin="0 5 0 0">
+                <ListView.View>
+                  <GridView AllowsColumnReorder="False">
+                    <GridViewColumn>
+                      <GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                          <iconPacks:PackIconMaterial>
+                            <iconPacks:PackIconMaterial.Style>
+                              <Style TargetType="iconPacks:PackIconMaterial">
+                                <Setter Property="Kind" Value="FileCheck"/>
+                                <Setter Property="Foreground" Value="Green"/>
+                                <Setter Property="ToolTip" Value="Valid"/>
+                                <Style.Triggers>
+                                  <DataTrigger Binding="{Binding Result}" Value="{x:Static hashValidation:HashValidity.Invalid}">
+                                    <Setter Property="Kind" Value="FileAlert"/>
+                                    <Setter Property="Foreground" Value="Orange"/>
+                                    <Setter Property="ToolTip" Value="File hash mismatched"/>
+                                  </DataTrigger>
+                                  <DataTrigger Binding="{Binding Result}" Value="{x:Static hashValidation:HashValidity.FileNotFound}">
+                                    <Setter Property="Kind" Value="FileHidden"/>
+                                    <Setter Property="Foreground" Value="Gray"/>
+                                    <Setter Property="ToolTip" Value="File Not Found"/>
+                                  </DataTrigger>
+                                </Style.Triggers>
+                              </Style>
+                            </iconPacks:PackIconMaterial.Style>
+                          </iconPacks:PackIconMaterial>
+                        </DataTemplate>
+                      </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Name" DisplayMemberBinding="{Binding SbomFile.FileName}"/>
+                    <GridViewColumn Header="Checksum">
+                      <GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                          <mah:DropDownButton ItemsSource="{Binding SbomFile.Checksums}" BorderBrush="Transparent" Background="Transparent" ToolTip="Copy to clipboard">
+                            <mah:DropDownButton.Content>
+                              <iconPacks:PackIconMaterial Kind="ContentCopy"/>
+                            </mah:DropDownButton.Content>
+
+                            <mah:DropDownButton.ItemTemplate>
                               <DataTemplate>
-                                <Grid>
-                                  <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                  </Grid.RowDefinitions>
-
-                                  <mah:MetroHeader Grid.Row="0" Header="Summary">
-                                    <TextBlock Text="{Binding Summary}"/>
-                                  </mah:MetroHeader>
-
-                                  <mah:MetroHeader Grid.Row="1" Header="Severity">
-                                    <ItemsControl ItemsSource="{Binding Severity}">
-                                      <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                          <TextBlock>[<Run Text="{Binding Type}"/>] <Run Text="{Binding Score}"/></TextBlock>
-                                        </DataTemplate>
-                                      </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                  </mah:MetroHeader>
-                                </Grid>
+                                <StackPanel Orientation="Horizontal">
+                                  <Border BorderBrush="Gray" BorderThickness="1" CornerRadius="2" Padding="5 0" Margin="0 0 3 0"
+                                          HorizontalAlignment="Left" Width="60" Background="Transparent">
+                                    <TextBlock Text="{Binding Algorithm}" HorizontalAlignment="Center"/>
+                                  </Border>
+                                  <TextBlock Text="{Binding Value}"/>
+                                </StackPanel>
                               </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                          </ItemsControl>
-                        </iconPacks:PackIconMaterial.ToolTip>
-                      </iconPacks:PackIconMaterial>
-                    </DataTemplate>
-                  </GridViewColumn.CellTemplate>
-                </GridViewColumn>
-                <GridViewColumn Header="Name">
-                  <GridViewColumn.CellTemplate>
-                    <DataTemplate>
-                      <TextBlock Text="{Binding Package.Name}">
-                        <!--<TextBlock.Style>
-                          <Style TargetType="TextBlock" BasedOn="{StaticResource MahApps.Styles.TextBlock}">
-                            <Setter Property="FontWeight" Value="Normal"/>
-                            <Style.Triggers>
-                              <DataTrigger Binding="{Binding Package.IsRootPackage}" Value="True">
-                                <Setter Property="FontWeight" Value="Bold"/>
-                              </DataTrigger>
-                            </Style.Triggers>
-                          </Style>
-                        </TextBlock.Style>-->
-                      </TextBlock>
-                    </DataTemplate>
-                  </GridViewColumn.CellTemplate>
-                </GridViewColumn>
-                <GridViewColumn Header="Version" DisplayMemberBinding="{Binding Package.Version}"/>
-              </GridView>
-            </ListView.View>
+                            </mah:DropDownButton.ItemTemplate>
 
-            <ListView.Resources>
-              <Style TargetType="ListViewItem" BasedOn="{StaticResource MahApps.Styles.ListViewItem}">
-                <Setter Property="Background" Value="Transparent"/>
-                <Style.Triggers>
-                  <DataTrigger Binding="{Binding IsVulnerable}" Value="True">
-                    <Setter Property="Background" Value="Pink"/>
-                  </DataTrigger>
-                </Style.Triggers>
-              </Style>
-            </ListView.Resources>
-          </ListView>
-        </mah:MetroHeader>
-
-        <!--Files-->
-        <mah:MetroHeader Grid.Row="3" Header="Files" Margin="0 5 0 0">
-          <ListView ItemsSource="{Binding HashValidationResults.Value}" SelectionMode="Single">
-            <ListView.View>
-              <GridView AllowsColumnReorder="False">
-                <GridViewColumn Header="Result">
-                  <GridViewColumn.CellTemplate>
-                    <DataTemplate>
-                      <iconPacks:PackIconMaterial>
-                        <iconPacks:PackIconMaterial.Style>
-                          <Style TargetType="iconPacks:PackIconMaterial">
-                            <Setter Property="Kind" Value="FileCheck"/>
-                            <Setter Property="Foreground" Value="Green"/>
-                            <Setter Property="ToolTip" Value="Valid"/>
-                            <Style.Triggers>
-                              <DataTrigger Binding="{Binding Result}" Value="{x:Static hashValidation:HashValidity.Invalid}">
-                                <Setter Property="Kind" Value="FileAlert"/>
-                                <Setter Property="Foreground" Value="Orange"/>
-                                <Setter Property="ToolTip" Value="File hash mismatched"/>
-                              </DataTrigger>
-                              <DataTrigger Binding="{Binding Result}" Value="{x:Static hashValidation:HashValidity.FileNotFound}">
-                                <Setter Property="Kind" Value="FileHidden"/>
-                                <Setter Property="Foreground" Value="Gray"/>
-                                <Setter Property="ToolTip" Value="File Not Found"/>
-                              </DataTrigger>
-                            </Style.Triggers>
-                          </Style>
-                        </iconPacks:PackIconMaterial.Style>
-                      </iconPacks:PackIconMaterial>
-                    </DataTemplate>
-                  </GridViewColumn.CellTemplate>
-                </GridViewColumn>
-                <GridViewColumn Header="Name" DisplayMemberBinding="{Binding SbomFile.FileName}"/>
-                <!--TODO 幅の動的な調整-->
-                <GridViewColumn Header="Checksum" Width="200">
-                  <GridViewColumn.CellTemplate>
-                    <DataTemplate>
-                      <ItemsControl x:Name="checksums" ItemsSource="{Binding SbomFile.Checksums}">
-                        <ItemsControl.ItemTemplate>
-                          <DataTemplate>
-                            <Border BorderBrush="Gray" BorderThickness="1" CornerRadius="2" Padding="5 0" Margin="0 0 3 0"
-                                    HorizontalAlignment="Left" Width="60" ToolTip="{Binding Value}" Background="Transparent">
-                              <TextBlock Text="{Binding Algorithm}" HorizontalAlignment="Center"/>
-                            </Border>
-                          </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-
-                        <ItemsControl.ItemsPanel>
-                          <ItemsPanelTemplate>
-                            <UniformGrid Columns="3" IsItemsHost="True"/>
-                          </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                      </ItemsControl>
-                    </DataTemplate>
-                  </GridViewColumn.CellTemplate>
-                </GridViewColumn>
-              </GridView>
-            </ListView.View>
-          </ListView>
-        </mah:MetroHeader>
+                            <mah:DropDownButton.ItemContainerStyle>
+                              <Style BasedOn="{StaticResource {x:Type MenuItem}}" TargetType="{x:Type MenuItem}">
+                                <Setter Property="Command" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type mah:DropDownButton}}, Path=DataContext.GenreDropDownMenuItemCommand}" />
+                                <Setter Property="CommandParameter" Value="{Binding Value}" />
+                              </Style>
+                            </mah:DropDownButton.ItemContainerStyle>
+                          </mah:DropDownButton>
+                        </DataTemplate>
+                      </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                  </GridView>
+                </ListView.View>
+              </ListView>
+            </StackPanel>
+          </TabItem>
+        </TabControl>
       </Grid>
     </ScrollViewer>
 
