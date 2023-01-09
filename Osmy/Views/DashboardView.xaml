@@ -5,14 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-             xmlns:graphsharp="clr-namespace:GraphSharp.Controls;assembly=GraphSharp.Controls"
-             xmlns:zoom="clr-namespace:GraphSharp.Controls.Zoom;assembly=GraphSharp.Controls"
-             xmlns:quickgraph="clr-namespace:QuickGraph;assembly=QuickGraph"
              xmlns:prism="http://prismlibrary.com/"
              prism:ViewModelLocator.AutoWireViewModel="True"
-             xmlns:local="clr-namespace:Osmy.Views"
              xmlns:vm="clr-namespace:Osmy.ViewModels"
-             xmlns:models="clr-namespace:Osmy.Models.Sbom"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=vm:DashboardViewViewModel}"
              d:DesignHeight="450" d:DesignWidth="800">
@@ -100,7 +95,8 @@
               <Setter Property="Foreground" Value="Orange"/>
               <Style.Triggers>
                 <DataTrigger Binding="{Binding FileErrorSoftwares.Value.Length}" Value="1">
-                  <Setter Property="Text" Value="{Binding InvalidHashes.Value.Length, StringFormat={}{0} software has file hash mismatch}"/>
+                  <Setter Property="Text" Value="{Binding FileErrorSoftwares.Value.Length, StringFormat={}{0} software has file hash mismatch}"/>
+                  <Setter Property="Foreground" Value="Orange"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding FileErrorSoftwares.Value.Length}" Value="0">
                   <Setter Property="Text" Value="No softwares has file hash mismatch"/>
