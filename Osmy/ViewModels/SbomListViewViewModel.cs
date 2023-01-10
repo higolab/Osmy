@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Osmy.Models;
 using Osmy.Models.HashValidation;
+using Osmy.Models.Sbom;
 using Osmy.Models.Sbom.Spdx;
 using Osmy.Services;
 using Prism.Commands;
@@ -8,6 +9,7 @@ using Prism.Ioc;
 using Prism.Mvvm;
 using Prism.Services.Dialogs;
 using Reactive.Bindings;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -20,6 +22,7 @@ namespace Osmy.ViewModels
     internal class SbomListViewViewModel : BindableBase
     {
         private readonly IDialogService _dialogService;
+        private readonly IMessageBoxService _messageBoxService;
 
         public ReactivePropertySlim<ObservableCollection<SbomInfo>> SbomInfos { get; }
 
@@ -35,9 +38,10 @@ namespace Osmy.ViewModels
         public DelegateCommand ScanVulnsCommand => _scanVulnsCommand ??= new DelegateCommand(ScanVulns);
         private DelegateCommand? _scanVulnsCommand;
 
-        public SbomListViewViewModel(IDialogService dialogService)
+        public SbomListViewViewModel(IDialogService dialogService, IMessageBoxService messageBoxService)
         {
             _dialogService = dialogService;
+            _messageBoxService = messageBoxService;
 
             using var dbContext = new ManagedSoftwareContext();
 
@@ -58,7 +62,17 @@ namespace Osmy.ViewModels
                 var name = r.Parameters.GetValue<string>("name");
                 var sbomFile = r.Parameters.GetValue<string>("sbom");
                 var localDirectory = r.Parameters.GetValue<string>("localDirectory");
-                var sbom = new Spdx(name, sbomFile, localDirectory);
+
+                Sbom sbom = default!;
+                try
+                {
+                    sbom = new Spdx(name, sbomFile, localDirectory);
+                }
+                catch (Exception)
+                {
+                    _messageBoxService.ShowInformationMessage("Failed to load the SBOM file");
+                    return;
+                }
 
                 using var dbContext = new ManagedSoftwareContext();
                 dbContext.Sboms.Add(sbom);

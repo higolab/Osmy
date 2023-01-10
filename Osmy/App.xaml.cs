@@ -12,6 +12,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Threading;
 using DryIoc;
+using Prism.Services.Dialogs;
 
 namespace Osmy
 {
@@ -48,12 +49,14 @@ namespace Osmy
             containerRegistry.RegisterForNavigation<SettingView>();
             containerRegistry.RegisterDialogWindow<MetroDialogWindow>();
             containerRegistry.RegisterDialog<AddSbomDialog, AddSbomDialogViewModel>();
+            containerRegistry.RegisterDialog<MessageBoxDialog, MessageBoxDialogViewModel>();
 
             ViewModelLocationProvider.Register<DashboardView, DashboardViewViewModel>();
             ViewModelLocationProvider.Register<SbomListView, SbomListViewViewModel>();
             ViewModelLocationProvider.Register<SettingView, SettingViewViewModel>();
 
             containerRegistry.RegisterInstance(_backgroundServiceManager);
+            containerRegistry.RegisterSingleton<IMessageBoxService>(() => new MessageBoxService(Container.Resolve<IDialogService>()));
         }
 
         private void InitDb()

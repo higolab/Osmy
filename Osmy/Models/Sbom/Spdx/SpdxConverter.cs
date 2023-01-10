@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -12,7 +13,6 @@ namespace Osmy.Models.Sbom.Spdx
 {
     class SpdxConverter
     {
-        //const string ConverterJar = @"tools-java-1.1.3-jar-with-dependencies.jar";
         const string ConverterFileName = @"tools-java-jar-with-dependencies.jar";
         static readonly string ConverterPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Osmy", ConverterFileName);
 
@@ -29,9 +29,17 @@ namespace Osmy.Models.Sbom.Spdx
                 Arguments = $"-jar {ConverterPath} Convert {path} {outputPath}",
                 UseShellExecute = false,
                 CreateNoWindow = true,
+                RedirectStandardError = true,
             };
-            var process = Process.Start(startInfo)!;
+            var process = Process.Start(startInfo);
+            if (process is null) { throw new SpdxConvertException("failed to start process"); }
+            var error = process.StandardError.ReadToEnd();
             process.WaitForExit();
+
+            if (process.ExitCode != 0)
+            {
+                throw new SpdxConvertException(error);
+            }
 
             try
             {
@@ -104,6 +112,25 @@ namespace Osmy.Models.Sbom.Spdx
             }
 
             return true;
+        }
+    }
+
+    internal class SpdxConvertException : Exception
+    {
+        public SpdxConvertException()
+        {
+        }
+
+        public SpdxConvertException(string? message) : base(message)
+        {
+        }
+
+        public SpdxConvertException(string? message, Exception? innerException) : base(message, innerException)
+        {
+        }
+
+        protected SpdxConvertException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
         }
     }
 }
