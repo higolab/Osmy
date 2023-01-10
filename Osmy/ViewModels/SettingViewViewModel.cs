@@ -12,8 +12,8 @@ namespace Osmy.ViewModels
     public class SettingViewViewModel : BindableBase
     {
         public SettingItem<bool> StartWithWindows { get; }
-        public SettingItem<TimeSpan> VulnsScanInterval { get; }
-        public SettingItem<TimeSpan> HashValidationInterval { get; }
+        public SettingItem<TimeSpan> VulnerabilityScanInterval { get; }
+        public SettingItem<TimeSpan> ChecksumVerificationInterval { get; }
 
         public ReactiveCommand SaveCommand { get; }
         public ReactiveCommand ResetCommand { get; }
@@ -35,20 +35,19 @@ namespace Osmy.ViewModels
                     Settings.Default.StartWithWindows = startWithWindows;
                 });
 
-            VulnsScanInterval = new SettingItem<TimeSpan>(Settings.Default.VulnsScanInterval,
-                vulnsScanInterval =>
+            VulnerabilityScanInterval = new SettingItem<TimeSpan>(Settings.Default.VulnerabilityScanInterval,
+                vulnerabilityScanInterval =>
                 {
-                    Settings.Default.VulnsScanInterval = vulnsScanInterval;
+                    Settings.Default.VulnerabilityScanInterval = vulnerabilityScanInterval;
                 });
 
-            HashValidationInterval = new SettingItem<TimeSpan>(
-                Settings.Default.HashValidationInterval,
-                hashValidationInterval =>
+            ChecksumVerificationInterval = new SettingItem<TimeSpan>(
+                Settings.Default.ChecksumVerificationInterval,
+                chesksumVerificationInterval =>
                 {
-                    Settings.Default.HashValidationInterval = hashValidationInterval;
+                    Settings.Default.ChecksumVerificationInterval = chesksumVerificationInterval;
                 });
 
-            StartWithWindows.ValueChanged.Subscribe(x => System.Diagnostics.Debug.WriteLine($"StartWithWindows value changed {x}"));
             SaveCommand = YieldSettingItems().CombineLatest(xs => xs.Any(x => x)).ToReactiveCommand(false).WithSubscribe(Save);
             ResetCommand = YieldSettingItems().CombineLatest(xs => xs.Any(x => x)).ToReactiveCommand(false).WithSubscribe(Reset);
         }
@@ -56,23 +55,23 @@ namespace Osmy.ViewModels
         public void Save()
         {
             StartWithWindows.Save();
-            VulnsScanInterval.Save();
-            HashValidationInterval.Save();
+            VulnerabilityScanInterval.Save();
+            ChecksumVerificationInterval.Save();
             Settings.Default.Save();
         }
 
         public void Reset()
         {
             StartWithWindows.Reset();
-            VulnsScanInterval.Reset();
-            HashValidationInterval.Reset();
+            VulnerabilityScanInterval.Reset();
+            ChecksumVerificationInterval.Reset();
         }
 
         private IEnumerable<IObservable<bool>> YieldSettingItems()
         {
             yield return StartWithWindows.ValueChanged;
-            yield return VulnsScanInterval.ValueChanged;
-            yield return HashValidationInterval.ValueChanged;
+            yield return VulnerabilityScanInterval.ValueChanged;
+            yield return ChecksumVerificationInterval.ValueChanged;
         }
     }
 

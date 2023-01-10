@@ -19,7 +19,7 @@ namespace Osmy.Models
         /// <summary>
         /// チェックサム不一致通知タグ
         /// </summary>
-        const string ChecksumMismatchNotifyTag = nameof(HashValidationService);
+        const string ChecksumMismatchNotifyTag = nameof(ChecksumVerificationService);
 
         /// <summary>
         /// 検出された脆弱性を通知します．
@@ -48,7 +48,7 @@ namespace Osmy.Models
         public static void NotifyChecksumMismatch()
         {
             using var dbContext = new ManagedSoftwareContext();
-            var names = dbContext.HashValidationResults
+            var names = dbContext.ChecksumVerificationResults
                 .Include(x => x.Sbom)
                 .GroupBy(x => x.SbomId)
                 .AsEnumerable()

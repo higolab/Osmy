@@ -26,24 +26,24 @@ namespace Osmy.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("1.00:00:00")]
-        public global::System.TimeSpan HashValidationInterval {
+        public global::System.TimeSpan ChecksumVerificationInterval {
             get {
-                return ((global::System.TimeSpan)(this["HashValidationInterval"]));
+                return ((global::System.TimeSpan)(this["ChecksumVerificationInterval"]));
             }
             set {
-                this["HashValidationInterval"] = value;
+                this["ChecksumVerificationInterval"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("1.00:00:00")]
-        public global::System.TimeSpan VulnsScanInterval {
+        public global::System.TimeSpan VulnerabilityScanInterval {
             get {
-                return ((global::System.TimeSpan)(this["VulnsScanInterval"]));
+                return ((global::System.TimeSpan)(this["VulnerabilityScanInterval"]));
             }
             set {
-                this["VulnsScanInterval"] = value;
+                this["VulnerabilityScanInterval"] = value;
             }
         }
         

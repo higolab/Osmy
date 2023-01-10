@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Osmy.Models;
-using Osmy.Models.HashValidation;
+using Osmy.Models.ChecksumVerification;
 using Osmy.Models.Sbom;
 using Osmy.Properties;
 using System;
@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Osmy.Services
 {
-    internal class HashValidationService : QueueingBackgroundService<Sbom, HashValidationResultCollection>
+    internal class ChecksumVerificationService : QueueingBackgroundService<Sbom, ChecksumVerificationResultCollection>
     {
         /// <summary>
         /// 自動診断が必要なソフトウェアが存在するかをチェックする間隔
@@ -26,12 +26,12 @@ namespace Osmy.Services
             return Task.WhenAll(base.ExecuteAsync(stoppingToken), autoValidationTask);
         }
 
-        protected override Task<HashValidationResultCollection> ProcessAsync(Sbom sbom, CancellationToken cancellationToken)
+        protected override Task<ChecksumVerificationResultCollection> ProcessAsync(Sbom sbom, CancellationToken cancellationToken)
         {
-            return ValidateSbomAsync(sbom, cancellationToken);
+            return VerifyChecksumAsync(sbom, cancellationToken);
         }
 
-        public Task<HashValidationResultCollection> Validate(Sbom sbom)
+        public Task<ChecksumVerificationResultCollection> Verify(Sbom sbom)
         {
             return EnqueueManual(sbom);
         }
@@ -41,30 +41,30 @@ namespace Osmy.Services
             while (true)
             {
                 using var context = new ManagedSoftwareContext();
-                var before = DateTime.Now.Subtract(Settings.Default.HashValidationInterval);
+                var before = DateTime.Now.Subtract(Settings.Default.ChecksumVerificationInterval);
 
-                // 前回スキャンから一定期間経過しているソフトウェアのIDリストを作成
-                var sbomIdsNotScannedRecently = context.Sboms
+                // 前回検証から一定期間経過しているソフトウェアのIDリストを作成
+                var sbomIdsNotVerifiedRecently = context.Sboms
                     .Where(x => x.LocalDirectory != null)
-                    .Join(context.HashValidationResults,
+                    .Join(context.ChecksumVerificationResults,
                         sbom => sbom.Id,
                         validationResult => validationResult.SbomId,
-                        (sbom, validationResult) => new { Sbom = sbom, ValidationResult = validationResult })
+                        (sbom, verificationResult) => new { Sbom = sbom, VerificationResult = verificationResult })
                     .GroupBy(x => x.Sbom)
-                    .Select(x => new { SbomId = x.Key.Id, Executed = x.Select(item => item.ValidationResult).Max(item => item.Executed) })
+                    .Select(x => new { SbomId = x.Key.Id, Executed = x.Select(item => item.VerificationResult).Max(item => item.Executed) })
                     .Where(x => x.Executed <= before)
                     .Select(x => x.SbomId)
                     .ToArray();
 
                 // 一度もスキャンされていないソフトウェアのIDリストを作成
-                var neverValidatedSoftwares = context.Sboms
+                var neverVerifiedSoftwares = context.Sboms
                     .Where(x => x.LocalDirectory != null)
                     .Select(sbom => sbom.Id)
-                    .Except(context.HashValidationResults.Select(x => x.SbomId).Distinct())
+                    .Except(context.ChecksumVerificationResults.Select(x => x.SbomId).Distinct())
                     .ToArray();
 
                 // スキャンが必要なソフトウェアのIDリストを作成
-                var sbomIdsNeedScan = sbomIdsNotScannedRecently.Union(neverValidatedSoftwares).ToArray();
+                var sbomIdsNeedScan = sbomIdsNotVerifiedRecently.Union(neverVerifiedSoftwares).ToArray();
 
                 foreach (var sbomId in sbomIdsNeedScan)
                 {
@@ -73,7 +73,7 @@ namespace Osmy.Services
                         .ThenInclude(x => x.Checksums)
                         .First(x => x.Id == sbomId);
                     var result = await EnqueueAuto(sbom, stoppingToken).ConfigureAwait(false);
-                    context.HashValidationResults.Add(result);
+                    context.ChecksumVerificationResults.Add(result);
                 }
 
                 await context.SaveChangesAsync(stoppingToken).ConfigureAwait(false);
@@ -83,7 +83,7 @@ namespace Osmy.Services
             }
         }
 
-        private async Task<HashValidationResultCollection> ValidateSbomAsync(Sbom sbom, CancellationToken cancellationToken)
+        private async Task<ChecksumVerificationResultCollection> VerifyChecksumAsync(Sbom sbom, CancellationToken cancellationToken)
         {
             if (sbom.LocalDirectory is null) { throw new ArgumentException($"{nameof(sbom.LocalDirectory)} cannot be null"); }
             var executed = DateTime.Now;
@@ -91,19 +91,19 @@ namespace Osmy.Services
             var results = sbom.Files.Select(async file =>
             {
                 string path = Path.Combine(sbom.LocalDirectory, file.FileName);
-                HashValidity result = HashValidity.FileNotFound;
+                ChecksumCorrectness result = ChecksumCorrectness.FileNotFound;
                 if (File.Exists(path))
                 {
                     string sha1Hash = file.Checksums.First(x => x.Algorithm == ChecksumAlgorithm.SHA1).Value;
                     string localFileHash = await ComputeSHA1Async(path, cancellationToken).ConfigureAwait(false);
                     bool isValid = !sha1Hash.Equals(localFileHash, StringComparison.OrdinalIgnoreCase);
-                    result = isValid ? HashValidity.Valid : HashValidity.Invalid;
+                    result = isValid ? ChecksumCorrectness.Correct : ChecksumCorrectness.Incorrect;
                 }
 
-                return new HashValidationResult(file, result);
+                return new ChecksumVerificationResult(file, result);
             });
 
-            return new HashValidationResultCollection(executed, sbom, await Task.WhenAll(results).ConfigureAwait(false));
+            return new ChecksumVerificationResultCollection(executed, sbom, await Task.WhenAll(results).ConfigureAwait(false));
         }
 
         private static async Task<string> ComputeSHA1Async(string filePath, CancellationToken cancellationToken)

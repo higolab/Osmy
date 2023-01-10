@@ -25,7 +25,7 @@
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="150"/>
+          <ColumnDefinition Width="180"/>
           <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
@@ -41,11 +41,11 @@
 
         <mah:ToggleSwitch Grid.Row="0" Grid.ColumnSpan="2" Content="Start with Windows" IsOn="{Binding StartWithWindows.Value}"/>
 
-        <TextBlock Grid.Row="1" Grid.Column="0" Text="Vulns Scan Interval"/>
-        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding VulnsScanInterval.Value}" Width="100"/>
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Vulnerability Scan Interval"/>
+        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding VulnerabilityScanInterval.Value}" Width="100"/>
 
-        <TextBlock Grid.Row="2" Grid.Column="0" Text="Hash Validation Interval"/>
-        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding HashValidationInterval.Value}" Width="100"/>
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Checksum Verification Interval"/>
+        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding ChecksumVerificationInterval.Value}" Width="100"/>
 
         <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0 5 0 0">
           <Button Command="{Binding SaveCommand}">

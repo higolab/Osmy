@@ -85,7 +85,7 @@ namespace Osmy
 
             _backgroundServiceManager.Register(new NotifyIconService());
             _backgroundServiceManager.Register(new VulnerabilityScanService());
-            _backgroundServiceManager.Register(new HashValidationService());
+            _backgroundServiceManager.Register(new ChecksumVerificationService());
             await _backgroundServiceManager.StartAsync();
 
             //InitDb(); // TODO

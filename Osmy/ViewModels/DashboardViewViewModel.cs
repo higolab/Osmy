@@ -1,10 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Osmy.Models;
-using Osmy.Models.HashValidation;
 using Osmy.Models.Sbom;
 using Prism.Mvvm;
 using Reactive.Bindings;
-using System.IO;
 using System.Linq;
 
 namespace Osmy.ViewModels
@@ -29,7 +27,7 @@ namespace Osmy.ViewModels
                 .ToArray();
             VulnerableSoftwares = new ReactivePropertySlim<Sbom[]>(vulnerableSoftwares);
 
-            var fileErrorSoftwares = dbContext.HashValidationResults
+            var fileErrorSoftwares = dbContext.ChecksumVerificationResults
                 .Include(x => x.Sbom)
                 .AsEnumerable()
                 .GroupBy(x => x.SbomId)

@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:vm="clr-namespace:Osmy.ViewModels"
-             xmlns:hashValidation="clr-namespace:Osmy.Models.HashValidation"
+             xmlns:checksumVerification="clr-namespace:Osmy.Models.ChecksumVerification"
              xmlns:controls="clr-namespace:Osmy.Controls"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              xmlns:prism="http://prismlibrary.com/"
@@ -115,7 +115,7 @@
               <TextBlock Margin="3 0 0 0">
                 <TextBlock.Style>
                   <Style TargetType="TextBlock" BasedOn="{StaticResource MahApps.Styles.TextBlock}">
-                    <Setter Property="Text" Value="{Binding HashValidationResults.Value.Executed, StringFormat=Last Check: {0:yyyy/MM/dd HH:mm:ss}}"/>
+                    <Setter Property="Text" Value="{Binding ChecksumVerificationResults.Value.Executed, StringFormat=Last Verification: {0:yyyy/MM/dd HH:mm:ss}}"/>
                     <Style.Triggers>
                       <DataTrigger Binding="{Binding Sbom.Value.LocalDirectory}" Value="{x:Null}">
                         <Setter Property="Text" Value="Local directory is not selected"/>
@@ -125,7 +125,7 @@
                 </TextBlock.Style>
               </TextBlock>
 
-              <ListView ItemsSource="{Binding HashValidationResults.Value.Results}" SelectionMode="Single" Margin="0 5 0 0">
+              <ListView ItemsSource="{Binding ChecksumVerificationResults.Value.Results}" SelectionMode="Single" Margin="0 5 0 0">
                 <ListView.View>
                   <GridView AllowsColumnReorder="False">
                     <GridViewColumn>
@@ -136,14 +136,14 @@
                               <Style TargetType="iconPacks:PackIconMaterial">
                                 <Setter Property="Kind" Value="FileCheck"/>
                                 <Setter Property="Foreground" Value="Green"/>
-                                <Setter Property="ToolTip" Value="Valid"/>
+                                <Setter Property="ToolTip" Value="Correct"/>
                                 <Style.Triggers>
-                                  <DataTrigger Binding="{Binding Result}" Value="{x:Static hashValidation:HashValidity.Invalid}">
+                                  <DataTrigger Binding="{Binding Result}" Value="{x:Static checksumVerification:ChecksumCorrectness.Incorrect}">
                                     <Setter Property="Kind" Value="FileAlert"/>
                                     <Setter Property="Foreground" Value="Orange"/>
-                                    <Setter Property="ToolTip" Value="File hash mismatched"/>
+                                    <Setter Property="ToolTip" Value="Checksum mismatched"/>
                                   </DataTrigger>
-                                  <DataTrigger Binding="{Binding Result}" Value="{x:Static hashValidation:HashValidity.FileNotFound}">
+                                  <DataTrigger Binding="{Binding Result}" Value="{x:Static checksumVerification:ChecksumCorrectness.FileNotFound}">
                                     <Setter Property="Kind" Value="FileHidden"/>
                                     <Setter Property="Foreground" Value="Gray"/>
                                     <Setter Property="ToolTip" Value="File Not Found"/>

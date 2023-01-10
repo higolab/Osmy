@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Osmy.Models;
-using Osmy.Models.HashValidation;
+using Osmy.Models.ChecksumVerification;
 using Osmy.Models.Sbom;
 using Osmy.Models.Sbom.Spdx;
 using Osmy.Services;
@@ -23,7 +23,7 @@ namespace Osmy.ViewModels
         public ReactivePropertySlim<Sbom> Sbom { get; }
 
         public ReactivePropertySlim<VulnerabilityScanResult?> ScanResult { get; }
-        public ReactivePropertySlim<HashValidationResultCollection?> HashValidationResults { get; }
+        public ReactivePropertySlim<ChecksumVerificationResultCollection?> ChecksumVerificationResults { get; }
         public ReactivePropertySlim<SbomInfo[]> RelatedSboms { get; set; }
 
         public DelegateCommand PathSelectedCommand => _pathSelectedCommand ??= new DelegateCommand(OnPathSelected);
@@ -32,7 +32,7 @@ namespace Osmy.ViewModels
         public SbomDetailsViewViewModel(Sbom sbom)
         {
             Sbom = new ReactivePropertySlim<Sbom>(sbom);
-            HashValidationResults = new ReactivePropertySlim<HashValidationResultCollection?>(FetchFileHashValidationResult());
+            ChecksumVerificationResults = new ReactivePropertySlim<ChecksumVerificationResultCollection?>(FetchChecksumVerificationResult());
 
             //sbom.VulnerabilityScanned += OnSoftwareVulnerabilityScanned;
             //// TODO Disposableの処理
@@ -72,10 +72,10 @@ namespace Osmy.ViewModels
                 .MaxBy(x => x.Executed);
         }
 
-        private HashValidationResultCollection? FetchFileHashValidationResult()
+        private ChecksumVerificationResultCollection? FetchChecksumVerificationResult()
         {
             using var dbContext = new ManagedSoftwareContext();
-            var resultCollection = dbContext.HashValidationResults
+            var resultCollection = dbContext.ChecksumVerificationResults
                 .Where(x => x.SbomId == Sbom.Value.Id)
                 .OrderByDescending(x => x.Executed)
                 .Include(x => x.Results)
@@ -106,7 +106,7 @@ namespace Osmy.ViewModels
                 .Select(sbom =>
                 {
                     var isVulnerable = dbContext.ScanResults.Where(x => x.SbomId == sbom.Id).AsEnumerable().MaxBy(x => x.Executed)?.IsVulnerable ?? false;
-                    var hasFileError = dbContext.HashValidationResults.Where(x => x.SbomId == sbom.Id).OrderByDescending(x => x.Executed).FirstOrDefault()?.HasError ?? false;
+                    var hasFileError = dbContext.ChecksumVerificationResults.Where(x => x.SbomId == sbom.Id).OrderByDescending(x => x.Executed).FirstOrDefault()?.HasError ?? false;
                     return new SbomInfo(sbom, isVulnerable, hasFileError);
                 })
                 .ToArray(),
@@ -131,10 +131,10 @@ namespace Osmy.ViewModels
 
             var container = ContainerLocator.Container;
             var serviceManager = container.Resolve<BackgroundServiceManager>();
-            var result = await Task.Run(() => serviceManager.Resolve<HashValidationService>().Validate(sbom)).ConfigureAwait(false);
-            dbContext.HashValidationResults.Add(result);
+            var result = await Task.Run(() => serviceManager.Resolve<ChecksumVerificationService>().Verify(sbom)).ConfigureAwait(false);
+            dbContext.ChecksumVerificationResults.Add(result);
             await dbContext.SaveChangesAsync();
-            HashValidationResults.Value = result;
+            ChecksumVerificationResults.Value = result;
         }
     }
 }

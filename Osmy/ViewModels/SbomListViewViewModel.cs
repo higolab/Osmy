@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Osmy.Models;
-using Osmy.Models.HashValidation;
+using Osmy.Models.ChecksumVerification;
 using Osmy.Models.Sbom;
 using Osmy.Models.Sbom.Spdx;
 using Osmy.Services;
@@ -83,15 +83,15 @@ namespace Osmy.ViewModels
                 var vulnsScanResult = await Task.Run(() => serviceManager.Resolve<VulnerabilityScanService>().Scan(sbom));
                 dbContext.ScanResults.Add(vulnsScanResult);
 
-                HashValidationResultCollection? hashValidationResult = null;
+                ChecksumVerificationResultCollection? checksumVerificationResult = null;
                 if (sbom.LocalDirectory is not null)
                 {
-                    hashValidationResult = await Task.Run(() => serviceManager.Resolve<HashValidationService>().Validate(sbom));
-                    dbContext.HashValidationResults.Add(hashValidationResult);
+                    checksumVerificationResult = await Task.Run(() => serviceManager.Resolve<ChecksumVerificationService>().Verify(sbom));
+                    dbContext.ChecksumVerificationResults.Add(checksumVerificationResult);
                 }
                 await dbContext.SaveChangesAsync();
 
-                SbomInfos.Value.Add(new SbomInfo(sbom, vulnsScanResult.IsVulnerable, hashValidationResult?.HasError ?? false));
+                SbomInfos.Value.Add(new SbomInfo(sbom, vulnsScanResult.IsVulnerable, checksumVerificationResult?.HasError ?? false));
             });
         }
 
@@ -127,7 +127,7 @@ namespace Osmy.ViewModels
             foreach (var sbom in dbContext.Sboms.Include(x => x.ExternalReferences))
             {
                 var isVulnerable = dbContext.ScanResults.Where(x => x.SbomId == sbom.Id).AsEnumerable().MaxBy(x => x.Executed)?.IsVulnerable ?? false;
-                var hasFileError = dbContext.HashValidationResults.Where(x => x.SbomId == sbom.Id).OrderByDescending(x => x.Executed).FirstOrDefault()?.HasError ?? false;
+                var hasFileError = dbContext.ChecksumVerificationResults.Where(x => x.SbomId == sbom.Id).OrderByDescending(x => x.Executed).FirstOrDefault()?.HasError ?? false;
                 yield return new SbomInfo(sbom, isVulnerable, hasFileError);
             }
         }

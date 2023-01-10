@@ -16,107 +16,105 @@
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
 
-    <mah:MetroHeader Grid.Row="0" Grid.Column="0" Header="Dashboard" Style="{StaticResource AccentMetroHeader}">
-      <Grid>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="26"/>
-          <RowDefinition Height="Auto" MaxHeight="150"/>
-          <RowDefinition Height="26"/>
-          <RowDefinition Height="Auto" MaxHeight="150"/>
-        </Grid.RowDefinitions>
+    <Grid Grid.Row="0" Grid.Column="0">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="26"/>
+        <RowDefinition Height="Auto" MaxHeight="150"/>
+        <RowDefinition Height="26"/>
+        <RowDefinition Height="Auto" MaxHeight="150"/>
+      </Grid.RowDefinitions>
 
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="26"/>
-          <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="26"/>
+        <ColumnDefinition/>
+      </Grid.ColumnDefinitions>
 
-        <iconPacks:PackIconMaterial Grid.Row="0" Grid.Column="0" Height="20" Width="20" VerticalAlignment="Center" HorizontalAlignment="Center">
-          <iconPacks:PackIconMaterial.Style>
-            <Style TargetType="iconPacks:PackIconMaterial">
-              <Setter Property="Kind" Value="ArchiveAlert"/>
-              <Setter Property="Foreground" Value="Red"/>
-              <Style.Triggers>
-                <DataTrigger Binding="{Binding VulnerableSoftwares.Value.Length}" Value="0">
-                  <Setter Property="Kind" Value="ArchiveCheck"/>
-                  <Setter Property="Foreground" Value="Green"/>
-                </DataTrigger>
-              </Style.Triggers>
-            </Style>
-          </iconPacks:PackIconMaterial.Style>
-        </iconPacks:PackIconMaterial>
-        
-        <TextBlock Grid.Row="0" Grid.Column="1" FontSize="18" VerticalAlignment="Center" Margin="5 0 0 0">
-          <TextBlock.Style>
-            <Style TargetType="TextBlock">
-              <Setter Property="Text" Value="{Binding VulnerableSoftwares.Value.Length, StringFormat={}{0} vulnerable softwares}"/>
-              <Setter Property="Foreground" Value="Red"/>
-              <Style.Triggers>
-                <DataTrigger Binding="{Binding VulnerableSoftwares.Value.Length}" Value="1">
-                  <Setter Property="Text" Value="{Binding VulnerableSoftwares.Value.Length, StringFormat={}{0} vulnerable software}"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding VulnerableSoftwares.Value.Length}" Value="0">
-                  <Setter Property="Text" Value="No vulnerale software"/>
-                  <Setter Property="Foreground" Value="Green"/>
-                </DataTrigger>
-              </Style.Triggers>
-            </Style>
-          </TextBlock.Style>
-        </TextBlock>
-        
-        <ItemsControl Grid.Row="1" Grid.Column="1" ItemsSource="{Binding VulnerableSoftwares.Value}" Margin="0 0 0 10">
-          <ItemsControl.ItemTemplate>
-            <DataTemplate>
-              <StackPanel Orientation="Horizontal">
-                <TextBlock Text="{Binding Name}" Margin="0 0 0 2"/>
-              </StackPanel>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
+      <iconPacks:PackIconMaterial Grid.Row="0" Grid.Column="0" Height="20" Width="20" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <iconPacks:PackIconMaterial.Style>
+          <Style TargetType="iconPacks:PackIconMaterial">
+            <Setter Property="Kind" Value="ArchiveAlert"/>
+            <Setter Property="Foreground" Value="Red"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding VulnerableSoftwares.Value.Length}" Value="0">
+                <Setter Property="Kind" Value="ArchiveCheck"/>
+                <Setter Property="Foreground" Value="Green"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+        </iconPacks:PackIconMaterial.Style>
+      </iconPacks:PackIconMaterial>
 
-        <iconPacks:PackIconMaterial Grid.Row="2" Grid.Column="0" Height="20" Width="20" VerticalAlignment="Center" HorizontalAlignment="Center">
-          <iconPacks:PackIconMaterial.Style>
-            <Style TargetType="iconPacks:PackIconMaterial">
-              <Setter Property="Kind" Value="FileAlert"/>
-              <Setter Property="Foreground" Value="Orange"/>
-              <Style.Triggers>
-                <DataTrigger Binding="{Binding FileErrorSoftwares.Value.Length}" Value="0">
-                  <Setter Property="Kind" Value="FileCheck"/>
-                  <Setter Property="Foreground" Value="Green"/>
-                </DataTrigger>
-              </Style.Triggers>
-            </Style>
-          </iconPacks:PackIconMaterial.Style>
-        </iconPacks:PackIconMaterial>
+      <TextBlock Grid.Row="0" Grid.Column="1" FontSize="18" VerticalAlignment="Center" Margin="5 0 0 0">
+        <TextBlock.Style>
+          <Style TargetType="TextBlock">
+            <Setter Property="Text" Value="{Binding VulnerableSoftwares.Value.Length, StringFormat={}{0} softwares have vulnerabilities}"/>
+            <Setter Property="Foreground" Value="Red"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding VulnerableSoftwares.Value.Length}" Value="1">
+                <Setter Property="Text" Value="{Binding VulnerableSoftwares.Value.Length, StringFormat={}{0} software has vulnerabilities}"/>
+              </DataTrigger>
+              <DataTrigger Binding="{Binding VulnerableSoftwares.Value.Length}" Value="0">
+                <Setter Property="Text" Value="No vulnerability detected"/>
+                <Setter Property="Foreground" Value="Green"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+        </TextBlock.Style>
+      </TextBlock>
 
-        <TextBlock Grid.Row="2" Grid.Column="1" FontSize="18" VerticalAlignment="Center" Margin="5 0 0 0">
-          <TextBlock.Style>
-            <Style TargetType="TextBlock">
-              <Setter Property="Text" Value="{Binding FileErrorSoftwares.Value.Length, StringFormat={}{0} softwares have file hash mismatch}"/>
-              <Setter Property="Foreground" Value="Orange"/>
-              <Style.Triggers>
-                <DataTrigger Binding="{Binding FileErrorSoftwares.Value.Length}" Value="1">
-                  <Setter Property="Text" Value="{Binding FileErrorSoftwares.Value.Length, StringFormat={}{0} software has file hash mismatch}"/>
-                  <Setter Property="Foreground" Value="Orange"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding FileErrorSoftwares.Value.Length}" Value="0">
-                  <Setter Property="Text" Value="No softwares has file hash mismatch"/>
-                  <Setter Property="Foreground" Value="Green"/>
-                </DataTrigger>
-              </Style.Triggers>
-            </Style>
-          </TextBlock.Style>
-        </TextBlock>
+      <ItemsControl Grid.Row="1" Grid.Column="1" ItemsSource="{Binding VulnerableSoftwares.Value}" Margin="0 0 0 10">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="{Binding Name}" Margin="0 0 0 2"/>
+            </StackPanel>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
 
-        <ItemsControl Grid.Row="3" Grid.Column="1" ItemsSource="{Binding FileErrorSoftwares.Value}">
-          <ItemsControl.ItemTemplate>
-            <DataTemplate>
-              <StackPanel Orientation="Horizontal">
-                <TextBlock Text="{Binding Name}" Margin="0 0 0 2"/>
-              </StackPanel>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
-      </Grid>
-    </mah:MetroHeader>
+      <iconPacks:PackIconMaterial Grid.Row="2" Grid.Column="0" Height="20" Width="20" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <iconPacks:PackIconMaterial.Style>
+          <Style TargetType="iconPacks:PackIconMaterial">
+            <Setter Property="Kind" Value="FileAlert"/>
+            <Setter Property="Foreground" Value="Orange"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding FileErrorSoftwares.Value.Length}" Value="0">
+                <Setter Property="Kind" Value="FileCheck"/>
+                <Setter Property="Foreground" Value="Green"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+        </iconPacks:PackIconMaterial.Style>
+      </iconPacks:PackIconMaterial>
+
+      <TextBlock Grid.Row="2" Grid.Column="1" FontSize="18" VerticalAlignment="Center" Margin="5 0 0 0">
+        <TextBlock.Style>
+          <Style TargetType="TextBlock">
+            <Setter Property="Text" Value="{Binding FileErrorSoftwares.Value.Length, StringFormat={}{0} softwares have checksum mismatch}"/>
+            <Setter Property="Foreground" Value="Orange"/>
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding FileErrorSoftwares.Value.Length}" Value="1">
+                <Setter Property="Text" Value="{Binding FileErrorSoftwares.Value.Length, StringFormat={}{0} software has checksum mismatch}"/>
+                <Setter Property="Foreground" Value="Orange"/>
+              </DataTrigger>
+              <DataTrigger Binding="{Binding FileErrorSoftwares.Value.Length}" Value="0">
+                <Setter Property="Text" Value="No checksum mismatch"/>
+                <Setter Property="Foreground" Value="Green"/>
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+        </TextBlock.Style>
+      </TextBlock>
+
+      <ItemsControl Grid.Row="3" Grid.Column="1" ItemsSource="{Binding FileErrorSoftwares.Value}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="{Binding Name}" Margin="0 0 0 2"/>
+            </StackPanel>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </Grid>
   </Grid>
 </UserControl>
