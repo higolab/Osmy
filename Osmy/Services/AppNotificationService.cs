@@ -6,10 +6,10 @@ using System.Linq;
 namespace Osmy.Models
 {
     /// <summary>
-    /// アプリ通知マネージャー
+    /// アプリ通知サービス
     /// </summary>
     /// <see cref="https://learn.microsoft.com/ja-jp/windows/apps/design/shell/tiles-and-notifications/send-local-toast?tabs=desktop"/>
-    internal static class AppNotificationManager
+    internal class AppNotificationService : IAppNotificationService
     {
         /// <summary>
         /// 脆弱性通知タグ
@@ -21,10 +21,7 @@ namespace Osmy.Models
         /// </summary>
         const string ChecksumMismatchNotifyTag = nameof(ChecksumVerificationService);
 
-        /// <summary>
-        /// 検出された脆弱性を通知します．
-        /// </summary>
-        public static void NotifyVulnerability()
+        public void NotifyVulnerability()
         {
             using var dbContext = new ManagedSoftwareContext();
             var names = dbContext.ScanResults
@@ -42,10 +39,7 @@ namespace Osmy.Models
             toastBuilder.Show(toast => { toast.Tag = VulnsNotifyTag; });
         }
 
-        /// <summary>
-        /// チェックサムの不一致を通知します．
-        /// </summary>
-        public static void NotifyChecksumMismatch()
+        public void NotifyChecksumMismatch()
         {
             using var dbContext = new ManagedSoftwareContext();
             var names = dbContext.ChecksumVerificationResults
@@ -62,5 +56,21 @@ namespace Osmy.Models
             toastBuilder.AddText($"Checksum mismatch detected in {names.Length} software{(names.Length > 1 ? "s" : null)}");
             toastBuilder.Show(toast => { toast.Tag = ChecksumMismatchNotifyTag; });
         }
+    }
+
+    /// <summary>
+    /// アプリ通知サービス
+    /// </summary>
+    internal interface IAppNotificationService
+    {
+        /// <summary>
+        /// 検出された脆弱性を通知します．
+        /// </summary>
+        void NotifyVulnerability();
+
+        /// <summary>
+        /// チェックサムの不一致を通知します．
+        /// </summary>
+        void NotifyChecksumMismatch();
     }
 }

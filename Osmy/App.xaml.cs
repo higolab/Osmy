@@ -55,6 +55,8 @@ namespace Osmy
             ViewModelLocationProvider.Register<SbomListView, SbomListViewViewModel>();
             ViewModelLocationProvider.Register<SettingView, SettingViewViewModel>();
 
+            //containerRegistry.Register<IAppNotificationService, AppNotificationService>();    // TODO
+
             containerRegistry.RegisterInstance(_backgroundServiceManager);
             containerRegistry.RegisterSingleton<IMessageBoxService>(() => new MessageBoxService(Container.Resolve<IDialogService>()));
         }
@@ -84,8 +86,8 @@ namespace Osmy
             await SpdxConverter.FetchConverterAsync();
 
             _backgroundServiceManager.Register(new NotifyIconService());
-            _backgroundServiceManager.Register(new VulnerabilityScanService());
-            _backgroundServiceManager.Register(new ChecksumVerificationService());
+            _backgroundServiceManager.Register(new VulnerabilityScanService(new AppNotificationService())); // TODO
+            _backgroundServiceManager.Register(new ChecksumVerificationService(new AppNotificationService()));  // TODO
             await _backgroundServiceManager.StartAsync();
 
             //InitDb(); // TODO

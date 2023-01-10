@@ -15,10 +15,17 @@ namespace Osmy.Services
 {
     internal class ChecksumVerificationService : QueueingBackgroundService<Sbom, ChecksumVerificationResultCollection>
     {
+        private readonly IAppNotificationService _appNotificationService;
+
         /// <summary>
         /// 自動診断が必要なソフトウェアが存在するかをチェックする間隔
         /// </summary>
         public TimeSpan AutoScanCheckInterval { get; set; } = TimeSpan.FromMinutes(5);
+
+        public ChecksumVerificationService(IAppNotificationService appNotificationService)
+        {
+            _appNotificationService = appNotificationService;
+        }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -77,7 +84,7 @@ namespace Osmy.Services
                 }
 
                 await context.SaveChangesAsync(stoppingToken).ConfigureAwait(false);
-                AppNotificationManager.NotifyChecksumMismatch();
+                _appNotificationService.NotifyChecksumMismatch();
 
                 await Task.Delay(AutoScanCheckInterval, stoppingToken).ConfigureAwait(false);
             }
