@@ -1,0 +1,41 @@
+﻿<UserControl x:Class="Osmy.Controls.SbomInfoPresenter"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:local="clr-namespace:Osmy.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="20" d:DesignWidth="200">
+  <StackPanel Orientation="Horizontal">
+    <!--脆弱性-->
+    <iconPacks:PackIconMaterial Kind="Bug" Foreground="Red" Margin="0">
+      <iconPacks:PackIconMaterial.Style>
+        <Style TargetType="iconPacks:PackIconMaterial">
+          <Setter Property="Visibility" Value="Hidden"/>
+          <Style.Triggers>
+            <DataTrigger Binding="{Binding Value.IsVulnerable, RelativeSource={RelativeSource AncestorType=local:SbomInfoPresenter}}" Value="True">
+              <Setter Property="Visibility" Value="Visible"/>
+            </DataTrigger>
+          </Style.Triggers>
+        </Style>
+      </iconPacks:PackIconMaterial.Style>
+    </iconPacks:PackIconMaterial>
+
+    <!--ファイルエラー-->
+    <iconPacks:PackIconMaterial Kind="FileMultiple" Foreground="Orange" Margin="2 0 0 0">
+      <iconPacks:PackIconMaterial.Style>
+        <Style TargetType="iconPacks:PackIconMaterial">
+          <Setter Property="Visibility" Value="Hidden"/>
+          <Style.Triggers>
+            <DataTrigger Binding="{Binding Value.HasFileError, RelativeSource={RelativeSource AncestorType=local:SbomInfoPresenter}}" Value="True">
+              <Setter Property="Visibility" Value="Visible"/>
+            </DataTrigger>
+          </Style.Triggers>
+        </Style>
+      </iconPacks:PackIconMaterial.Style>
+    </iconPacks:PackIconMaterial>
+
+    <TextBlock Text="{Binding Value.Sbom.Name, RelativeSource={RelativeSource AncestorType=local:SbomInfoPresenter}}" Margin="5 0 0 0"/>
+  </StackPanel>
+</UserControl>

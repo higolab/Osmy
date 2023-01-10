@@ -3,11 +3,7 @@ using Osmy.Models.HashValidation;
 using Osmy.Models.Sbom;
 using Osmy.Models.Sbom.Spdx;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Osmy.Models
 {
@@ -30,7 +26,7 @@ namespace Osmy.Models
             {
                 Directory.CreateDirectory(directory);
             }
-            Database.EnsureCreated();   // TODO for debug
+            Database.EnsureCreated();   // TODO for debug InvalidOperationExceptionが発生する
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
@@ -42,12 +38,17 @@ namespace Osmy.Models
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Sbom.Sbom>().HasDiscriminator()
+            modelBuilder.Entity<Sbom.Sbom>()
+                .HasDiscriminator()
                 .HasValue<Spdx>("sbom_spdx");
 
             modelBuilder.Entity<SbomPackage>()
                 .HasDiscriminator()
                 .HasValue<SpdxSoftwarePackage>("package_spdx");
+
+            modelBuilder.Entity<SbomExternalReference>()
+                .HasDiscriminator()
+                .HasValue<SpdxExternalReference>("external_ref_spdx");
         }
     }
 }

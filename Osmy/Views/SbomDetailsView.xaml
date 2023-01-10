@@ -15,22 +15,6 @@
              d:DataContext="{d:DesignInstance Type=vm:SbomDetailsViewViewModel}">
   <UserControl.Resources>
     <ScrollViewer x:Key="MainGrid" HorizontalScrollBarVisibility="Auto">
-      <ScrollViewer.Resources>
-        <Style x:Key="hoge" TargetType="ListView">
-          <!--ListView上でマウスホイールによるスクロールを可能にする-->
-          <Setter Property="Template">
-            <Setter.Value>
-              <ControlTemplate>
-                <!--内部のScrollViewerを削除-->
-                <!--<ScrollViewer>-->
-                <ItemsPresenter/>
-                <!--</ScrollViewer>-->
-              </ControlTemplate>
-            </Setter.Value>
-          </Setter>
-        </Style>
-      </ScrollViewer.Resources>
-
       <Grid>
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
@@ -54,7 +38,7 @@
         <TabControl Grid.Row="2" mah:HeaderedControlHelper.HeaderFontSize="14">
           <TabItem Header="Packages">
             <StackPanel>
-              <TextBlock Text="{Binding ScanResult.Value.Executed, StringFormat=Last Scan: {0:yyyy/MM/dd HH:mm:ss}}" Foreground="Gray"/>
+              <TextBlock Text="{Binding ScanResult.Value.Executed, StringFormat=Last Scan: {0:yyyy/MM/dd HH:mm:ss}}" Margin="3 0 0 0"/>
 
               <ListView ItemsSource="{Binding ScanResult.Value.Results}" SelectionMode="Extended" Margin="0 5 0 0">
                 <ListView.View>
@@ -128,7 +112,18 @@
 
           <TabItem Header="Files">
             <StackPanel>
-              <TextBlock Text="{Binding HashValidationResults.Value.Executed, StringFormat=Last Check: {0:yyyy/MM/dd HH:mm:ss}}" Foreground="Gray"/>
+              <TextBlock Margin="3 0 0 0">
+                <TextBlock.Style>
+                  <Style TargetType="TextBlock" BasedOn="{StaticResource MahApps.Styles.TextBlock}">
+                    <Setter Property="Text" Value="{Binding HashValidationResults.Value.Executed, StringFormat=Last Check: {0:yyyy/MM/dd HH:mm:ss}}"/>
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding Sbom.Value.LocalDirectory}" Value="{x:Null}">
+                        <Setter Property="Text" Value="Local directory is not selected"/>
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </TextBlock.Style>
+              </TextBlock>
 
               <ListView ItemsSource="{Binding HashValidationResults.Value.Results}" SelectionMode="Single" Margin="0 5 0 0">
                 <ListView.View>
@@ -193,8 +188,46 @@
                     </GridViewColumn>
                   </GridView>
                 </ListView.View>
+
+                <ListView.Style>
+                  <Style TargetType="ListView" BasedOn="{StaticResource MahApps.Styles.ListView}">
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding Sbom.Value.LocalDirectory}" Value="{x:Null}">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </ListView.Style>
               </ListView>
             </StackPanel>
+          </TabItem>
+
+          <TabItem Header="Related SBOMs">
+            <TabItem.Style>
+              <Style TargetType="TabItem" BasedOn="{StaticResource MahApps.Styles.TabItem}">
+                <Setter Property="Content">
+                  <Setter.Value>
+                    <ListBox ItemsSource="{Binding RelatedSboms.Value}">
+                      <ListBox.ItemTemplate>
+                        <DataTemplate>
+                          <controls:SbomInfoPresenter Value="{Binding}"/>
+                        </DataTemplate>
+                      </ListBox.ItemTemplate>
+                    </ListBox>
+                  </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding RelatedSboms.Value.Length}" Value="0">
+                    <Setter Property="Content">
+                      <Setter.Value>
+                        <TextBlock Text="No related SBOM" Margin="3 0 0 0"/>
+                      </Setter.Value>
+                    </Setter>
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </TabItem.Style>
           </TabItem>
         </TabControl>
       </Grid>

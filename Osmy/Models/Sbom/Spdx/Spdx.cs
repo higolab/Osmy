@@ -6,7 +6,6 @@ using System.Linq;
 using Osmy.Views;
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Collections.ObjectModel;
 
 namespace Osmy.Models.Sbom.Spdx
 {
@@ -30,12 +29,18 @@ namespace Osmy.Models.Sbom.Spdx
         public override DependencyGraph DependencyGraph => _content.Value.DependencyGraph;
 
         /// <summary>
+        /// 名前空間（ドキュメント識別子）
+        /// </summary>
+        public string DocumentNamespace { get; set; }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <remarks>ORMで使用するために用意しています．</remarks>
         public Spdx()
         {
             _content = new Lazy<SpdxDocumentContent>(() => new SpdxDocumentContent(new MemoryStream(Content)));
+            DocumentNamespace = default!;
         }
 
         /// <summary>
@@ -53,6 +58,9 @@ namespace Osmy.Models.Sbom.Spdx
             using var stream = new MemoryStream(Content);
             var document = SpdxSerializer.Deserialize(stream);
             Files = document.Files?.Select(x => new SbomFile(this, x.FileName, x.Checksums.Select(y => y.ToSbomFileChecksum()))).ToList() ?? new List<SbomFile>();
+            DocumentNamespace = document.DocumentNamespace;
+            var externalReferences = document.ExternalDocumentRefs?.Select(x => new SpdxExternalReference(x.SpdxDocument)) ?? Enumerable.Empty<SbomExternalReference>();
+            ExternalReferences = new List<SbomExternalReference>(externalReferences);
         }
 
         /// <summary>

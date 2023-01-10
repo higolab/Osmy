@@ -5,13 +5,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-             xmlns:graphsharp="clr-namespace:GraphSharp.Controls;assembly=GraphSharp.Controls"
-             xmlns:zoom="clr-namespace:GraphSharp.Controls.Zoom;assembly=GraphSharp.Controls"
-             xmlns:quickgraph="clr-namespace:QuickGraph;assembly=QuickGraph"
              xmlns:prism="http://prismlibrary.com/"
              prism:ViewModelLocator.AutoWireViewModel="True"
              xmlns:local="clr-namespace:Osmy.Views"
-             xmlns:models="clr-namespace:Osmy.Models.Sbom"
+             xmlns:controls="clr-namespace:Osmy.Controls"
              xmlns:viewmodels="clr-namespace:Osmy.ViewModels"
              mc:Ignorable="d" 
              d:DesignHeight="400" d:DesignWidth="700"
@@ -35,37 +32,7 @@
                SelectedItem="{Binding SelectedSbomInfo.Value}" SelectionMode="Single">
         <ListBox.ItemTemplate>
           <DataTemplate>
-            <StackPanel Orientation="Horizontal">
-              <!--脆弱性-->
-              <iconPacks:PackIconMaterial Kind="Bug" Foreground="Red" Margin="0">
-                <iconPacks:PackIconMaterial.Style>
-                  <Style TargetType="iconPacks:PackIconMaterial">
-                    <Setter Property="Visibility" Value="Hidden"/>
-                    <Style.Triggers>
-                      <DataTrigger Binding="{Binding IsVulnerable}" Value="True">
-                        <Setter Property="Visibility" Value="Visible"/>
-                      </DataTrigger>
-                    </Style.Triggers>
-                  </Style>
-                </iconPacks:PackIconMaterial.Style>
-              </iconPacks:PackIconMaterial>
-
-              <!--ファイルエラー-->
-              <iconPacks:PackIconMaterial Kind="FileMultiple" Foreground="Orange" Margin="2 0 0 0">
-                <iconPacks:PackIconMaterial.Style>
-                  <Style TargetType="iconPacks:PackIconMaterial">
-                    <Setter Property="Visibility" Value="Hidden"/>
-                    <Style.Triggers>
-                      <DataTrigger Binding="{Binding HasFileError}" Value="True">
-                        <Setter Property="Visibility" Value="Visible"/>
-                      </DataTrigger>
-                    </Style.Triggers>
-                  </Style>
-                </iconPacks:PackIconMaterial.Style>
-              </iconPacks:PackIconMaterial>
-
-              <TextBlock Text="{Binding Sbom.Name}" Margin="5 0 0 0"/>
-            </StackPanel>
+            <controls:SbomInfoPresenter Value="{Binding}"/>
           </DataTemplate>
         </ListBox.ItemTemplate>
       </ListBox>

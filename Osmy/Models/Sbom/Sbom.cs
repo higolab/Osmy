@@ -1,9 +1,8 @@
-﻿using Osmy.Views;
+﻿using Microsoft.EntityFrameworkCore;
+using Osmy.Views;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
 
 namespace Osmy.Models.Sbom
 {
@@ -36,6 +35,12 @@ namespace Osmy.Models.Sbom
         /// ファイルリスト
         /// </summary>
         public List<SbomFile> Files { get; set; }
+
+        /// <summary>
+        /// 外部参照
+        /// </summary>
+        [DeleteBehavior(DeleteBehavior.Cascade)]
+        public List<SbomExternalReference> ExternalReferences { get; set; }
 
         /// <summary>
         /// ルートパッケージリスト

@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Osmy.Models;
 using Osmy.Models.HashValidation;
-using Osmy.Models.Sbom;
 using Osmy.Models.Sbom.Spdx;
 using Osmy.Services;
 using Prism.Commands;
@@ -45,7 +44,7 @@ namespace Osmy.ViewModels
             SbomInfos = new ReactivePropertySlim<ObservableCollection<SbomInfo>>(new ObservableCollection<SbomInfo>(FetchSbomInfos()));
             SelectedSbomInfo = new ReactivePropertySlim<SbomInfo?>();
             SelectedSbomVM = SelectedSbomInfo
-                .Select(x => x is null ? null : new SbomDetailsViewViewModel(x.Sbom, _dialogService))
+                .Select(x => x is null ? null : new SbomDetailsViewViewModel(x.Sbom))
                 .ToReadOnlyReactivePropertySlim();
             DeleteSbomCommand = new ReactiveCommand(SelectedSbomInfo.Select(x => x is not null), false)
                 .WithSubscribe(DeleteSbom, out var disposable);  // TODO disposableの適切なタイミングでの破棄
@@ -111,26 +110,12 @@ namespace Osmy.ViewModels
         private IEnumerable<SbomInfo> FetchSbomInfos()
         {
             using var dbContext = new ManagedSoftwareContext();
-            foreach (var sbom in dbContext.Sboms)
+            foreach (var sbom in dbContext.Sboms.Include(x => x.ExternalReferences))
             {
                 var isVulnerable = dbContext.ScanResults.Where(x => x.SbomId == sbom.Id).AsEnumerable().MaxBy(x => x.Executed)?.IsVulnerable ?? false;
                 var hasFileError = dbContext.HashValidationResults.Where(x => x.SbomId == sbom.Id).OrderByDescending(x => x.Executed).FirstOrDefault()?.HasError ?? false;
                 yield return new SbomInfo(sbom, isVulnerable, hasFileError);
             }
-        }
-    }
-
-    class SbomInfo
-    {
-        public Sbom Sbom { get; set; }
-        public bool IsVulnerable { get; set; }
-        public bool HasFileError { get; set; }
-
-        public SbomInfo(Sbom sbom, bool isVulnerable, bool hasFileError)
-        {
-            Sbom = sbom;
-            IsVulnerable = isVulnerable;
-            HasFileError = hasFileError;
         }
     }
 }

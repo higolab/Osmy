@@ -1,5 +1,4 @@
 ﻿using Octokit;
-using Reactive.Bindings.ObjectExtensions;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -36,7 +35,7 @@ namespace Osmy.Models.Sbom.Spdx
 
             try
             {
-                var document = SpdxSerializer.Deserialize(path);
+                var document = SpdxSerializer.Deserialize(outputPath);
 
                 // 最後のパッケージのHasFilesにすべてのファイルが記載されてしまう不具合の回避処理
                 if (document.Packages.Count >= 2)

@@ -2,20 +2,21 @@
 using Osmy.Models;
 using Osmy.Models.HashValidation;
 using Osmy.Models.Sbom;
+using Osmy.Models.Sbom.Spdx;
+using Osmy.Services;
 using Prism.Commands;
+using Prism.Ioc;
 using Prism.Mvvm;
-using Prism.Services.Dialogs;
 using Reactive.Bindings;
 using System;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 
 namespace Osmy.ViewModels
 {
     public class SbomDetailsViewViewModel : BindableBase
     {
-        private readonly IDialogService _dialogService;
-
         /// <summary>
         /// ソフトウェア
         /// </summary>
@@ -23,14 +24,13 @@ namespace Osmy.ViewModels
 
         public ReactivePropertySlim<VulnerabilityScanResult?> ScanResult { get; }
         public ReactivePropertySlim<HashValidationResultCollection?> HashValidationResults { get; }
+        public ReactivePropertySlim<SbomInfo[]> RelatedSboms { get; set; }
 
         public DelegateCommand PathSelectedCommand => _pathSelectedCommand ??= new DelegateCommand(OnPathSelected);
         private DelegateCommand? _pathSelectedCommand;
 
-        public SbomDetailsViewViewModel(Sbom sbom, IDialogService dialogService)
+        public SbomDetailsViewViewModel(Sbom sbom)
         {
-            _dialogService = dialogService;
-
             Sbom = new ReactivePropertySlim<Sbom>(sbom);
             HashValidationResults = new ReactivePropertySlim<HashValidationResultCollection?>(FetchFileHashValidationResult());
 
@@ -51,6 +51,7 @@ namespace Osmy.ViewModels
             //});
 
             ScanResult = new ReactivePropertySlim<VulnerabilityScanResult?>(FetchLatestScanResult());
+            RelatedSboms = new ReactivePropertySlim<SbomInfo[]>(FetchRelatedSboms());
         }
 
         private void OnSoftwareVulnerabilityScanned()
@@ -93,12 +94,47 @@ namespace Osmy.ViewModels
             return resultCollection;
         }
 
+        private SbomInfo[] FetchRelatedSboms()
+        {
+            using var dbContext = new ManagedSoftwareContext();
+            return Sbom.Value switch
+            {
+                Spdx => dbContext.Sboms
+                .OfType<Spdx>()
+                .AsEnumerable()
+                .Where(sbom => Sbom.Value.ExternalReferences.OfType<SpdxExternalReference>().Any(exref => exref.DocumentNamespace == sbom.DocumentNamespace))
+                .Select(sbom =>
+                {
+                    var isVulnerable = dbContext.ScanResults.Where(x => x.SbomId == sbom.Id).AsEnumerable().MaxBy(x => x.Executed)?.IsVulnerable ?? false;
+                    var hasFileError = dbContext.HashValidationResults.Where(x => x.SbomId == sbom.Id).OrderByDescending(x => x.Executed).FirstOrDefault()?.HasError ?? false;
+                    return new SbomInfo(sbom, isVulnerable, hasFileError);
+                })
+                .ToArray(),
+                _ => throw new NotSupportedException(),
+            };
+        }
+
         private async void OnPathSelected()
         {
             using var dbContext = new ManagedSoftwareContext();
-            var sbom = dbContext.Sboms.First(x => x.Id == Sbom.Value.Id);
+            var sbom = dbContext.Sboms
+                .Include(x => x.Files)
+                .ThenInclude(x => x.Checksums)
+                .First(x => x.Id == Sbom.Value.Id);
             sbom.LocalDirectory = Sbom.Value.LocalDirectory;
             await dbContext.SaveChangesAsync();
+
+            if (sbom.LocalDirectory is null)
+            {
+                return;
+            }
+
+            var container = ContainerLocator.Container;
+            var serviceManager = container.Resolve<BackgroundServiceManager>();
+            var result = await Task.Run(() => serviceManager.Resolve<HashValidationService>().Validate(sbom)).ConfigureAwait(false);
+            dbContext.HashValidationResults.Add(result);
+            await dbContext.SaveChangesAsync();
+            HashValidationResults.Value = result;
         }
     }
 }
