@@ -8,6 +8,7 @@
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.9.1" />
     <PackageReference Include="CycloneDX.Spdx" Version="5.2.3" />
     <PackageReference Include="GraphSharp_Unofficial" Version="1.0.4" />
     <PackageReference Include="LivetCask.Messaging" Version="4.0.2" />

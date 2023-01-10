@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CommandLine;
+using Microsoft.EntityFrameworkCore;
 using Osmy.Models;
 using Osmy.Models.Sbom.Spdx;
 using Osmy.Services;
@@ -10,6 +11,7 @@ using System;
 using System.IO;
 using System.Windows;
 using System.Windows.Threading;
+using DryIoc;
 
 namespace Osmy
 {
@@ -20,9 +22,23 @@ namespace Osmy
     {
         private readonly BackgroundServiceManager _backgroundServiceManager = new();
 
-        protected override Window CreateShell()
+        /// <summary>
+        /// 起動オプション
+        /// </summary>
+        public LaunchOption? LaunchOption { get; private set; }
+
+        protected override void Initialize()
         {
-            return Container.Resolve<MainWindow>();
+            Parser.Default.ParseArguments<LaunchOption>(Environment.GetCommandLineArgs())
+                   .WithParsed(o => LaunchOption = o);
+
+            base.Initialize();
+        }
+
+        protected override Window? CreateShell()
+        {
+            // バックグラウンド起動であれば画面を表示しない
+            return LaunchOption?.IsBackground == true ? null : Container.Resolve<MainWindow>();
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
@@ -83,5 +99,11 @@ namespace Osmy
             // TODO logging
             //throw new NotImplementedException();
         }
+    }
+
+    public sealed class LaunchOption
+    {
+        [Option("background", Required = false)]
+        public bool IsBackground { get; set; }
     }
 }

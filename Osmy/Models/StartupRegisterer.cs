@@ -21,6 +21,16 @@ namespace Osmy.Models
         private static readonly string ExePath = $"\"{Application.ExecutablePath}\"";
 
         /// <summary>
+        /// スタートアップ起動時の引数
+        /// </summary>
+        public static string ExeArgument { get; set; } = "--background";
+
+        /// <summary>
+        /// スタートアップ起動コマンド
+        /// </summary>
+        public static string ExeStartupCommand => $"{ExePath} {ExeArgument}";
+
+        /// <summary>
         /// スタートアップ起動登録を行います．
         /// </summary>
         /// <returns>成功すればtrue．失敗すればfalse．</returns>
@@ -29,7 +39,7 @@ namespace Osmy.Models
             using var key = Registry.CurrentUser.OpenSubKey(RunKey, true, false);
             if (key is null) { return false; }
 
-            return key.TrySetValue(Application.ProductName, ExePath, RegistryValueKind.String);
+            return key.TrySetValue(Application.ProductName, ExeStartupCommand, RegistryValueKind.String);
         }
 
         /// <summary>
@@ -53,7 +63,7 @@ namespace Osmy.Models
             using var key = Registry.CurrentUser.OpenSubKey(RunKey, true, false);
             if (key is null) { return false; }
 
-            return key.TryGetValue(Application.ProductName, out string? value) && value == ExePath;
+            return key.TryGetValue(Application.ProductName, out string? value) && value == ExeStartupCommand;
         }
     }
 }
