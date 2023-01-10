@@ -74,8 +74,10 @@ namespace Osmy.Services
                         .First(x => x.Id == sbomId);
                     var result = await EnqueueAuto(sbom, stoppingToken).ConfigureAwait(false);
                     context.HashValidationResults.Add(result);
-                    await context.SaveChangesAsync(stoppingToken).ConfigureAwait(false);
                 }
+
+                await context.SaveChangesAsync(stoppingToken).ConfigureAwait(false);
+                AppNotificationManager.NotifyChecksumMismatch();
 
                 await Task.Delay(AutoScanCheckInterval, stoppingToken).ConfigureAwait(false);
             }
