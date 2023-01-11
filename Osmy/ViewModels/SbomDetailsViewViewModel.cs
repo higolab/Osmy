@@ -12,6 +12,7 @@ using System;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Osmy.ViewModels
 {
@@ -28,6 +29,9 @@ namespace Osmy.ViewModels
 
         public DelegateCommand PathSelectedCommand => _pathSelectedCommand ??= new DelegateCommand(OnPathSelected);
         private DelegateCommand? _pathSelectedCommand;
+
+        public DelegateCommand<string> CopyChecksumToClipboardCommand => _copyChecksumToClipboardCommand ??= new DelegateCommand<string>(CopyToClipboard);
+        private DelegateCommand<string>? _copyChecksumToClipboardCommand;
 
         public SbomDetailsViewViewModel(Sbom sbom)
         {
@@ -135,6 +139,11 @@ namespace Osmy.ViewModels
             dbContext.ChecksumVerificationResults.Add(result);
             await dbContext.SaveChangesAsync();
             ChecksumVerificationResults.Value = result;
+        }
+
+        private void CopyToClipboard(string value)
+        {
+            Clipboard.SetText(value);
         }
     }
 }
