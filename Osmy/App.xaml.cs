@@ -13,6 +13,8 @@ using System.Windows;
 using System.Windows.Threading;
 using DryIoc;
 using Prism.Services.Dialogs;
+using NLog.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Osmy
 {
@@ -22,6 +24,9 @@ namespace Osmy
     public partial class App
     {
         private readonly BackgroundServiceManager _backgroundServiceManager = new();
+
+        private ILogger Logger => _logger ??= CreateLogger();
+        private ILogger? _logger;
 
         /// <summary>
         /// 起動オプション
@@ -59,6 +64,8 @@ namespace Osmy
 
             containerRegistry.RegisterInstance(_backgroundServiceManager);
             containerRegistry.RegisterSingleton<IMessageBoxService>(() => new MessageBoxService(Container.Resolve<IDialogService>()));
+
+            containerRegistry.RegisterInstance(Logger);
         }
 
         private void InitDb()
@@ -95,14 +102,18 @@ namespace Osmy
 
         private void Dispatcher_UnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            // TODO logging
-            //throw new NotImplementedException();
+            Logger.LogError(e.Exception, nameof(Dispatcher_UnhandledException));
         }
 
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            // TODO logging
-            //throw new NotImplementedException();
+            Logger.LogError(e.ExceptionObject as Exception, nameof(CurrentDomain_UnhandledException));
+        }
+
+        private static ILogger CreateLogger()
+        {
+            var factory = new NLogLoggerFactory();
+            return factory.CreateLogger("");
         }
     }
 

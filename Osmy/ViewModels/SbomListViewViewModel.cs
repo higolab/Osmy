@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Osmy.Models;
 using Osmy.Models.ChecksumVerification;
 using Osmy.Models.Sbom;
@@ -23,6 +24,7 @@ namespace Osmy.ViewModels
     {
         private readonly IDialogService _dialogService;
         private readonly IMessageBoxService _messageBoxService;
+        private readonly ILogger _logger;
 
         public ReactivePropertySlim<ObservableCollection<SbomInfo>> SbomInfos { get; }
 
@@ -38,10 +40,11 @@ namespace Osmy.ViewModels
         public DelegateCommand ScanVulnsCommand => _scanVulnsCommand ??= new DelegateCommand(ScanVulns);
         private DelegateCommand? _scanVulnsCommand;
 
-        public SbomListViewViewModel(IDialogService dialogService, IMessageBoxService messageBoxService)
+        public SbomListViewViewModel(IDialogService dialogService, IMessageBoxService messageBoxService, ILogger logger)
         {
             _dialogService = dialogService;
             _messageBoxService = messageBoxService;
+            _logger = logger;
 
             using var dbContext = new ManagedSoftwareContext();
 
@@ -68,9 +71,11 @@ namespace Osmy.ViewModels
                 {
                     sbom = new Spdx(name, sbomFile, localDirectory);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    _messageBoxService.ShowInformationMessage("Failed to load the SBOM file");
+                    const string errorMessage = "Failed to load the SBOM file";
+                    _logger.LogError(ex, errorMessage);
+                    _messageBoxService.ShowInformationMessage(errorMessage);
                     return;
                 }
 
