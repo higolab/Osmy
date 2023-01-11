@@ -20,13 +20,12 @@ namespace Osmy.Models.Sbom.Spdx
         {
             if (!File.Exists(ConverterPath)) { throw new FileNotFoundException(null, path); }
 
-            //string source = @"D:\rio\Download\tools-java-1.1.3\anacron.Cycle.spdx";
             var outputPath = $"{Path.GetTempFileName()}.spdx.json";
 
             var startInfo = new ProcessStartInfo()
             {
                 FileName = "java",
-                Arguments = $"-jar {ConverterPath} Convert {path} {outputPath}",
+                Arguments = $"-jar \"{ConverterPath}\" Convert \"{path}\" \"{outputPath}\"",
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 RedirectStandardError = true,
