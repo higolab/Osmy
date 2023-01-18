@@ -3,6 +3,8 @@ using OSV.Client.Models;
 using OSV.Schema;
 using RestSharp;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -11,9 +13,10 @@ using System.Threading.Tasks;
 namespace Osmy.Models
 {
     /// <summary>
-    /// パッケージのエコシステムを指定せずに脆弱性のクエリを行える<see cref="IOSVClient"/>の実装です．
+    /// パッケージのエコシステムを指定せずに脆弱性のクエリを行えるOSV APIのクライアントです．
     /// </summary>
-    internal sealed class OSVClientEx : IOSVClient, IDisposable
+    /// <seealso cref="OSVClient"/>
+    internal sealed class OSVClientEx : IDisposable
     {
         static readonly Version Version = new AssemblyName(typeof(OSVClientEx).Assembly.FullName!).Version!;
 
@@ -33,11 +36,6 @@ namespace Osmy.Models
             _client.Dispose();
         }
 
-        public Task<Vulnerability> GetVulnerabilityAsync(string id, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<VulnerabilityList> QueryAffectedAsync(QueryEx query, CancellationToken cancellationToken = default)
         {
             var request = new RestRequest("query", Method.Post)
@@ -48,14 +46,14 @@ namespace Osmy.Models
             return await ExecuteAsync<VulnerabilityList>(request, cancellationToken).ConfigureAwait(false);
         }
 
-        public Task<VulnerabilityList> QueryAffectedAsync(Query query, CancellationToken cancellationToken = default)
+        public async Task<BatchVulnerabilityList> QueryAffectedBatchAsync(BatchQueryEx batchQuery, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
-        }
+            var request = new RestRequest("querybatch", Method.Post)
+            {
+                RequestFormat = DataFormat.Json,
+            }.AddBody(batchQuery);
 
-        public Task<BatchVulnerabilityList> QueryAffectedBatchAsync(BatchQuery batchQuery, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
+            return await ExecuteAsync<BatchVulnerabilityList>(request, cancellationToken).ConfigureAwait(false);
         }
 
         private async Task<T> ExecuteAsync<T>(RestRequest request, CancellationToken cancellationToken) where T : new()
@@ -114,6 +112,24 @@ namespace Osmy.Models
         public QueryExPackage()
         {
             Name = default!;
+        }
+    }
+
+    internal sealed class BatchQueryEx
+    {
+        [JsonPropertyName("queries")]
+        public QueryEx[] Queries { get; set; }
+
+        public BatchQueryEx(IEnumerable<QueryEx> queries)
+        {
+            if(queries is QueryEx[] array)
+            {
+                Queries = array;
+            }
+            else
+            {
+                Queries = queries.ToArray();
+            }
         }
     }
 }
