@@ -15,12 +15,16 @@
              d:DesignHeight="450" d:DesignWidth="400"
              d:DataContext="{d:DesignInstance Type=vm:SbomDetailsViewViewModel}">
   <UserControl.Resources>
-    <ScrollViewer x:Key="MainGrid" HorizontalScrollBarVisibility="Auto">
+    <v:UrlToHostConverter x:Key="urlToHostConverter"/>
+  </UserControl.Resources>
+
+  <Grid>
+    <ScrollViewer HorizontalScrollBarVisibility="Auto">
       <Grid>
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
-          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <Grid.Resources>
@@ -38,16 +42,23 @@
 
         <TabControl Grid.Row="2" mah:HeaderedControlHelper.HeaderFontSize="14">
           <TabItem Header="Packages">
-            <StackPanel>
-              <TextBlock Text="{Binding ScanResult.Value.Executed, StringFormat=Last Scan: {0:yyyy/MM/dd HH:mm:ss}}" Margin="3 0 0 0"/>
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
 
-              <ListView ItemsSource="{Binding ScanResult.Value.Results}" SelectionMode="Extended" Margin="0 5 0 0">
+              <TextBlock Grid.Row="0" Text="{Binding ScanResult.Value.Executed, StringFormat=Last Scan: {0:yyyy/MM/dd HH:mm:ss}}" Margin="3 0 0 0"/>
+
+              <ListView x:Name="scanResult" Grid.Row="1" ItemsSource="{Binding ScanResult.Value.Results}" SelectionMode="Extended" Margin="0 5">
                 <ListView.View>
                   <GridView AllowsColumnReorder="False">
                     <GridViewColumn>
                       <GridViewColumn.CellTemplate>
                         <DataTemplate>
-                          <iconPacks:PackIconMaterial Kind="Bug" Foreground="Red">
+                          <iconPacks:PackIconMaterial Kind="Bug" Foreground="Red" ToolTip="Vulnerabilities detected">
                             <iconPacks:PackIconMaterial.Style>
                               <Style TargetType="iconPacks:PackIconMaterial">
                                 <Setter Property="Visibility" Value="Hidden"/>
@@ -58,36 +69,6 @@
                                 </Style.Triggers>
                               </Style>
                             </iconPacks:PackIconMaterial.Style>
-
-                            <!--TODO ToolTipで確認するのは大変かもしれない-->
-                            <iconPacks:PackIconMaterial.ToolTip>
-                              <ItemsControl ItemsSource="{Binding VulnerabilityList.Vulnerabilities}">
-                                <ItemsControl.ItemTemplate>
-                                  <DataTemplate>
-                                    <Grid>
-                                      <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                      </Grid.RowDefinitions>
-
-                                      <mah:MetroHeader Grid.Row="0" Header="Summary">
-                                        <TextBlock Text="{Binding Summary}"/>
-                                      </mah:MetroHeader>
-
-                                      <mah:MetroHeader Grid.Row="1" Header="Severity">
-                                        <ItemsControl ItemsSource="{Binding Severity}">
-                                          <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                              <TextBlock>[<Run Text="{Binding Type}"/>] <Run Text="{Binding Score}"/></TextBlock>
-                                            </DataTemplate>
-                                          </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                      </mah:MetroHeader>
-                                    </Grid>
-                                  </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                              </ItemsControl>
-                            </iconPacks:PackIconMaterial.ToolTip>
                           </iconPacks:PackIconMaterial>
                         </DataTemplate>
                       </GridViewColumn.CellTemplate>
@@ -108,7 +89,141 @@
                   </Style>
                 </ListView.Resources>
               </ListView>
-            </StackPanel>
+
+              <Separator Grid.Row="2" Height="5" HorizontalAlignment="Stretch" Margin="3 0 0 0"/>
+
+              <StackPanel Grid.Row="3" Margin="3 0 0 0">
+                <StackPanel Orientation="Horizontal" Margin="0 5 0 0">
+                  <iconPacks:PackIconMaterial Kind="Bug" Foreground="Red" VerticalAlignment="Center"/>
+                  <TextBlock Text="Vulnerability Details" Margin="5 0 0 0" Foreground="Red" FontSize="14" FontWeight="Bold"/>
+                </StackPanel>
+
+                <TextBlock>
+                  <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                      <Setter Property="Text" Value=""/>
+                      <Setter Property="Visibility" Value="Collapsed"/>
+                      <Style.Triggers>
+                        <DataTrigger Binding="{Binding SelectedValue.VulnerabilityList.Vulnerabilities, ElementName=scanResult}" Value="{x:Null}">
+                          <Setter Property="Text" Value="No vulnerability detected in this package"/>
+                          <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding SelectedValue, ElementName=scanResult}" Value="{x:Null}">
+                          <Setter Property="Text" Value="Please select a package"/>
+                          <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                      </Style.Triggers>
+                    </Style>
+                  </TextBlock.Style>
+                </TextBlock>
+
+                <ItemsControl ItemsSource="{Binding SelectedValue.VulnerabilityList.Vulnerabilities, ElementName=scanResult}"
+                              MaxWidth="{Binding ViewportWidth, RelativeSource={RelativeSource AncestorType=ScrollViewer}}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Border BorderBrush="LightGray" BorderThickness="1" Padding="5 0 5 5" Margin="0 5 0 0">
+                        <Grid>
+                          <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                          </Grid.RowDefinitions>
+
+                          <mah:MetroHeader Grid.Row="0" Header="ID">
+                            <StackPanel>
+                              <TextBlock Text="{Binding Id}"/>
+                              <ItemsControl ItemsSource="{Binding Aliases}">
+                                <ItemsControl.ItemTemplate>
+                                  <DataTemplate>
+                                    <TextBlock Text="{Binding}"/>
+                                  </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                              </ItemsControl>
+                            </StackPanel>
+                          </mah:MetroHeader>
+
+                          <mah:MetroHeader Grid.Row="1" Header="Summary">
+                            <TextBlock Text="{Binding Summary}"/>
+                          </mah:MetroHeader>
+
+                          <mah:MetroHeader Grid.Row="2" Header="Severity">
+                            <ItemsControl ItemsSource="{Binding Severity}">
+                              <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                  <TextBlock>[<Run Text="{Binding Type}"/>] <Run Text="{Binding Score}"/></TextBlock>
+                                </DataTemplate>
+                              </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                          </mah:MetroHeader>
+
+                          <mah:MetroHeader Grid.Row="3" Header="Details">
+                            <TextBlock Text="{Binding Details}" TextWrapping="Wrap"/>
+                          </mah:MetroHeader>
+
+                          <mah:MetroHeader Grid.Row="4" Header="Affected" Margin="0 5 0 0">
+                            <ItemsControl ItemsSource="{Binding Affected}">
+                              <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                  <GroupBox Style="{x:Null}" Padding="0 2 0 0">
+                                    <GroupBox.Header>
+                                      <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Package.Name}" FontWeight="Bold" VerticalAlignment="Center" Margin="5 0 0 0"/>
+                                        <TextBlock Text="{Binding Package.Purl, StringFormat=({0})}" VerticalAlignment="Center" Margin="5 0 0 0"/>
+                                      </StackPanel>
+                                    </GroupBox.Header>
+
+                                    <GroupBox.Content>
+                                      <ItemsControl ItemsSource="{Binding Versions}" Margin="10 0 0 0">
+                                        <ItemsControl.ItemTemplate>
+                                          <DataTemplate>
+                                            <Border Background="LightGray" BorderThickness="1" Padding="3 0" Margin="0 2 2 2" CornerRadius="3">
+                                              <TextBlock Text="{Binding}"/>
+                                            </Border>
+                                          </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+
+                                        <ItemsControl.ItemsPanel>
+                                          <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal" IsItemsHost="True"/>
+                                          </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                      </ItemsControl>
+                                    </GroupBox.Content>
+                                  </GroupBox>
+                                </DataTemplate>
+                              </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                          </mah:MetroHeader>
+
+                          <Expander Grid.Row="5" Margin="0 5 0 0" Style="{x:Null}">
+                            <Expander.Header>
+                              <mah:MetroHeader Header="References"/>
+                            </Expander.Header>
+
+                            <Expander.Content>
+                              <ItemsControl ItemsSource="{Binding References}">
+                                <ItemsControl.ItemTemplate>
+                                  <DataTemplate>
+                                    <TextBlock TextWrapping="Wrap" ToolTip="{Binding Url}">
+                                      <Hyperlink NavigateUri="{Binding Url}" RequestNavigate="Hyperlink_RequestNavigate">
+                                        <Run Text="{Binding Url, Converter={StaticResource urlToHostConverter}}"/>
+                                      </Hyperlink>
+                                    </TextBlock>
+                                  </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                              </ItemsControl>
+                            </Expander.Content>
+                          </Expander>
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </Grid>
           </TabItem>
 
           <TabItem Header="Files">
@@ -232,23 +347,34 @@
           </TabItem>
         </TabControl>
       </Grid>
+
+      <ScrollViewer.Style>
+        <Style TargetType="ScrollViewer">
+          <Setter Property="Visibility" Value="Visible"/>
+          <Style.Triggers>
+            <DataTrigger Binding="{Binding DataContext, RelativeSource={RelativeSource AncestorType=v:SbomDetailsView}}" Value="{x:Null}">
+              <Setter Property="Visibility" Value="Collapsed"/>
+            </DataTrigger>
+          </Style.Triggers>
+        </Style>
+      </ScrollViewer.Style>
     </ScrollViewer>
 
-    <Grid x:Key="NotSelectedGrid" Background="LightGray">
-      <TextBlock Text="Please select SBOM" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-    </Grid>
-  </UserControl.Resources>
+    <Border Background="LightGray">
+      <Border.Child>
+        <TextBlock Text="Please select a SBOM" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      </Border.Child>
 
-  <ContentControl>
-    <ContentControl.Style>
-      <Style TargetType="ContentControl">
-        <Setter Property="Content" Value="{StaticResource MainGrid}"/>
-        <Style.Triggers>
-          <Trigger Property="DataContext" Value="{x:Null}">
-            <Setter Property="Content" Value="{StaticResource NotSelectedGrid}"/>
-          </Trigger>
-        </Style.Triggers>
-      </Style>
-    </ContentControl.Style>
-  </ContentControl>
+      <Border.Style>
+        <Style TargetType="Border">
+          <Setter Property="Visibility" Value="Collapsed"/>
+          <Style.Triggers>
+            <DataTrigger Binding="{Binding DataContext, RelativeSource={RelativeSource AncestorType=v:SbomDetailsView}}" Value="{x:Null}">
+              <Setter Property="Visibility" Value="Visible"/>
+            </DataTrigger>
+          </Style.Triggers>
+        </Style>
+      </Border.Style>
+    </Border>
+  </Grid>
 </UserControl>
