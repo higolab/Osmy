@@ -157,7 +157,8 @@ namespace Osmy.Models.Sbom.Spdx
                         case SpdxModels.RelationshipType.COPY_OF:
                         case SpdxModels.RelationshipType.PACKAGE_OF:
                         case SpdxModels.RelationshipType.VARIANT_OF:
-                            graph.AddVerticesAndEdge(new SEdge<SbomPackage>(pkgA, pkgB)); // TODO 他の関係と区別
+                            graph.AddVerticesAndEdge(new SEdge<SbomPackage>(pkgA, pkgB));
+                            graph.AddVerticesAndEdge(new SEdge<SbomPackage>(pkgB, pkgA));
                             break;
                     }
                 }
