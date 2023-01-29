@@ -75,7 +75,7 @@ namespace Osmy.Models
         }
     }
 
-    internal sealed class QueryEx
+    internal sealed record QueryEx
     {
         [JsonPropertyName("package")]
         public QueryExPackage Package { get; set; }
@@ -95,7 +95,7 @@ namespace Osmy.Models
         }
     }
 
-    internal sealed class QueryExPackage
+    internal sealed record QueryExPackage
     {
         [JsonPropertyName("name")]
         public string Name { get; set; }
