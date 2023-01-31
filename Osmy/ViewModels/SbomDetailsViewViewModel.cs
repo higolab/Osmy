@@ -70,7 +70,8 @@ namespace Osmy.ViewModels
 
             var latestScanResultId = dbContext.ScanResults
                 .Where(x => x.SbomId == Sbom.Value.Id)
-                .MaxBy(x => x.Executed)
+                .OrderByDescending(x => x.Executed)
+                .First()
                 ?.Id;
             if (latestScanResultId is null) { return null; }
 
