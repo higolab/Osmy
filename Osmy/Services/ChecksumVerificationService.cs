@@ -103,7 +103,7 @@ namespace Osmy.Services
                 {
                     string sha1Hash = file.Checksums.First(x => x.Algorithm == ChecksumAlgorithm.SHA1).Value;
                     string localFileHash = await ComputeSHA1Async(path, cancellationToken).ConfigureAwait(false);
-                    bool isValid = !sha1Hash.Equals(localFileHash, StringComparison.OrdinalIgnoreCase);
+                    bool isValid = sha1Hash.Equals(localFileHash, StringComparison.OrdinalIgnoreCase);
                     result = isValid ? ChecksumCorrectness.Correct : ChecksumCorrectness.Incorrect;
                 }
 
