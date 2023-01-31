@@ -53,7 +53,32 @@ namespace Osmy.Models
                 RequestFormat = DataFormat.Json,
             }.AddBody(batchQuery);
 
-            return await ExecuteAsync<BatchVulnerabilityList>(request, cancellationToken).ConfigureAwait(false);
+            var batchResult = await ExecuteAsync<BatchVulnerabilityList>(request, cancellationToken).ConfigureAwait(false);
+
+            // バッチクエリでは脆弱性のIDと情報変更日しか返されないので全データを取得
+            foreach (var result in batchResult.Results)
+            {
+                if (result.Vulnerabilities is null) { continue; }
+                int vulnCount = result.Vulnerabilities.Count();
+                if (vulnCount == 0) { continue; }
+
+                var vulns = new Vulnerability[vulnCount];
+                int index = 0;
+                foreach (var vuln in result.Vulnerabilities)
+                {
+                    vulns[index++] = await GetVulnerabilityById(vuln.Id, cancellationToken).ConfigureAwait(false);
+                }
+
+                result.Vulnerabilities = vulns;
+            }
+
+            return batchResult;
+        }
+
+        public async Task<Vulnerability> GetVulnerabilityById(string id, CancellationToken cancellationToken = default)
+        {
+            var request = new RestRequest($"vulns/{id}");
+            return await ExecuteAsync<Vulnerability>(request, cancellationToken).ConfigureAwait(false);
         }
 
         private async Task<T> ExecuteAsync<T>(RestRequest request, CancellationToken cancellationToken) where T : new()
@@ -122,7 +147,7 @@ namespace Osmy.Models
 
         public BatchQueryEx(IEnumerable<QueryEx> queries)
         {
-            if(queries is QueryEx[] array)
+            if (queries is QueryEx[] array)
             {
                 Queries = array;
             }
