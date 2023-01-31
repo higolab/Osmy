@@ -68,12 +68,16 @@ namespace Osmy.ViewModels
             using var dbContext = new ManagedSoftwareContext();
             if (Sbom is null || !dbContext.ScanResults.Any()) { return null; }
 
+            var latestScanResultId = dbContext.ScanResults
+                .Where(x => x.SbomId == Sbom.Value.Id)
+                .MaxBy(x => x.Executed)
+                ?.Id;
+            if (latestScanResultId is null) { return null; }
+
             return dbContext.ScanResults
                 .Include(x => x.Results).ThenInclude(x => x.Package)
                 .Include(x => x.Sbom)
-                .Where(x => x.Sbom.Id == Sbom.Value.Id)
-                .AsEnumerable()
-                .MaxBy(x => x.Executed);
+                .First(x => x.Id == latestScanResultId);
         }
 
         private ChecksumVerificationResultCollection? FetchChecksumVerificationResult()
