@@ -88,14 +88,14 @@ namespace Osmy.Models
                 var response = await _client.ExecuteAsync<T>(request, cancellationToken).ConfigureAwait(false);
                 if (!response.IsSuccessful)
                 {
-                    throw new OSVException(null);
+                    throw new OSVException(response.ErrorMessage, response.ErrorException);
                 }
 
                 return response.ThrowIfError().Data!;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OSVException)
             {
-                throw new OSVException(null, ex);
+                throw new OSVException(ex.Message, ex);
             }
         }
     }
