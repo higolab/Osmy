@@ -6,8 +6,8 @@ using Osmy.Properties;
 using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -83,7 +83,6 @@ namespace Osmy.Services
                     context.ChecksumVerificationResults.Add(result);
                 }
 
-                await context.SaveChangesAsync(stoppingToken).ConfigureAwait(false);
                 _appNotificationService.NotifyChecksumMismatch();
 
                 await Task.Delay(AutoScanCheckInterval, stoppingToken).ConfigureAwait(false);
@@ -102,8 +101,8 @@ namespace Osmy.Services
                 if (File.Exists(path))
                 {
                     string sha1Hash = file.Checksums.First(x => x.Algorithm == ChecksumAlgorithm.SHA1).Value;
-                    string localFileHash = await ComputeSHA1Async(path, cancellationToken).ConfigureAwait(false);
-                    bool isValid = sha1Hash.Equals(localFileHash, StringComparison.OrdinalIgnoreCase);
+                    byte[] localFileHash = await ComputeSHA1Async(path, cancellationToken).ConfigureAwait(false);
+                    bool isValid = CompareHash(sha1Hash, localFileHash);
                     result = isValid ? ChecksumCorrectness.Correct : ChecksumCorrectness.Incorrect;
                 }
 
@@ -113,20 +112,69 @@ namespace Osmy.Services
             return new ChecksumVerificationResultCollection(executed, sbom, await Task.WhenAll(results).ConfigureAwait(false));
         }
 
-        private static async Task<string> ComputeSHA1Async(string filePath, CancellationToken cancellationToken)
+        private static async Task<byte[]> ComputeSHA1Async(string filePath, CancellationToken cancellationToken)
         {
             HashAlgorithm hashAlgorithm = SHA1.Create();
 
             using var stream = File.OpenRead(filePath);
             var localFileHash = await hashAlgorithm.ComputeHashAsync(stream, cancellationToken).ConfigureAwait(false);
+            
+            return localFileHash;
+        }
 
-            var builder = new StringBuilder();
-            foreach (byte data in localFileHash)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool CompareHash(string hashStr, byte[] hashBytes)
+        {
+            using var strEnumerator = hashStr.GetEnumerator();
+            foreach (var b in hashBytes)
             {
-                builder.AppendFormat("{0:x2}", data);
+                if (!strEnumerator.MoveNext())
+                {
+                    return false;
+                }
+                var upper = strEnumerator.Current;
+                if (!CompareDigit(upper, b >> 4))
+                {
+                    return false;
+                }
+
+                if (!strEnumerator.MoveNext())
+                {
+                    return false;
+                }
+                var lower = strEnumerator.Current;
+                if (!CompareDigit(lower, b & 0xf))
+                {
+                    return false;
+                }
             }
 
-            return builder.ToString();
+            return !strEnumerator.MoveNext();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool CompareDigit(char c, int b)
+        {
+            return c switch
+            {
+                '0' => b == 0,
+                '1' => b == 1,
+                '2' => b == 2,
+                '3' => b == 3,
+                '4' => b == 4,
+                '5' => b == 5,
+                '6' => b == 6,
+                '7' => b == 7,
+                '8' => b == 8,
+                '9' => b == 9,
+                'A' or 'a' => b == 0xa,
+                'B' or 'b' => b == 0xb,
+                'C' or 'c' => b == 0xc,
+                'D' or 'd' => b == 0xd,
+                'E' or 'e' => b == 0xe,
+                'F' or 'f' => b == 0xf,
+                _ => false,
+            };
         }
     }
 }
