@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Styling;
 using Osmy.Gui.ViewModels;
 using Osmy.Gui.Views;
 
@@ -22,6 +23,8 @@ namespace Osmy.Gui
                     DataContext = new MainWindowViewModel(),
                 };
             }
+
+            RequestedThemeVariant = ThemeVariant.Light;
 
             base.OnFrameworkInitializationCompleted();
         }

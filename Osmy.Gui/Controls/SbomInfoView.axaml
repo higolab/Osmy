@@ -1,0 +1,26 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+						 xmlns:local="using:Osmy.Gui.Controls"
+						 xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+						 d:DesignWidth="200"
+						 d:DesignHeight="22"
+             x:Class="Osmy.Gui.Controls.SbomInfoView"
+						 x:CompileBindings="True">
+	<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+		<!--脆弱性-->
+		<materialIcons:MaterialIcon Kind="Bug" Foreground="Red" Height="22" Width="22"
+																IsVisible="{Binding Value.IsVulnerable, RelativeSource={RelativeSource AncestorType=local:SbomInfoView}}"/>
+
+		<!--ファイルエラー-->
+		<Viewbox Height="18" Margin="2 0 0 0">
+			<materialIcons:MaterialIcon Kind="FileMultiple" Foreground="Orange"
+																	IsVisible="{Binding Value.HasFileError, RelativeSource={RelativeSource AncestorType=local:SbomInfoView}}"/>
+		</Viewbox>
+
+		<TextBlock Text="{Binding Value.Sbom.Name, RelativeSource={RelativeSource AncestorType=local:SbomInfoView}}"
+							 Margin="5 0 0 0" VerticalAlignment="Center"/>
+	</StackPanel>
+</UserControl>
