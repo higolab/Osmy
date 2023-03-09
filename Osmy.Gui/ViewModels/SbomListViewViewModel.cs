@@ -1,8 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Osmy.Gui.Models;
-using Osmy.Gui.Models.Sbom.Spdx;
 using Reactive.Bindings;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
@@ -36,8 +37,8 @@ namespace Osmy.Gui.ViewModels
             //_messageBoxService = messageBoxService;
             //_logger = logger;
 
-            //SbomInfos = new ReactivePropertySlim<ObservableCollection<SbomInfo>>(new ObservableCollection<SbomInfo>(FetchSbomInfos()));
-            SbomInfos = new ReactivePropertySlim<ObservableCollection<SbomInfo>>(new ObservableCollection<SbomInfo> { new SbomInfo(new Spdx() { Name = "Test" }, true, true) });
+            SbomInfos = new ReactivePropertySlim<ObservableCollection<SbomInfo>>(new ObservableCollection<SbomInfo>(FetchSbomInfos()));
+            //SbomInfos = new ReactivePropertySlim<ObservableCollection<SbomInfo>>(new ObservableCollection<SbomInfo> { new SbomInfo(new Spdx() { Name = "Test" }, true, true) });
             SelectedSbomInfo = new ReactivePropertySlim<SbomInfo?>();
             SelectedSbomVM = SelectedSbomInfo
                 .Select(x => x is null ? null : new SbomDetailsViewViewModel(x.Sbom))
@@ -115,16 +116,16 @@ namespace Osmy.Gui.ViewModels
         //    await dbContext.SaveChangesAsync().ConfigureAwait(false);
         //}
 
-        //private IEnumerable<SbomInfo> FetchSbomInfos()
-        //{
-        //    using var dbContext = new ManagedSoftwareContext();
-        //    foreach (var sbom in dbContext.Sboms.Include(x => x.ExternalReferences))
-        //    {
-        //        var isVulnerable = dbContext.ScanResults.Where(x => x.SbomId == sbom.Id).AsEnumerable().MaxBy(x => x.Executed)?.IsVulnerable ?? false;
-        //        var hasFileError = dbContext.ChecksumVerificationResults.Where(x => x.SbomId == sbom.Id).OrderByDescending(x => x.Executed).FirstOrDefault()?.HasError ?? false;
-        //        yield return new SbomInfo(sbom, isVulnerable, hasFileError);
-        //    }
-        //}
+        private static IEnumerable<SbomInfo> FetchSbomInfos()
+        {
+            using var dbContext = new ManagedSoftwareContext();
+            foreach (var sbom in dbContext.Sboms.Include(x => x.ExternalReferences))
+            {
+                var isVulnerable = dbContext.ScanResults.Where(x => x.SbomId == sbom.Id).AsEnumerable().MaxBy(x => x.Executed)?.IsVulnerable ?? false;
+                var hasFileError = dbContext.ChecksumVerificationResults.Where(x => x.SbomId == sbom.Id).OrderByDescending(x => x.Executed).FirstOrDefault()?.HasError ?? false;
+                yield return new SbomInfo(sbom, isVulnerable, hasFileError);
+            }
+        }
     }
 
     public class DelegateCommand : ICommand

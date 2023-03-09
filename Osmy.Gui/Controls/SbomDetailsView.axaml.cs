@@ -1,7 +1,6 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Data.Converters;
-using OSV.Client.Models;
-using OSV.Schema;
+using Avalonia.Media;
 using System;
 using System.Globalization;
 
@@ -70,36 +69,23 @@ namespace Osmy.Gui.Controls
         }
     }
 
-    public class EqualsConverter : IValueConverter
+    public class PackageToBackgroundConverter : IValueConverter
     {
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            return Equals(value, parameter);
+            if (value is bool isVulnerable && isVulnerable)
+            {
+                return Brushes.Pink;
+            }
+            else
+            {
+                return Brushes.Transparent;
+            }
         }
 
         public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
-    }
-
-    public class NotEqualsConverter : IValueConverter
-    {
-        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-        {
-            return !Equals(value, parameter);
-        }
-
-        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public static class CompareConverters
-    {
-        public static readonly EqualsConverter EqualsConverter = new();
-
-        public static readonly NotEqualsConverter NotEqualsConverter = new();
     }
 }
