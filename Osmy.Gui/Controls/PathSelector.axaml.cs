@@ -2,6 +2,9 @@
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Interactivity;
+using Avalonia.Platform.Storage;
+using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace Osmy.Gui.Controls
@@ -48,33 +51,74 @@ namespace Osmy.Gui.Controls
         public static readonly StyledProperty<object?> PathSelectedCommandParameterProperty =
             AvaloniaProperty.Register<PathSelector, object?>("PathSelectedCommandParameter");
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void Button_Click(object sender, RoutedEventArgs e) => SelectPath();
+
+        private async void SelectPath()
         {
             switch (PathSelectionMode)
             {
                 case PathSelectionMode.File:
-                    SelectPath(false);
+                    await SelectFile();
                     break;
                 case PathSelectionMode.Directory:
-                    SelectPath(true);
+                    await SelectFolder();
                     break;
             }
         }
 
-        private void SelectPath(bool isDirectory)
+        private async Task SelectFile()
         {
-            // TODO
-            //var dialog = new CommonOpenFileDialog
-            //{
-            //    Multiselect = false,
-            //    IsFolderPicker = isDirectory,
-            //};
+            var storageProvider = GetStorageProvider();
 
-            //if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-            //{
-            //    SelectedPath = dialog.FileName;
-            //    PathSelectedCommand?.Execute(PathSelectedCommandParameter);
-            //}
+            var options = new FilePickerOpenOptions
+            {
+                AllowMultiple = false,
+                SuggestedStartLocation = await FetchFolderOfSelectedPath()
+            };
+
+            var files = await storageProvider.OpenFilePickerAsync(options);
+            if (files.Count != 0)
+            {
+                SelectedPath = files[0].Path.LocalPath;
+                ExecutePathSelectedCommand();
+            }
+        }
+
+        private async Task SelectFolder()
+        {
+            var storageProvider = GetStorageProvider();
+
+            var options = new FolderPickerOpenOptions
+            {
+                AllowMultiple = false,
+                SuggestedStartLocation = await FetchFolderOfSelectedPath()
+            };
+
+            var folders = await storageProvider.OpenFolderPickerAsync(options);
+            if (folders.Count != 0)
+            {
+                SelectedPath = folders[0].Path.LocalPath;
+                ExecutePathSelectedCommand();
+            }
+        }
+
+        private async Task<IStorageFolder?> FetchFolderOfSelectedPath()
+        {
+            var storageProvider = GetStorageProvider();
+            var dir = Directory.Exists(SelectedPath) ? SelectedPath : Path.GetDirectoryName(SelectedPath);
+
+            return dir is null ? null : await storageProvider.TryGetFolderFromPath(dir);
+        }
+
+        private IStorageProvider GetStorageProvider()
+        {
+            var topLevel = TopLevel.GetTopLevel(this)!;
+            return topLevel.StorageProvider;
+        }
+
+        private void ExecutePathSelectedCommand()
+        {
+            PathSelectedCommand?.Execute(PathSelectedCommandParameter);
         }
     }
 

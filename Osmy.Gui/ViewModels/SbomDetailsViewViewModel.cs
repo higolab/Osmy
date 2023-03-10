@@ -121,25 +121,26 @@ namespace Osmy.Gui.ViewModels
 
         private async void OnPathSelected()
         {
-            //    using var dbContext = new ManagedSoftwareContext();
-            //    var sbom = dbContext.Sboms
-            //        .Include(x => x.Files)
-            //        .ThenInclude(x => x.Checksums)
-            //        .First(x => x.Id == Sbom.Value.Id);
-            //    sbom.LocalDirectory = Sbom.Value.LocalDirectory;
-            //    await dbContext.SaveChangesAsync();
+            using var dbContext = new ManagedSoftwareContext();
+            var sbom = dbContext.Sboms
+                .Include(x => x.Files)
+                .ThenInclude(x => x.Checksums)
+                .First(x => x.Id == Sbom.Value.Id);
+            sbom.LocalDirectory = Sbom.Value.LocalDirectory;
+            await dbContext.SaveChangesAsync();
 
-            //    if (sbom.LocalDirectory is null)
-            //    {
-            //        return;
-            //    }
+            if (sbom.LocalDirectory is null)
+            {
+                return;
+            }
 
-            //    var container = ContainerLocator.Container;
-            //    var serviceManager = container.Resolve<BackgroundServiceManager>();
-            //    var result = await Task.Run(() => serviceManager.Resolve<ChecksumVerificationService>().Verify(sbom)).ConfigureAwait(false);
-            //    dbContext.ChecksumVerificationResults.Add(result);
-            //    await dbContext.SaveChangesAsync();
-            //    ChecksumVerificationResults.Value = result;
+            // TODO
+            //var container = ContainerLocator.Container;
+            //var serviceManager = container.Resolve<BackgroundServiceManager>();
+            //var result = await Task.Run(() => serviceManager.Resolve<ChecksumVerificationService>().Verify(sbom)).ConfigureAwait(false);
+            //dbContext.ChecksumVerificationResults.Add(result);
+            //await dbContext.SaveChangesAsync();
+            //ChecksumVerificationResults.Value = result;
         }
 
         //private void CopyToClipboard(string value)
