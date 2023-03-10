@@ -1,5 +1,5 @@
 ﻿using Osmy.Gui.Models.Sbom;
-using QuickGraph;
+using QuikGraph;
 
 namespace Osmy.Gui.Models
 {

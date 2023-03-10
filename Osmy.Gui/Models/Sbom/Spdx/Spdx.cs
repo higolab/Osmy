@@ -1,10 +1,10 @@
 ﻿using SpdxModels = CycloneDX.Spdx.Models.v2_2;
-using QuickGraph;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using QuikGraph;
 
 namespace Osmy.Gui.Models.Sbom.Spdx
 {
