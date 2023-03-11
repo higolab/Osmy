@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Osmy.Gui.Models;
 //using Microsoft.Toolkit.Uwp.Notifications;
-using Osmy.Services;
 using System.Linq;
 
-namespace Osmy.Gui.Models
+namespace Osmy.Gui.Services
 {
     /// <summary>
     /// アプリ通知サービス

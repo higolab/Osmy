@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Osmy.Services
+namespace Osmy.Gui.Services
 {
     public abstract class BackgroundService : IDisposable
     {

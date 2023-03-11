@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Osmy.Services
+namespace Osmy.Gui.Services
 {
     internal abstract class QueueingBackgroundService<TItem, TResult> : BackgroundService
     {

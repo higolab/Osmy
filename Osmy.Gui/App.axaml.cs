@@ -2,10 +2,9 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
-using Osmy.Gui.Models;
+using Osmy.Gui.Services;
 using Osmy.Gui.ViewModels;
 using Osmy.Gui.Views;
-using Osmy.Services;
 using System.Threading.Tasks;
 
 namespace Osmy.Gui
