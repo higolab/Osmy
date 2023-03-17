@@ -1,12 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Osmy.Gui.Models;
+using Osmy.Gui.Models.ChecksumVerification;
+using Osmy.Gui.Models.Sbom;
+using Osmy.Gui.Models.Sbom.Spdx;
+using Osmy.Gui.Services;
 using Reactive.Bindings;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace Osmy.Gui.ViewModels
@@ -15,7 +19,9 @@ namespace Osmy.Gui.ViewModels
     {
         //private readonly IDialogService _dialogService;
         //private readonly IMessageBoxService _messageBoxService;
-        private readonly ILogger _logger;
+        //private readonly ILogger _logger;
+
+        public ReactiveUI.Interaction<AddSbomDialogViewModel, SelectedSbomInfo?> ShowAddSbomDialog { get; } = new();
 
         public ReactivePropertySlim<ObservableCollection<SbomInfo>> SbomInfos { get; }
 
@@ -47,58 +53,52 @@ namespace Osmy.Gui.ViewModels
                 .WithSubscribe(DeleteSbom, out var disposable);  // TODO disposableの適切なタイミングでの破棄
         }
 
-        private void OpenSbomAddDiaglog()
+        private async void OpenSbomAddDiaglog()
         {
-            //    _dialogService.ShowDialog("AddSbomDialog", async r =>
-            //    {
-            //        if (r.Result != ButtonResult.OK) { return; }
-            //        var name = r.Parameters.GetValue<string>("name");
-            //        var sbomFile = r.Parameters.GetValue<string>("sbom");
-            //        var localDirectory = r.Parameters.GetValue<string>("localDirectory");
+            var store = new AddSbomDialogViewModel();
+            var result = await ShowAddSbomDialog.Handle(store);
 
-            //        Sbom sbom = default!;
-            //        try
-            //        {
-            //            sbom = new Spdx(name, sbomFile, localDirectory);
-            //        }
-            //        catch (Exception ex)
-            //        {
-            //            const string errorMessage = "Failed to load the SBOM file";
-            //            _logger.LogError(ex, errorMessage);
-            //            _messageBoxService.ShowInformationMessage(errorMessage);
-            //            return;
-            //        }
+            Sbom sbom;
+            try
+            {
+                sbom = new Spdx(result.Name, result.SbomFileName, result.LocalDirectory);
+            }
+            catch (Exception /*ex*/)
+            {
+                // TODO
+                //const string errorMessage = "Failed to load the SBOM file";
+                //_logger.LogError(ex, errorMessage);
+                //_messageBoxService.ShowInformationMessage(errorMessage);
+                return;
+            }
 
-            //        using var dbContext = new ManagedSoftwareContext();
-            //        dbContext.Sboms.Add(sbom);
-            //        await dbContext.SaveChangesAsync();
+            using var dbContext = new ManagedSoftwareContext();
+            dbContext.Sboms.Add(sbom);
+            await dbContext.SaveChangesAsync();
 
-            //        var container = ContainerLocator.Container;
-            //        var serviceManager = container.Resolve<BackgroundServiceManager>();
-            //        var vulnsScanResult = await Task.Run(() => serviceManager.Resolve<VulnerabilityScanService>().Scan(sbom));
-            //        dbContext.ScanResults.Add(vulnsScanResult);
+            var vulnsScanResult = await Task.Run(() => BackgroundServiceManager.Instance.Resolve<VulnerabilityScanService>().Scan(sbom));
+            dbContext.ScanResults.Add(vulnsScanResult);
 
-            //        ChecksumVerificationResultCollection? checksumVerificationResult = null;
-            //        if (sbom.LocalDirectory is not null)
-            //        {
-            //            checksumVerificationResult = await Task.Run(() => serviceManager.Resolve<ChecksumVerificationService>().Verify(sbom));
-            //            dbContext.ChecksumVerificationResults.Add(checksumVerificationResult);
-            //        }
-            //        await dbContext.SaveChangesAsync();
+            ChecksumVerificationResultCollection? checksumVerificationResult = null;
+            if (sbom.LocalDirectory is not null)
+            {
+                checksumVerificationResult = await Task.Run(() => BackgroundServiceManager.Instance.Resolve<ChecksumVerificationService>().Verify(sbom));
+                dbContext.ChecksumVerificationResults.Add(checksumVerificationResult);
+            }
+            await dbContext.SaveChangesAsync();
 
-            //        SbomInfos.Value.Add(new SbomInfo(sbom, vulnsScanResult.IsVulnerable, checksumVerificationResult?.HasError ?? false));
-            //    });
+            SbomInfos.Value.Add(new SbomInfo(sbom, vulnsScanResult.IsVulnerable, checksumVerificationResult?.HasError ?? false));
         }
 
         private async void DeleteSbom()
         {
-            //    if (SelectedSbomInfo.Value is null) { return; }
+            if (SelectedSbomInfo.Value is null) { return; }
 
-            //    using var dbContext = new ManagedSoftwareContext();
-            //    var sbom = dbContext.Sboms.First(x => x.Id == SelectedSbomInfo.Value.Sbom.Id);
-            //    dbContext.Sboms.Remove(sbom);
-            //    SbomInfos.Value.Remove(SelectedSbomInfo.Value);
-            //    await dbContext.SaveChangesAsync().ConfigureAwait(false);
+            using var dbContext = new ManagedSoftwareContext();
+            var sbom = dbContext.Sboms.First(x => x.Id == SelectedSbomInfo.Value.Sbom.Id);
+            dbContext.Sboms.Remove(sbom);
+            SbomInfos.Value.Remove(SelectedSbomInfo.Value);
+            await dbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
         //private async void ScanVulns()

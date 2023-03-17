@@ -10,6 +10,11 @@ namespace Osmy.Gui.Services
     {
         private readonly Dictionary<Type, BackgroundService> _services = new();
 
+        public static BackgroundServiceManager Instance => _instance ??= new BackgroundServiceManager();
+        private static BackgroundServiceManager? _instance;
+
+        private BackgroundServiceManager() { }
+
         public void Register<T>(T backgroundService) where T : BackgroundService
         {
             _services.Add(typeof(T), backgroundService);

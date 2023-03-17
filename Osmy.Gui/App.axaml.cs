@@ -11,8 +11,6 @@ namespace Osmy.Gui
 {
     public partial class App : Application
     {
-        private readonly BackgroundServiceManager _backgroundServiceManager = new();
-
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
@@ -38,9 +36,9 @@ namespace Osmy.Gui
         private async Task StartBackgroundServices()
         {
             // TODO ìKêÿÇ»èàóùÇ©åüì¢
-            _backgroundServiceManager.Register(new VulnerabilityScanService(new AppNotificationService()));
-            _backgroundServiceManager.Register(new ChecksumVerificationService(new AppNotificationService()));
-            await _backgroundServiceManager.StartAsync().ConfigureAwait(false);
+            BackgroundServiceManager.Instance.Register(new VulnerabilityScanService(new AppNotificationService()));
+            BackgroundServiceManager.Instance.Register(new ChecksumVerificationService(new AppNotificationService()));
+            await BackgroundServiceManager.Instance.StartAsync().ConfigureAwait(false);
         }
     }
 }

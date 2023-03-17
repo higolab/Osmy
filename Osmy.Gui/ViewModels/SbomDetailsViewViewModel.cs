@@ -3,10 +3,11 @@ using Osmy.Gui.Models;
 using Osmy.Gui.Models.ChecksumVerification;
 using Osmy.Gui.Models.Sbom;
 using Osmy.Gui.Models.Sbom.Spdx;
+using Osmy.Gui.Services;
 using Reactive.Bindings;
 using System;
-using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Osmy.Gui.ViewModels
 {
@@ -18,7 +19,6 @@ namespace Osmy.Gui.ViewModels
         public ReactivePropertySlim<Sbom> Sbom { get; }
 
         public ReactivePropertySlim<VulnerabilityScanResult?> ScanResult { get; }
-        //public ReactivePropertySlim<ObservableCollection<string>?> ChecksumVerificationResults { get; }
         public ReactivePropertySlim<ChecksumVerificationResultCollection?> ChecksumVerificationResults { get; }
         public ReactivePropertySlim<SbomInfo[]> RelatedSboms { get; set; }
 
@@ -31,7 +31,6 @@ namespace Osmy.Gui.ViewModels
         public SbomDetailsViewViewModel(Sbom sbom)
         {
             Sbom = new ReactivePropertySlim<Sbom>(sbom);
-            //ChecksumVerificationResults = new ReactivePropertySlim<ObservableCollection<string>?>(new ObservableCollection<string>(Enumerable.Range(0, Random.Shared.Next(1, 200)).Select(x => $"{x}")));
             ChecksumVerificationResults = new ReactivePropertySlim<ChecksumVerificationResultCollection?>(FetchChecksumVerificationResult());
 
             //sbom.VulnerabilityScanned += OnSoftwareVulnerabilityScanned;
@@ -134,13 +133,10 @@ namespace Osmy.Gui.ViewModels
                 return;
             }
 
-            // TODO
-            //var container = ContainerLocator.Container;
-            //var serviceManager = container.Resolve<BackgroundServiceManager>();
-            //var result = await Task.Run(() => serviceManager.Resolve<ChecksumVerificationService>().Verify(sbom)).ConfigureAwait(false);
-            //dbContext.ChecksumVerificationResults.Add(result);
-            //await dbContext.SaveChangesAsync();
-            //ChecksumVerificationResults.Value = result;
+            var result = await Task.Run(() => BackgroundServiceManager.Instance.Resolve<ChecksumVerificationService>().Verify(sbom));
+            dbContext.ChecksumVerificationResults.Add(result);
+            await dbContext.SaveChangesAsync();
+            ChecksumVerificationResults.Value = result;
         }
 
         //private void CopyToClipboard(string value)
