@@ -11,46 +11,46 @@
 		<StyleInclude Source="avares://Material.Icons.Avalonia/App.xaml"/>
 		<StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
 
-		<Style Selector="HeaderedContentControl:groupBox">
-			<Setter Property="Template">
-				<Setter.Value>
-					<ControlTemplate>
-						<Grid>
-							<Grid.RowDefinitions>
-								<RowDefinition Height="Auto"/>
-								<RowDefinition Height="*"/>
-							</Grid.RowDefinitions>
-							<Grid.ColumnDefinitions>
-								<ColumnDefinition Width="Auto"/>
-								<ColumnDefinition Width="*"/>
-							</Grid.ColumnDefinitions>
-							<Border ZIndex="1" Padding="5,0,5,0" Background="White" Margin="5,0,0,0">
-								<TextBlock TextBlock.FontWeight="Bold" Text="{TemplateBinding Header}" />
-							</Border>
-							<Border Grid.RowSpan="2" Grid.ColumnSpan="2" Margin="0,10,0,0"
-                  BorderBrush="{TemplateBinding Background}"
-                  BorderThickness="1">
-								<ContentPresenter Content="{TemplateBinding Content}" />
-							</Border>
-						</Grid>
-					</ControlTemplate>
-				</Setter.Value>
-			</Setter>
-		</Style>
-
-		<!--HeaderedContentControlの使い方-->
-		<!--ControlTemplateを定義する必要がある-->
-		<Style Selector="HeaderedContentControl.General">
+		<!--HeaderedContentControlの基本スタイル-->
+		<Style Selector="HeaderedContentControl">
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate>
 						<StackPanel>
-							<ContentPresenter Content="{TemplateBinding	Header}" ContentTemplate="{TemplateBinding HeaderTemplate}"/>
+							<ContentPresenter Content="{TemplateBinding	Header}" ContentTemplate="{TemplateBinding HeaderTemplate}" Classes="Header"/>
 							<ContentPresenter Content="{TemplateBinding	Content}" ContentTemplate="{TemplateBinding	ContentTemplate}"/>
 						</StackPanel>
 					</ControlTemplate>
 				</Setter.Value>
 			</Setter>
+		</Style>
+
+		<!--GroupBox形式のHeaderedContentControlのスタイル-->
+		<Style Selector="HeaderedContentControl.GroupBox">
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate>
+						<StackPanel>
+							<ContentPresenter Content="{TemplateBinding Header}"/>
+							<Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="5">
+								<ContentPresenter Content="{TemplateBinding Content}"/>
+							</Border>
+						</StackPanel>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
+		<!--テキストをヘッダーに用いる場合のスタイル-->
+		<Style Selector="TextBlock.AccentText">
+			<Setter Property="Foreground" Value="RoyalBlue"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+		</Style>
+
+		<!--ヘッダを表示するContentPresenter内のTextBlockのスタイル-->
+		<Style Selector="ContentPresenter.Header TextBlock">
+			<Setter Property="Foreground" Value="RoyalBlue"/>
+			<Setter Property="FontWeight" Value="Bold"/>
 		</Style>
 	</Application.Styles>
 </Application>

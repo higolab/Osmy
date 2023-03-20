@@ -35,12 +35,13 @@
 				<!--<Style TargetType="mah:MetroHeader" BasedOn="{StaticResource AccentMetroHeader}"/>-->
 			</Grid.Resources>
 
-			<HeaderedContentControl Grid.Row="0" Header="Name" Margin="0 0 0 5" Content="{Binding Sbom.Value.Name}" Classes="General"/>
+			<HeaderedContentControl Grid.Row="0" Header="Name" Margin="0 0 0 5" Content="{Binding Sbom.Value.Name}"/>
 
-			<HeaderedContentControl Grid.Row="1" Header="Local Directory" Margin="0 0 0 5" Classes="General">
+			<HeaderedContentControl Grid.Row="1" Header="Local Directory" Margin="0 0 0 5">
 				<controls:PathSelector SelectedPath="{Binding Sbom.Value.LocalDirectory}" PathSelectionMode="Directory"
 															 PathSelectedCommand="{Binding PathSelectedCommand}"
-															 MaxWidth="{Binding Viewport.Width, RelativeSource={RelativeSource AncestorType=ScrollViewer}}"/>
+															 MaxWidth="{Binding Viewport.Width, RelativeSource={RelativeSource AncestorType=ScrollViewer}}"
+															 Margin="0 2 0 0"/>
 			</HeaderedContentControl>
 
 			<TabControl Grid.Row="2">
@@ -108,7 +109,7 @@
 								<ItemsControl Items="{ReflectionBinding SelectedItem.VulnerabilityList.Vulnerabilities, ElementName=scanResult}">
 									<ItemsControl.ItemTemplate>
 										<DataTemplate x:DataType="osv:Vulnerability">
-											<Border BorderBrush="LightGray" BorderThickness="1" Padding="5 0 5 5" Margin="0 5 10 0">
+											<Border BorderBrush="LightGray" BorderThickness="1" Padding="5 0 5 5" Margin="0 5 10 0" CornerRadius="5">
 												<Grid>
 													<Grid.RowDefinitions>
 														<RowDefinition Height="Auto"/>
@@ -153,20 +154,20 @@
 													</StackPanel>
 
 													<StackPanel Grid.Row="4" Margin="0 5 0 0">
-														<TextBlock Text="Affected"/>
+														<TextBlock Text="Affected" Classes="AccentText"/>
 														<ItemsControl Items="{Binding Affected}">
 															<ItemsControl.ItemTemplate>
 																<DataTemplate>
-																	<HeaderedContentControl Classes="groupBox" Padding="0 2 0 0">
+																	<HeaderedContentControl Classes="GroupBox">
 																		<HeaderedContentControl.Header>
-																			<StackPanel Orientation="Horizontal">
-																				<TextBlock Text="{Binding Package.Name}" FontWeight="Bold" VerticalAlignment="Center" Margin="5 0 0 0"/>
+																			<WrapPanel Orientation="Horizontal" Margin="2 0 0 2">
+																				<TextBlock Text="{Binding Package.Name}" FontWeight="Bold" VerticalAlignment="Center"/>
 																				<TextBlock Text="{Binding Package.Purl, StringFormat=({0})}" VerticalAlignment="Center" Margin="5 0 0 0"/>
-																			</StackPanel>
+																			</WrapPanel>
 																		</HeaderedContentControl.Header>
 
 																		<HeaderedContentControl.Content>
-																			<ItemsControl Items="{Binding Versions}" Margin="10 0 0 0">
+																			<ItemsControl Items="{Binding Versions}" Margin="2">
 																				<ItemsControl.ItemTemplate>
 																					<DataTemplate>
 																						<Border Background="LightGray" BorderThickness="1" Padding="3 0" Margin="0 2 2 2" CornerRadius="3">
@@ -185,6 +186,17 @@
 																	</HeaderedContentControl>
 																</DataTemplate>
 															</ItemsControl.ItemTemplate>
+
+															<ItemsControl.Styles>
+																<Style Selector="HeaderedContentControl">
+																	<Setter Property="Margin" Value="0 0 0 5"/>
+																</Style>
+																<!--TODO nth-last-childは11.0.0-preview5ではAvaloniaの不具合で動作しない？正式リリース後に動作を確認-->
+																<!--https://github.com/AvaloniaUI/Avalonia/pull/10055-->
+																<Style Selector="ItemsControl HeaderedContentControl:nth-last-child(1)">
+																	<Setter Property="Margin" Value="0"/>
+																</Style>
+															</ItemsControl.Styles>
 														</ItemsControl>
 													</StackPanel>
 
