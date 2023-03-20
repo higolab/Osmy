@@ -24,82 +24,91 @@
 	</UserControl.Resources>
 
 	<Grid>
-		<ScrollViewer HorizontalScrollBarVisibility="Auto"
-									IsVisible="{Binding, Converter={x:Static	ObjectConverters.IsNotNull}}">
-			<Grid>
-				<Grid.RowDefinitions>
-					<RowDefinition Height="Auto"/>
-					<RowDefinition Height="Auto"/>
-					<RowDefinition Height="*"/>
-				</Grid.RowDefinitions>
+		<Grid IsVisible="{Binding, Converter={x:Static ObjectConverters.IsNotNull}}">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="*"/>
+			</Grid.RowDefinitions>
 
-				<Grid.Resources>
-					<!--<Style TargetType="mah:MetroHeader" BasedOn="{StaticResource AccentMetroHeader}"/>-->
-				</Grid.Resources>
+			<Grid.Resources>
+				<!--<Style TargetType="mah:MetroHeader" BasedOn="{StaticResource AccentMetroHeader}"/>-->
+			</Grid.Resources>
 
-				<HeaderedContentControl Grid.Row="0" Header="Name" Margin="0 0 0 5" Content="{Binding Sbom.Value.Name}"/>
+			<HeaderedContentControl Grid.Row="0" Header="Name" Margin="0 0 0 5" Content="{Binding Sbom.Value.Name}" Classes="General"/>
 
-				<HeaderedContentControl Grid.Row="1" Header="Local Directory" Margin="0 0 0 5"/>
+			<HeaderedContentControl Grid.Row="1" Header="Local Directory" Margin="0 0 0 5" Classes="General">
 				<controls:PathSelector SelectedPath="{Binding Sbom.Value.LocalDirectory}" PathSelectionMode="Directory"
 															 PathSelectedCommand="{Binding PathSelectedCommand}"
 															 MaxWidth="{Binding Viewport.Width, RelativeSource={RelativeSource AncestorType=ScrollViewer}}"/>
+			</HeaderedContentControl>
 
-				<TabControl Grid.Row="2">
-					<TabItem Header="Packages">
-						<Grid>
+			<TabControl Grid.Row="2">
+				<TabItem Header="Packages">
+					<Grid>
+						<Grid.RowDefinitions>
+							<RowDefinition Height="Auto"/>
+							<RowDefinition Height="*"/>
+						</Grid.RowDefinitions>
+
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="Auto"/>
+							<ColumnDefinition Width="*"/>
+						</Grid.ColumnDefinitions>
+
+						<TextBlock Grid.Row="0" Text="{Binding ScanResult.Value.Executed, StringFormat=Last Scan: {0:yyyy/MM/dd HH:mm:ss}}" Margin="3 0 0 0"/>
+
+						<DataGrid x:Name="scanResult" Grid.Row="1" Items="{Binding ScanResult.Value.Results}" SelectionMode="Extended"
+											CanUserReorderColumns="False" AutoGenerateColumns="False" Margin="0 5" IsReadOnly="True">
+							<DataGrid.Columns>
+								<DataGridTemplateColumn>
+									<DataTemplate>
+										<materialIcons:MaterialIcon Kind="Bug" Foreground="Red" ToolTip.Tip="Vulnerabilities detected"
+																								Height="22" Width="22" IsVisible="{Binding IsVulnerable}"/>
+									</DataTemplate>
+								</DataGridTemplateColumn>
+								<DataGridTextColumn Header="Name" Binding="{Binding Package.Name}"/>
+								<DataGridTextColumn Header="Version" Binding="{Binding Package.Version}"/>
+							</DataGrid.Columns>
+
+							<DataGrid.Styles>
+								<Style Selector="DataGridRow">
+									<Setter Property="Background" Value="{Binding	IsVulnerable, Converter={StaticResource	packageToBackgroundConverter}}" x:DataType="sbom:PackageScanResult"/>
+								</Style>
+							</DataGrid.Styles>
+						</DataGrid>
+
+						<GridSplitter Grid.Column="1" Grid.RowSpan="2" Width="5" Background="LightGray" Margin="5"/>
+
+						<Grid Grid.Column="2" Grid.RowSpan="2">
 							<Grid.RowDefinitions>
 								<RowDefinition Height="Auto"/>
+								<RowDefinition Height="Auto"/>
 								<RowDefinition Height="*"/>
-								<RowDefinition Height="Auto"/>
-								<RowDefinition Height="Auto"/>
 							</Grid.RowDefinitions>
 
-							<TextBlock Grid.Row="0" Text="{Binding ScanResult.Value.Executed, StringFormat=Last Scan: {0:yyyy/MM/dd HH:mm:ss}}" Margin="3 0 0 0"/>
+							<StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0 5 0 0">
+								<materialIcons:MaterialIcon Kind="Bug" Foreground="Red" VerticalAlignment="Center"/>
+								<TextBlock Text="Vulnerability Details" Margin="5 0 0 0" Foreground="Red" FontSize="14" FontWeight="Bold"/>
+							</StackPanel>
 
-							<DataGrid x:Name="scanResult" Grid.Row="1" Items="{Binding ScanResult.Value.Results}" SelectionMode="Extended"
-												CanUserReorderColumns="False" AutoGenerateColumns="False" Margin="0 5" IsReadOnly="True">
-								<DataGrid.Columns>
-									<DataGridTemplateColumn>
-										<DataTemplate>
-											<materialIcons:MaterialIcon Kind="Bug" Foreground="Red" ToolTip.Tip="Vulnerabilities detected"
-																									IsVisible="{Binding IsVulnerable}"/>
-										</DataTemplate>
-									</DataGridTemplateColumn>
-									<DataGridTextColumn Header="Name" Binding="{Binding Package.Name}"/>
-									<DataGridTextColumn Header="Version" Binding="{Binding Package.Version}"/>
-								</DataGrid.Columns>
-								
-								<DataGrid.Styles>
-									<Style Selector="DataGridRow">
-										<Setter Property="Background" Value="{Binding	IsVulnerable, Converter={StaticResource	packageToBackgroundConverter}}" x:DataType="sbom:PackageScanResult"/>
-									</Style>
-								</DataGrid.Styles>
-							</DataGrid>
+							<TextBlock Grid.Row="1" Text="Please select a package"
+												 IsVisible="{Binding SelectedItem, ElementName=scanResult, Converter={x:Static ObjectConverters.IsNull}}"/>
+							<TextBlock Grid.Row="1" Text="No vulnerabilities detected in this package">
+								<TextBlock.IsVisible>
+									<MultiBinding Converter="{x:Static converters:ShortCircuitBoolConverters.And}">
+										<Binding Path="SelectedItem" ElementName="scanResult" Converter="{x:Static ObjectConverters.IsNotNull}"/>
+										<ReflectionBinding Path="SelectedItem.VulnerabilityList.Vulnerabilities" ElementName="scanResult" Converter="{x:Static ObjectConverters.IsNull}"/>
+									</MultiBinding>
+								</TextBlock.IsVisible>
+							</TextBlock>
 
-							<Separator Grid.Row="2" Height="5" HorizontalAlignment="Stretch" Margin="3 0 0 0"/>
-
-							<StackPanel Grid.Row="3" Margin="3 0 0 0">
-								<StackPanel Orientation="Horizontal" Margin="0 5 0 0">
-									<materialIcons:MaterialIcon Kind="Bug" Foreground="Red" VerticalAlignment="Center"/>
-									<TextBlock Text="Vulnerability Details" Margin="5 0 0 0" Foreground="Red" FontSize="14" FontWeight="Bold"/>
-								</StackPanel>
-
-								<TextBlock Text="Please select a package"
-													 IsVisible="{Binding SelectedItem, ElementName=scanResult, Converter={x:Static ObjectConverters.IsNull}}"/>
-								<TextBlock Text="No vulnerabilities detected in this package">
-									<TextBlock.IsVisible>
-										<MultiBinding Converter="{x:Static converters:ShortCircuitBoolConverters.And}">
-											<Binding Path="SelectedItem" ElementName="scanResult" Converter="{x:Static ObjectConverters.IsNotNull}"/>
-											<ReflectionBinding Path="SelectedItem.VulnerabilityList.Vulnerabilities" ElementName="scanResult" Converter="{x:Static ObjectConverters.IsNull}"/>
-										</MultiBinding>
-									</TextBlock.IsVisible>
-								</TextBlock>
-
-								<ItemsControl Items="{ReflectionBinding SelectedItem.VulnerabilityList.Vulnerabilities, ElementName=scanResult}"
-                              MaxWidth="{Binding Viewport.Width, RelativeSource={RelativeSource AncestorType=ScrollViewer}}">
+							<ScrollViewer Grid.Row="2">
+								<ItemsControl Items="{ReflectionBinding SelectedItem.VulnerabilityList.Vulnerabilities, ElementName=scanResult}">
 									<ItemsControl.ItemTemplate>
 										<DataTemplate x:DataType="osv:Vulnerability">
-											<Border BorderBrush="LightGray" BorderThickness="1" Padding="5 0 5 5" Margin="0 5 0 0">
+											<Border BorderBrush="LightGray" BorderThickness="1" Padding="5 0 5 5" Margin="0 5 10 0">
 												<Grid>
 													<Grid.RowDefinitions>
 														<RowDefinition Height="Auto"/>
@@ -130,7 +139,7 @@
 														<ItemsControl Items="{Binding Severity}">
 															<ItemsControl.ItemTemplate>
 																<DataTemplate>
-																	<TextBlock>
+																	<TextBlock TextWrapping="Wrap">
 																		[<Run Text="{Binding Type}"/>] <Run Text="{Binding Score}"/>
 																	</TextBlock>
 																</DataTemplate>
@@ -190,7 +199,7 @@
 																	<DataTemplate>
 																		<TextBlock TextWrapping="Wrap" ToolTip.Tip="{Binding Url}">
 																			<!--<Hyperlink NavigateUri="{Binding Url}" RequestNavigate="Hyperlink_RequestNavigate">-->
-																			<Run Text="{Binding Url, Converter={StaticResource urlToHostConverter}}"/>
+																			<Run Text="{Binding Url, Converter={StaticResource urlToHostConverter}, Mode=OneWay}"/>
 																			<!--</Hyperlink>-->
 																		</TextBlock>
 																	</DataTemplate>
@@ -203,54 +212,68 @@
 										</DataTemplate>
 									</ItemsControl.ItemTemplate>
 								</ItemsControl>
-							</StackPanel>
+							</ScrollViewer>
 						</Grid>
-					</TabItem>
+					</Grid>
+				</TabItem>
 
-					<TabItem Header="Files">
-						<StackPanel>
-							<TextBlock Text="{Binding ChecksumVerificationResults.Value.Executed, StringFormat=Last Verification: {0:yyyy/MM/dd HH:mm:ss}}"
-												 IsVisible="{Binding Sbom.Value.LocalDirectory, Converter={x:Static ObjectConverters.IsNotNull}}"
-												 Margin="3 0 0 0"/>
-							<TextBlock Text="Local directory is not selected"
-												 IsVisible="{Binding Sbom.Value.LocalDirectory, Converter={x:Static ObjectConverters.IsNull}}"
-												 Margin="3 0 0 0"/>
+				<TabItem Header="Files">
+					<!--MEMO StackPanelで積むとDataGridの描画に問題が生じるためGridを使用-->
+					<Grid>
+						<Grid.RowDefinitions>
+							<RowDefinition Height="Auto"/>
+							<RowDefinition Height="*"/>
+						</Grid.RowDefinitions>
 
-							<!--TODO 最初の1件しか表示されなくなることがある-->
-							<DataGrid Items="{Binding ChecksumVerificationResults.Value.Results}" SelectionMode="Single" Margin="0 5 0 0"
-												CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True"
-												IsVisible="{Binding Sbom.Value.LocalDirectory, Converter={x:Static ObjectConverters.IsNotNull}}">
-								<DataGrid.Columns>
-									<DataGridTemplateColumn>
-										<DataTemplate>
-											<StackPanel>
-												<!--問題なし-->
-												<materialIcons:MaterialIcon Kind="FileCheck" Foreground="Green" ToolTip.Tip="Correct">
-													<materialIcons:MaterialIcon.IsVisible>
-														<MultiBinding Converter="{x:Static converters:ShortCircuitBoolConverters.And}">
-															<MultiBinding.Bindings>
-																<Binding Path="Result" Converter="{x:Static	converters:CompareConverters.EqualsConverter}" ConverterParameter="{x:Static checksumVerification:ChecksumCorrectness.Incorrect}"/>
-																<Binding Path="Result" Converter="{x:Static converters:CompareConverters.EqualsConverter}" ConverterParameter="{x:Static checksumVerification:ChecksumCorrectness.FileNotFound}"/>
-															</MultiBinding.Bindings>
-														</MultiBinding>
-													</materialIcons:MaterialIcon.IsVisible>
-												</materialIcons:MaterialIcon>
+						<TextBlock Grid.Row="0" Text="{Binding ChecksumVerificationResults.Value.Executed, StringFormat=Last Verification: {0:yyyy/MM/dd HH:mm:ss}}"
+											 IsVisible="{Binding Sbom.Value.LocalDirectory, Converter={x:Static ObjectConverters.IsNotNull}}"
+											 Margin="3 0 0 0"/>
+						<TextBlock Grid.Row="1" Text="Local directory is not selected"
+											 IsVisible="{Binding Sbom.Value.LocalDirectory, Converter={x:Static ObjectConverters.IsNull}}"
+											 Margin="3 0 0 0"/>
 
-												<!--チェックサム不一致-->
-												<materialIcons:MaterialIcon Kind="FileAlert" Foreground="Orange" ToolTip.Tip="Checksum Mismatched"
-																										IsVisible="{Binding	Result, Converter={x:Static	converters:CompareConverters.EqualsConverter}, ConverterParameter={x:Static checksumVerification:ChecksumCorrectness.Incorrect}}"/>
-												
-												<!--存在しないファイル-->
-												<materialIcons:MaterialIcon Kind="FileHidden" Foreground="Gray" ToolTip.Tip="File Not Found"
-																										IsVisible="{Binding Result, Converter={x:Static converters:CompareConverters.EqualsConverter}, ConverterParameter={x:Static checksumVerification:ChecksumCorrectness.FileNotFound}}"/>
-											</StackPanel>
-										</DataTemplate>
-									</DataGridTemplateColumn>
-									<DataGridTextColumn Header="Name" Binding="{Binding SbomFile.FileName}"/>
-									<!--空のDataTemplateを設定するとNull参照例外が発生する-->
-									<!--<DataGridTemplateColumn Header="Checksum">
+						<DataGrid Grid.Row="1" Items="{Binding ChecksumVerificationResults.Value.Results}" SelectionMode="Single" Margin="0 5 0 0"
+											CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True"
+											IsVisible="{Binding Sbom.Value.LocalDirectory, Converter={x:Static ObjectConverters.IsNotNull}}">
+							<DataGrid.Styles>
+								<Style Selector="materialIcons|MaterialIcon">
+									<Setter Property="Width" Value="22"/>
+									<Setter Property="Height" Value="22"/>
+									<Setter Property="Background" Value="Transparent"/>
+								</Style>
+							</DataGrid.Styles>
+
+							<DataGrid.Columns>
+								<DataGridTemplateColumn>
+									<DataTemplate>
+										<StackPanel VerticalAlignment="Center">
+											<!--問題なし-->
+											<materialIcons:MaterialIcon Kind="FileCheck" Foreground="Green" ToolTip.Tip="Correct">
+												<materialIcons:MaterialIcon.IsVisible>
+													<MultiBinding Converter="{x:Static converters:ShortCircuitBoolConverters.And}">
+														<MultiBinding.Bindings>
+															<Binding Path="Result" Converter="{x:Static	converters:CompareConverters.NotEqualsConverter}" ConverterParameter="{x:Static checksumVerification:ChecksumCorrectness.Incorrect}"/>
+															<Binding Path="Result" Converter="{x:Static converters:CompareConverters.NotEqualsConverter}" ConverterParameter="{x:Static checksumVerification:ChecksumCorrectness.FileNotFound}"/>
+														</MultiBinding.Bindings>
+													</MultiBinding>
+												</materialIcons:MaterialIcon.IsVisible>
+											</materialIcons:MaterialIcon>
+
+											<!--チェックサム不一致-->
+											<materialIcons:MaterialIcon Kind="FileAlert" Foreground="Orange" ToolTip.Tip="Checksum Mismatched" Margin="5 0 0 0"
+																									IsVisible="{Binding	Result, Converter={x:Static	converters:CompareConverters.EqualsConverter}, ConverterParameter={x:Static checksumVerification:ChecksumCorrectness.Incorrect}}"/>
+
+											<!--存在しないファイル-->
+											<materialIcons:MaterialIcon Kind="FileHidden" Foreground="Gray" ToolTip.Tip="File Not Found"
+																									IsVisible="{Binding Result, Converter={x:Static converters:CompareConverters.EqualsConverter}, ConverterParameter={x:Static checksumVerification:ChecksumCorrectness.FileNotFound}}"/>
+										</StackPanel>
+									</DataTemplate>
+								</DataGridTemplateColumn>
+								<DataGridTextColumn Header="Name" Binding="{Binding SbomFile.FileName}"/>
+								<!--空のDataTemplateを設定するとNull参照例外が発生する-->
+								<!--<DataGridTemplateColumn Header="Checksum">
 										<DataTemplate>-->
-											<!--<mah:DropDownButton ItemsSource="{Binding SbomFile.Checksums}" BorderBrush="Transparent" Background="Transparent" ToolTip="Copy to clipboard">
+								<!--<mah:DropDownButton ItemsSource="{Binding SbomFile.Checksums}" BorderBrush="Transparent" Background="Transparent" ToolTip="Copy to clipboard">
 												<mah:DropDownButton.Content>
 													<iconPacks:PackIconMaterial Kind="ContentCopy"/>
 												</mah:DropDownButton.Content>
@@ -274,31 +297,30 @@
 													</Style>
 												</mah:DropDownButton.ItemContainerStyle>
 											</mah:DropDownButton>-->
-										<!--</DataTemplate>
+								<!--</DataTemplate>
 									</DataGridTemplateColumn>-->
-								</DataGrid.Columns>
-							</DataGrid>
-						</StackPanel>
-					</TabItem>
+							</DataGrid.Columns>
+						</DataGrid>
+					</Grid>
+				</TabItem>
 
-					<TabItem Header="Related SBOMs">
-						<StackPanel>
-							<TextBlock Text="No related SBOM" Margin="3 0 0 0"
-												 IsVisible="{Binding RelatedSboms.Value.Length, Converter={x:Static converters:CompareConverters.EqualsConverter}, ConverterParameter=0}"/>
+				<TabItem Header="Related SBOMs">
+					<StackPanel>
+						<TextBlock Text="No related SBOM" Margin="3 0 0 0"
+											 IsVisible="{Binding RelatedSboms.Value.Length, Converter={x:Static converters:CompareConverters.EqualsConverter}, ConverterParameter=0}"/>
 
-							<ItemsControl Items="{Binding RelatedSboms.Value}"
-														IsVisible="{Binding RelatedSboms.Value.Length, Converter={x:Static converters:CompareConverters.NotEqualsConverter}, ConverterParameter=0}">
-								<ItemsControl.ItemTemplate>
-									<DataTemplate>
-										<controls:SbomInfoView Value="{Binding}" x:DataType="m:SbomInfo"/>
-									</DataTemplate>
-								</ItemsControl.ItemTemplate>
-							</ItemsControl>
-						</StackPanel>
-					</TabItem>
-				</TabControl>
-			</Grid>
-		</ScrollViewer>
+						<ItemsControl Items="{Binding RelatedSboms.Value}"
+													IsVisible="{Binding RelatedSboms.Value.Length, Converter={x:Static converters:CompareConverters.NotEqualsConverter}, ConverterParameter=0}">
+							<ItemsControl.ItemTemplate>
+								<DataTemplate>
+									<controls:SbomInfoView Value="{Binding}" x:DataType="m:SbomInfo"/>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+					</StackPanel>
+				</TabItem>
+			</TabControl>
+		</Grid>
 
 		<Border Background="LightGray" IsVisible="{Binding, Converter={x:Static ObjectConverters.IsNull}}">
 			<TextBlock Text="Please select a SBOM" HorizontalAlignment="Center" VerticalAlignment="Center"/>

@@ -37,5 +37,20 @@
 				</Setter.Value>
 			</Setter>
 		</Style>
+
+		<!--HeaderedContentControlの使い方-->
+		<!--ControlTemplateを定義する必要がある-->
+		<Style Selector="HeaderedContentControl.General">
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate>
+						<StackPanel>
+							<ContentPresenter Content="{TemplateBinding	Header}" ContentTemplate="{TemplateBinding HeaderTemplate}"/>
+							<ContentPresenter Content="{TemplateBinding	Content}" ContentTemplate="{TemplateBinding	ContentTemplate}"/>
+						</StackPanel>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
 	</Application.Styles>
 </Application>
