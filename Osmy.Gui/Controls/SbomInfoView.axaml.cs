@@ -1,6 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
-using Osmy.Gui.Models;
+using Osmy.Core.Data.Sbom;
 
 namespace Osmy.Gui.Controls
 {

@@ -5,7 +5,13 @@ VisualStudioVersion = 17.3.32922.545
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Osmy", "Osmy\Osmy.csproj", "{F7543FA7-2374-4B32-8275-0DA1304DE077}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Osmy.Gui", "Osmy.Gui\Osmy.Gui.csproj", "{E19D6EAF-D85E-4A91-AE4F-F418452C999A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Osmy.Gui", "Osmy.Gui\Osmy.Gui.csproj", "{E19D6EAF-D85E-4A91-AE4F-F418452C999A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Osmy.Service", "Osmy.Service\Osmy.Service.csproj", "{488E2D9F-6170-4936-96F2-4D021E4848C3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Osmy.Core", "Osmy.Core\Osmy.Core.csproj", "{39D2F766-9AFD-48C6-8337-4D25E9B3D6B5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Osmy.Api", "Osmy.Api\Osmy.Api.csproj", "{0FB953FE-A343-4EB3-AE34-BAEE41FB0935}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +27,18 @@ Global
 		{E19D6EAF-D85E-4A91-AE4F-F418452C999A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E19D6EAF-D85E-4A91-AE4F-F418452C999A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E19D6EAF-D85E-4A91-AE4F-F418452C999A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{488E2D9F-6170-4936-96F2-4D021E4848C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{488E2D9F-6170-4936-96F2-4D021E4848C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{488E2D9F-6170-4936-96F2-4D021E4848C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{488E2D9F-6170-4936-96F2-4D021E4848C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39D2F766-9AFD-48C6-8337-4D25E9B3D6B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39D2F766-9AFD-48C6-8337-4D25E9B3D6B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39D2F766-9AFD-48C6-8337-4D25E9B3D6B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39D2F766-9AFD-48C6-8337-4D25E9B3D6B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FB953FE-A343-4EB3-AE34-BAEE41FB0935}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FB953FE-A343-4EB3-AE34-BAEE41FB0935}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FB953FE-A343-4EB3-AE34-BAEE41FB0935}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FB953FE-A343-4EB3-AE34-BAEE41FB0935}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

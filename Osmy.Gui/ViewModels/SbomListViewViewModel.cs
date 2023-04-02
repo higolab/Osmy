@@ -1,16 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Osmy.Gui.Models;
-using Osmy.Gui.Models.ChecksumVerification;
-using Osmy.Gui.Models.Sbom;
-using Osmy.Gui.Models.Sbom.Spdx;
-using Osmy.Gui.Services;
+﻿using Osmy.Api;
+using Osmy.Core.Data.Sbom;
 using Reactive.Bindings;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace Osmy.Gui.ViewModels
@@ -58,10 +53,12 @@ namespace Osmy.Gui.ViewModels
             var store = new AddSbomDialogViewModel();
             var result = await ShowAddSbomDialog.Handle(store);
 
-            Sbom sbom;
+            //throw new NotImplementedException();
+            //Sbom sbom;
             try
             {
-                sbom = new Spdx(result.Name, result.SbomFileName, result.LocalDirectory);
+                // TODO
+                //sbom = new Spdx(result.Name, result.SbomFileName, result.LocalDirectory);
             }
             catch (Exception /*ex*/)
             {
@@ -72,33 +69,37 @@ namespace Osmy.Gui.ViewModels
                 return;
             }
 
-            using var dbContext = new ManagedSoftwareContext();
-            dbContext.Sboms.Add(sbom);
-            await dbContext.SaveChangesAsync();
+            using var client = new RestClient();
+            var sbomInfo = await client.CreateSbomAsync(new AddSbomInfo(result.Name, result.SbomFileName, result.LocalDirectory));
 
-            var vulnsScanResult = await Task.Run(() => BackgroundServiceManager.Instance.Resolve<VulnerabilityScanService>().Scan(sbom));
-            dbContext.ScanResults.Add(vulnsScanResult);
+            // TODO 初回スキャンの結果取得
+            //var vulnsScanResult = await Task.Run(() => BackgroundServiceManager.Instance.Resolve<VulnerabilityScanService>().Scan(sbom));
+            //dbContext.ScanResults.Add(vulnsScanResult);
 
-            ChecksumVerificationResultCollection? checksumVerificationResult = null;
-            if (sbom.LocalDirectory is not null)
+            //ChecksumVerificationResultCollection? checksumVerificationResult = null;
+            //if (sbom.LocalDirectory is not null)
+            //{
+            //    checksumVerificationResult = await Task.Run(() => BackgroundServiceManager.Instance.Resolve<ChecksumVerificationService>().Verify(sbom));
+            //    dbContext.ChecksumVerificationResults.Add(checksumVerificationResult);
+            //}
+            //await dbContext.SaveChangesAsync();
+
+            //SbomInfos.Value.Add(new SbomInfo(sbom, vulnsScanResult.IsVulnerable, checksumVerificationResult?.HasError ?? false));
+            // TODO sbomInfoのIsVulnerableとHasFileErrorがnullで返ってくるので，nullのものを定期的にチェックして最新の結果を取得する処理を追加したい
+            if (sbomInfo is not null)
             {
-                checksumVerificationResult = await Task.Run(() => BackgroundServiceManager.Instance.Resolve<ChecksumVerificationService>().Verify(sbom));
-                dbContext.ChecksumVerificationResults.Add(checksumVerificationResult);
+                SbomInfos.Value.Add(sbomInfo);
             }
-            await dbContext.SaveChangesAsync();
-
-            SbomInfos.Value.Add(new SbomInfo(sbom, vulnsScanResult.IsVulnerable, checksumVerificationResult?.HasError ?? false));
         }
 
         private async void DeleteSbom()
         {
             if (SelectedSbomInfo.Value is null) { return; }
 
-            using var dbContext = new ManagedSoftwareContext();
-            var sbom = dbContext.Sboms.First(x => x.Id == SelectedSbomInfo.Value.Sbom.Id);
-            dbContext.Sboms.Remove(sbom);
+            using var client = new RestClient();
+            await client.DeleteSbomAsync(SelectedSbomInfo.Value.Sbom.Id);
+
             SbomInfos.Value.Remove(SelectedSbomInfo.Value);
-            await dbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
         //private async void ScanVulns()
@@ -118,13 +119,8 @@ namespace Osmy.Gui.ViewModels
 
         private static IEnumerable<SbomInfo> FetchSbomInfos()
         {
-            using var dbContext = new ManagedSoftwareContext();
-            foreach (var sbom in dbContext.Sboms.Include(x => x.ExternalReferences))
-            {
-                var isVulnerable = dbContext.ScanResults.Where(x => x.SbomId == sbom.Id).AsEnumerable().MaxBy(x => x.Executed)?.IsVulnerable ?? false;
-                var hasFileError = dbContext.ChecksumVerificationResults.Where(x => x.SbomId == sbom.Id).OrderByDescending(x => x.Executed).FirstOrDefault()?.HasError ?? false;
-                yield return new SbomInfo(sbom, isVulnerable, hasFileError);
-            }
+            using var client = new RestClient();
+            return client.GetSboms();
         }
     }
 

@@ -1,12 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Osmy.Gui.Models;
-using Osmy.Gui.Models.ChecksumVerification;
-using Osmy.Gui.Models.Sbom;
-using Osmy.Gui.Models.Sbom.Spdx;
-using Osmy.Gui.Services;
+﻿using Osmy.Api;
+using Osmy.Core.Data.Sbom;
+using Osmy.Core.Data.Sbom.ChecksumVerification;
 using Reactive.Bindings;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Osmy.Gui.ViewModels
@@ -60,83 +56,54 @@ namespace Osmy.Gui.ViewModels
 
         private VulnerabilityScanResult? FetchLatestScanResult()
         {
-            using var dbContext = new ManagedSoftwareContext();
-            if (Sbom is null || !dbContext.ScanResults.Any()) { return null; }
-
-            var latestScanResultId = dbContext.ScanResults
-                .Where(x => x.SbomId == Sbom.Value.Id)
-                .OrderByDescending(x => x.Executed)
-                .First()
-                ?.Id;
-            if (latestScanResultId is null) { return null; }
-
-            return dbContext.ScanResults
-                .Include(x => x.Results).ThenInclude(x => x.Package)
-                .Include(x => x.Sbom)
-                .First(x => x.Id == latestScanResultId);
+            using var client = new RestClient();
+            return client.GetLatestVulnerabilityScanResult(Sbom.Value.Id);
         }
 
         private ChecksumVerificationResultCollection? FetchChecksumVerificationResult()
         {
-            using var dbContext = new ManagedSoftwareContext();
-            var resultCollection = dbContext.ChecksumVerificationResults
-                .Where(x => x.SbomId == Sbom.Value.Id)
-                .OrderByDescending(x => x.Executed)
-                .Include(x => x.Results)
-                .ThenInclude(x => x.SbomFile)
-                .ThenInclude(x => x.Checksums)
-                .FirstOrDefault();
-
-            if (resultCollection is not null)
-            {
-                foreach (var result in resultCollection.Results)
-                {
-                    result.SbomFile.Checksums = result.SbomFile.Checksums.OrderBy(checksum => checksum.Algorithm).ToList();
-                }
-            }
-
-            return resultCollection;
+            using var client = new RestClient();
+            return client.GetLatestChecksumVerificationResultCollection(Sbom.Value.Id);
         }
 
         private SbomInfo[] FetchRelatedSboms()
         {
-            using var dbContext = new ManagedSoftwareContext();
-            return Sbom.Value switch
-            {
-                Spdx => dbContext.Sboms
-                .OfType<Spdx>()
-                .AsEnumerable()
-                .Where(sbom => Sbom.Value.ExternalReferences.OfType<SpdxExternalReference>().Any(exref => exref.DocumentNamespace == sbom.DocumentNamespace))
-                .Select(sbom =>
-                {
-                    var isVulnerable = dbContext.ScanResults.Where(x => x.SbomId == sbom.Id).AsEnumerable().MaxBy(x => x.Executed)?.IsVulnerable ?? false;
-                    var hasFileError = dbContext.ChecksumVerificationResults.Where(x => x.SbomId == sbom.Id).OrderByDescending(x => x.Executed).FirstOrDefault()?.HasError ?? false;
-                    return new SbomInfo(sbom, isVulnerable, hasFileError);
-                })
-                .ToArray(),
-                _ => throw new NotSupportedException(),
-            };
+            // TODO
+            //using var dbContext = new ManagedSoftwareContext();
+            //return Sbom.Value switch
+            //{
+            //    Spdx => dbContext.Sboms
+            //    .OfType<Spdx>()
+            //    .AsEnumerable()
+            //    .Where(sbom => Sbom.Value.ExternalReferences.OfType<SpdxExternalReference>().Any(exref => exref.DocumentNamespace == sbom.DocumentNamespace))
+            //    .Select(sbom =>
+            //    {
+            //        var isVulnerable = dbContext.ScanResults.Where(x => x.SbomId == sbom.Id).AsEnumerable().MaxBy(x => x.Executed)?.IsVulnerable ?? false;
+            //        var hasFileError = dbContext.ChecksumVerificationResults.Where(x => x.SbomId == sbom.Id).OrderByDescending(x => x.Executed).FirstOrDefault()?.HasError ?? false;
+            //        return new SbomInfo(sbom, isVulnerable, hasFileError);
+            //    })
+            //    .ToArray(),
+            //    _ => throw new NotSupportedException(),
+            //};
+
+            return Array.Empty<SbomInfo>();
         }
 
         private async void OnPathSelected()
         {
-            using var dbContext = new ManagedSoftwareContext();
-            var sbom = dbContext.Sboms
-                .Include(x => x.Files)
-                .ThenInclude(x => x.Checksums)
-                .First(x => x.Id == Sbom.Value.Id);
-            sbom.LocalDirectory = Sbom.Value.LocalDirectory;
-            await dbContext.SaveChangesAsync();
+            using var client = new RestClient();
+            await client.UpdateSbomAsync(Sbom.Value);
 
-            if (sbom.LocalDirectory is null)
+            if (Sbom.Value.LocalDirectory is null)
             {
                 return;
             }
 
-            var result = await Task.Run(() => BackgroundServiceManager.Instance.Resolve<ChecksumVerificationService>().Verify(sbom));
-            dbContext.ChecksumVerificationResults.Add(result);
-            await dbContext.SaveChangesAsync();
-            ChecksumVerificationResults.Value = result;
+            // TODO
+            //var result = await Task.Run(() => BackgroundServiceManager.Instance.Resolve<ChecksumVerificationService>().Verify(sbom));
+            //dbContext.ChecksumVerificationResults.Add(result);
+            //await dbContext.SaveChangesAsync();
+            //ChecksumVerificationResults.Value = result;
         }
 
         //private void CopyToClipboard(string value)

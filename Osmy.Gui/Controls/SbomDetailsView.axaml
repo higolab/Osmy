@@ -2,9 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:v="using:Osmy.Gui.Views"
              xmlns:vm="using:Osmy.Gui.ViewModels"
-						 xmlns:m="using:Osmy.Gui.Models"
-						 xmlns:sbom="using:Osmy.Gui.Models.Sbom"
-             xmlns:checksumVerification="using:Osmy.Gui.Models.ChecksumVerification"
+						 xmlns:sbom="using:Osmy.Core.Data.Sbom"
+             xmlns:checksumVerification="using:Osmy.Core.Data.Sbom.ChecksumVerification"
              xmlns:controls="using:Osmy.Gui.Controls"
 						 xmlns:converters="using:Osmy.Gui.Converters"
              xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
@@ -325,7 +324,7 @@
 													IsVisible="{Binding RelatedSboms.Value.Length, Converter={x:Static converters:CompareConverters.NotEqualsConverter}, ConverterParameter=0}">
 							<ItemsControl.ItemTemplate>
 								<DataTemplate>
-									<controls:SbomInfoView Value="{Binding}" x:DataType="m:SbomInfo"/>
+									<controls:SbomInfoView Value="{Binding}" x:DataType="sbom:SbomInfo"/>
 								</DataTemplate>
 							</ItemsControl.ItemTemplate>
 						</ItemsControl>
