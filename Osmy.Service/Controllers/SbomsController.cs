@@ -48,32 +48,39 @@ namespace Osmy.Service.Controllers
             dbContext.Sboms.Add(sbom);
             await dbContext.SaveChangesAsync();
 
-            var sbomInfo = new SbomInfo(SbomDataConverter.ConvertSbom(sbom), null, null);
-
-            return CreatedAtAction(nameof(Get), new { id = sbom.Id }, sbomInfo);
+            return CreatedAtAction(nameof(Get), new { id = sbom.Id }, SbomDataConverter.ConvertSbom(sbom));
         }
 
-        [HttpPut]
-        public Task<ActionResult<Core.Data.Sbom.Sbom>> Put(Core.Data.Sbom.Sbom sbom)
+        [HttpPut("{sbomId}")]
+        public async Task<ActionResult<Core.Data.Sbom.Sbom>> Put(long sbomId, UpdateSbomInfo updateSbomInfo)
         {
-            throw new NotImplementedException();
+            using var dbContext = new SoftwareDbContext();
+            var sbom = await dbContext.Sboms.FirstOrDefaultAsync(x => x.Id == sbomId);
+            if (sbom is null)
+            {
+                return NotFound();
+            }
 
-            //using var dbContext = new ManagedSoftwareContext();
-            //var sbom = dbContext.Sboms
-            //    .Include(x => x.Files)
-            //    .ThenInclude(x => x.Checksums)
-            //    .First(x => x.Id == Sbom.Value.Id);
-            //sbom.LocalDirectory = Sbom.Value.LocalDirectory;
-            //await dbContext.SaveChangesAsync();
+            if (!string.IsNullOrEmpty(updateSbomInfo.Name))
+            {
+                sbom.Name = updateSbomInfo.Name;
+            }
+            sbom.LocalDirectory = updateSbomInfo.LocalDirectory;
+
+            await dbContext.SaveChangesAsync();
+
+            // TODO チェックサム検証の実行待ちリストに登録？
+
+            return SbomDataConverter.ConvertSbom(sbom);
         }
 
         [HttpDelete("{sbomId}")]
         public async Task<ActionResult> Delete(long sbomId)
         {
             using var dbContext = new SoftwareDbContext();
-            var sbom = dbContext.Sboms.FirstOrDefaultAsync(sbom => sbom.Id == sbomId);
+            var sbom = await dbContext.Sboms.FirstOrDefaultAsync(sbom => sbom.Id == sbomId);
 
-            if(sbom is null)
+            if (sbom is null)
             {
                 return NotFound();
             }

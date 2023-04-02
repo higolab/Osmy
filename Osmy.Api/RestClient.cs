@@ -55,24 +55,30 @@ namespace Osmy.Api
             return sboms ?? Enumerable.Empty<SbomInfo>();
         }
 
-        public async Task<SbomInfo?> CreateSbomAsync(AddSbomInfo info, CancellationToken cancellationToken = default)
+        public async Task<Sbom?> CreateSbomAsync(AddSbomInfo info, CancellationToken cancellationToken = default)
         {
             var request = new RestRequest("Sboms", Method.Post);
             request.AddBody(info);
-
-            var result = await _client.PostAsync<SbomInfo>(request, cancellationToken);
+            var result = await _client.PostAsync<Sbom>(request, cancellationToken);
 
             return result;
         }
 
-        public Task DeleteSbomAsync(long sbomId, CancellationToken cancellationToken = default)
+        public async Task<bool> DeleteSbomAsync(long sbomId, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var request = new RestRequest($"Sboms/{sbomId}", Method.Delete);
+            var result = await _client.DeleteAsync(request, cancellationToken);
+
+            return result.IsSuccessful;
         }
 
-        public Task UpdateSbomAsync(Sbom sbom, CancellationToken cancellationToken = default)
+        public async Task<Sbom?> UpdateSbomAsync(long sbomId, UpdateSbomInfo info, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var request = new RestRequest($"Sboms/{sbomId}", Method.Put);
+            request.AddBody(info);
+            var result = await _client.PutAsync<Sbom>(request, cancellationToken);
+
+            return result;
         }
 
         public VulnerabilityScanResult? GetLatestVulnerabilityScanResult(long sbomId)

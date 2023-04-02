@@ -70,7 +70,8 @@ namespace Osmy.Gui.ViewModels
             }
 
             using var client = new RestClient();
-            var sbomInfo = await client.CreateSbomAsync(new AddSbomInfo(result.Name, result.SbomFileName, result.LocalDirectory));
+            var sbomInfo = new AddSbomInfo(result.Name, result.SbomFileName, result.LocalDirectory);
+            var sbom = await client.CreateSbomAsync(sbomInfo);
 
             // TODO 初回スキャンの結果取得
             //var vulnsScanResult = await Task.Run(() => BackgroundServiceManager.Instance.Resolve<VulnerabilityScanService>().Scan(sbom));
@@ -85,10 +86,10 @@ namespace Osmy.Gui.ViewModels
             //await dbContext.SaveChangesAsync();
 
             //SbomInfos.Value.Add(new SbomInfo(sbom, vulnsScanResult.IsVulnerable, checksumVerificationResult?.HasError ?? false));
-            // TODO sbomInfoのIsVulnerableとHasFileErrorがnullで返ってくるので，nullのものを定期的にチェックして最新の結果を取得する処理を追加したい
-            if (sbomInfo is not null)
+            // TODO sbomInfoのIsVulnerableとHasFileErrorをnullに設定するので，nullのものを定期的にチェックして最新の結果を取得する処理を追加したい
+            if (sbom is not null)
             {
-                SbomInfos.Value.Add(sbomInfo);
+                SbomInfos.Value.Add(new SbomInfo(sbom, null, sbom.LocalDirectory is null ? false : null));
             }
         }
 
@@ -97,9 +98,14 @@ namespace Osmy.Gui.ViewModels
             if (SelectedSbomInfo.Value is null) { return; }
 
             using var client = new RestClient();
-            await client.DeleteSbomAsync(SelectedSbomInfo.Value.Sbom.Id);
-
-            SbomInfos.Value.Remove(SelectedSbomInfo.Value);
+            if (await client.DeleteSbomAsync(SelectedSbomInfo.Value.Sbom.Id))
+            {
+                SbomInfos.Value.Remove(SelectedSbomInfo.Value);
+            }
+            else
+            {
+                // TODO
+            }
         }
 
         //private async void ScanVulns()

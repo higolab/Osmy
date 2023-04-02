@@ -3,7 +3,6 @@ using Osmy.Core.Data.Sbom;
 using Osmy.Core.Data.Sbom.ChecksumVerification;
 using Reactive.Bindings;
 using System;
-using System.Threading.Tasks;
 
 namespace Osmy.Gui.ViewModels
 {
@@ -92,18 +91,14 @@ namespace Osmy.Gui.ViewModels
         private async void OnPathSelected()
         {
             using var client = new RestClient();
-            await client.UpdateSbomAsync(Sbom.Value);
+            await client.UpdateSbomAsync(Sbom.Value.Id, new UpdateSbomInfo(null, Sbom.Value.LocalDirectory));
 
             if (Sbom.Value.LocalDirectory is null)
             {
                 return;
             }
 
-            // TODO
-            //var result = await Task.Run(() => BackgroundServiceManager.Instance.Resolve<ChecksumVerificationService>().Verify(sbom));
-            //dbContext.ChecksumVerificationResults.Add(result);
-            //await dbContext.SaveChangesAsync();
-            //ChecksumVerificationResults.Value = result;
+            // TODO チェックサム検証結果の更新確認リストに登録
         }
 
         //private void CopyToClipboard(string value)

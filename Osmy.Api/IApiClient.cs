@@ -9,11 +9,11 @@ namespace Osmy.Api
         
         IEnumerable<SbomInfo> GetSboms();
 
-        Task<SbomInfo?> CreateSbomAsync(AddSbomInfo info, CancellationToken cancellationToken = default);
+        Task<Sbom?> CreateSbomAsync(AddSbomInfo info, CancellationToken cancellationToken = default);
 
-        Task UpdateSbomAsync(Sbom sbom, CancellationToken cancellationToken= default);
+        Task<Sbom?> UpdateSbomAsync(long sbomId, UpdateSbomInfo info, CancellationToken cancellationToken= default);
 
-        Task DeleteSbomAsync(long sbomId, CancellationToken cancellationToken = default);
+        Task<bool> DeleteSbomAsync(long sbomId, CancellationToken cancellationToken = default);
 
         Task<VulnerabilityScanResult?> GetLatestVulnerabilityScanResultAsync(long sbomId, CancellationToken cancellationToken = default);
         
