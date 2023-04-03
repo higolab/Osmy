@@ -4,9 +4,9 @@ namespace Osmy.Core.Data.Sbom
 {
     public sealed class SbomFile
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
 
-        public int SbomId { get; set; }
+        public long SbomId { get; set; }
 
         public string FileName { get; set; }
 
@@ -18,8 +18,10 @@ namespace Osmy.Core.Data.Sbom
             Checksums = Enumerable.Empty<SbomFileChecksum>();
         }
 
-        public SbomFile(Sbom sbom, string fileName, IEnumerable<SbomFileChecksum> checksums)
+        public SbomFile(long id, long sbomId, string fileName, IEnumerable<SbomFileChecksum> checksums)
         {
+            Id = id;
+            SbomId = sbomId;
             FileName = fileName;
             Checksums = checksums.ToList();
         }

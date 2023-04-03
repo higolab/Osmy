@@ -2,25 +2,24 @@
 {
     public class ChecksumVerificationResultCollection
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public DateTime Executed { get; set; }
         public bool HasError { get; set; }
-        public Sbom Sbom { get; set; }
-        public int SbomId { get; set; }
-        public List<ChecksumVerificationResult> Results { get; set; }
+        public long SbomId { get; set; }
+        public IEnumerable<ChecksumVerificationResult> Results { get; set; }
 
-        public ChecksumVerificationResultCollection(DateTime executed, Sbom sbom, IEnumerable<ChecksumVerificationResult> checksumVerificationResults)
+        public ChecksumVerificationResultCollection(long id,　DateTime executed, long sbomId, IEnumerable<ChecksumVerificationResult> checksumVerificationResults)
         {
+            Id = id;
             Executed = executed;
-            Sbom = sbom;
+            SbomId = sbomId;
             Results = checksumVerificationResults.ToList();
             HasError = Results.Any(x => x.Result != ChecksumCorrectness.Correct);
         }
 
         public ChecksumVerificationResultCollection()
         {
-            Sbom = default!;
-            Results = default!;
+            Results = Enumerable.Empty<ChecksumVerificationResult>();
         }
     }
 }

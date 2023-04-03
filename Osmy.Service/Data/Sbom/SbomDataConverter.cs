@@ -52,7 +52,7 @@ namespace Osmy.Service.Data.Sbom
 
         public static Target.ChecksumVerification.ChecksumVerificationResultCollection ConvertChecksumVerificationResultCollection(ChecksumVerificationResultCollection from)
         {
-            return new Target.ChecksumVerification.ChecksumVerificationResultCollection(from.Executed, ConvertSbom(from.Sbom), ConvertChecksumVerificationResults(from.Results));
+            return new Target.ChecksumVerification.ChecksumVerificationResultCollection(from.Id, from.Executed, from.SbomId, ConvertChecksumVerificationResults(from.Results));
         }
 
         public static IEnumerable<Target.ChecksumVerification.ChecksumVerificationResult> ConvertChecksumVerificationResults(IEnumerable<ChecksumVerificationResult> from)
@@ -70,7 +70,7 @@ namespace Osmy.Service.Data.Sbom
 
         public static Target.SbomFile ConvertSbomFile(SbomFile from)
         {
-            return new Target.SbomFile(ConvertSbom(from.Sbom), from.FileName, from.Checksums);
+            return new Target.SbomFile(from.Id, from.SbomId, from.FileName, from.Checksums);
         }
 
         public static IEnumerable<Target.SbomFile> ConvertSbomFiles(IEnumerable<SbomFile> from)
