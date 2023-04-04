@@ -11,7 +11,7 @@ namespace Osmy.Gui.ViewModels
 
         public ReactiveProperty<string> Name { get; }
         public ReactiveProperty<string> SbomFileName { get; }
-        public ReactiveProperty<string> LocalDirectory { get; }
+        public ReactiveProperty<string?> LocalDirectory { get; }
 
         public ReactiveUI.ReactiveCommand<string, SelectedSbomInfo> CloseDialogCommand { get; }
 
@@ -21,7 +21,7 @@ namespace Osmy.Gui.ViewModels
                 .SetValidateNotifyError(value => string.IsNullOrWhiteSpace(value) ? "Name cannot be empty." : null);
             SbomFileName = new ReactiveProperty<string>()
                 .SetValidateNotifyError(value => string.IsNullOrWhiteSpace(value) ? "Select a SBOM file." : null);
-            LocalDirectory = new ReactiveProperty<string>();
+            LocalDirectory = new ReactiveProperty<string?>();
 
             CloseDialogCommand = ReactiveUI.ReactiveCommand.Create<string, SelectedSbomInfo>(CloseDialog,
                 Name.ObserveHasErrors.Select(x => !x));
