@@ -20,7 +20,7 @@
         public ChecksumVerificationResultCollection()
         {
             Sbom = default!;
-            Results = default!;
+            Results = new List<ChecksumVerificationResult>();
         }
     }
 }

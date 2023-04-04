@@ -37,7 +37,7 @@ namespace Osmy.Service.Data.Sbom.Spdx
         public Spdx()
         {
             _content = new Lazy<SpdxDocumentContent>(() => new SpdxDocumentContent(new MemoryStream(Content)));
-            DocumentNamespace = default!;
+            DocumentNamespace = string.Empty;
         }
 
         /// <summary>

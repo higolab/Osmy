@@ -15,7 +15,7 @@ namespace Osmy.Service.Data.Sbom.Spdx
 
         public SpdxSoftwarePackage()
         {
-            SpdxRefId = default!;
+            SpdxRefId = string.Empty;
         }
 
         public SpdxSoftwarePackage(string name, string version, bool isRootPackage, string spdxRefId)

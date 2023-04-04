@@ -13,9 +13,9 @@ namespace Osmy.Service.Data.Sbom
         public string? Version { get; set; }
         public bool IsRootPackage { get; set; }
 
-        public SbomPackage() { }
+        public SbomPackage() : this(string.Empty, default, default) { }
 
-        public SbomPackage(string name, string version, bool isRootPackage)
+        public SbomPackage(string name, string? version, bool isRootPackage)
         {
             Name = name;
             Version = version;

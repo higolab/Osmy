@@ -131,7 +131,7 @@ namespace Osmy.Service.Services
 
         public QueryExPackage()
         {
-            Name = default!;
+            Name = string.Empty;
         }
     }
 

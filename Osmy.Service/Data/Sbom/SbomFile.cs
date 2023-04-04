@@ -18,8 +18,8 @@ namespace Osmy.Service.Data.Sbom
         public SbomFile()
         {
             Sbom = default!;
-            FileName = default!;
-            Checksums = default!;
+            FileName = string.Empty;
+            Checksums = new List<Core.Data.Sbom.SbomFileChecksum>();
         }
 
         public SbomFile(Sbom sbom, string fileName, IEnumerable<Core.Data.Sbom.SbomFileChecksum> checksums)

@@ -35,7 +35,7 @@ namespace Osmy.Core.Data.Sbom
 
         public SbomFileChecksum()
         {
-            Value = default!;
+            Value = string.Empty;
         }
 
         public SbomFileChecksum(ChecksumAlgorithm algorithm, string value)

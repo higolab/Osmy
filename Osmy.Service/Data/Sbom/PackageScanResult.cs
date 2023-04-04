@@ -26,7 +26,7 @@ namespace Osmy.Service.Data.Sbom
         public PackageScanResult()
         {
             Package = default!;
-            ResultJson = default!;
+            ResultJson = string.Empty;
         }
 
         public PackageScanResult(SbomPackage package, VulnerabilityList result)

@@ -64,9 +64,10 @@ namespace Osmy.Service.Data.Sbom
         /// <remarks>ORMで使用するために用意しています．</remarks>
         public Sbom()
         {
-            Name = default!;
-            Content = default!;
-            Files = default!;
+            Name = string.Empty;
+            Content = Array.Empty<byte>();
+            Files = new List<SbomFile>();
+            ExternalReferences = new List<SbomExternalReference>();
         }
 
         /// <summary>
@@ -89,7 +90,8 @@ namespace Osmy.Service.Data.Sbom
             Name = name;
             Content = content;
             LocalDirectory = localDirectory;
-            Files = default!;
+            Files = new List<SbomFile>();
+            ExternalReferences = new List<SbomExternalReference>();
         }
     }
 }
