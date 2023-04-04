@@ -76,6 +76,7 @@ namespace Osmy.Service.Services
                         .First(x => x.Id == sbomId);
                     var result = await EnqueueAuto(sbom, stoppingToken).ConfigureAwait(false);
                     context.ChecksumVerificationResults.Add(result);
+                    await context.SaveChangesAsync(stoppingToken);
                 }
 
                 //_appNotificationService.NotifyChecksumMismatch();
