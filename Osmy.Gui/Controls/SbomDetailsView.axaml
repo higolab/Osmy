@@ -237,15 +237,43 @@
 						</Grid.RowDefinitions>
 
 						<TextBlock Grid.Row="0" Text="{Binding ChecksumVerificationResults.Value.Executed, StringFormat=Last Verification: {0:yyyy/MM/dd HH:mm:ss}}"
-											 IsVisible="{Binding Sbom.Value.LocalDirectory, Converter={x:Static ObjectConverters.IsNotNull}}"
-											 Margin="3 0 0 0"/>
+											 Margin="3 0 0 0">
+							<TextBlock.IsVisible>
+								<MultiBinding Converter="{x:Static BoolConverters.And}">
+									<MultiBinding.Bindings>
+										<Binding Path="Sbom.Value.LocalDirectory" Converter="{x:Static ObjectConverters.IsNotNull}"/>
+										<Binding Path="ChecksumVerificationResults.Value" Converter="{x:Static ObjectConverters.IsNotNull}"/>
+									</MultiBinding.Bindings>
+								</MultiBinding>
+							</TextBlock.IsVisible>
+						</TextBlock>
+						
+						<TextBlock Grid.Row="0" Text="Checksum verification is not yet executed">
+							<TextBlock.IsVisible>
+								<MultiBinding Converter="{x:Static BoolConverters.And}">
+									<MultiBinding.Bindings>
+										<Binding Path="Sbom.Value.LocalDirectory" Converter="{x:Static ObjectConverters.IsNotNull}"/>
+										<Binding Path="ChecksumVerificationResults.Value" Converter="{x:Static ObjectConverters.IsNull}"/>
+									</MultiBinding.Bindings>
+								</MultiBinding>
+							</TextBlock.IsVisible>
+						</TextBlock>
+						
 						<TextBlock Grid.Row="1" Text="Local directory is not selected"
 											 IsVisible="{Binding Sbom.Value.LocalDirectory, Converter={x:Static ObjectConverters.IsNull}}"
 											 Margin="3 0 0 0"/>
 
 						<DataGrid Grid.Row="1" Items="{Binding ChecksumVerificationResults.Value.Results}" SelectionMode="Single" Margin="0 5 0 0"
-											CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True"
-											IsVisible="{Binding Sbom.Value.LocalDirectory, Converter={x:Static ObjectConverters.IsNotNull}}">
+											CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
+							<DataGrid.IsVisible>
+								<MultiBinding Converter="{x:Static BoolConverters.And}">
+									<MultiBinding.Bindings>
+										<Binding Path="Sbom.Value.LocalDirectory" Converter="{x:Static ObjectConverters.IsNotNull}"/>
+										<Binding Path="ChecksumVerificationResults.Value" Converter="{x:Static ObjectConverters.IsNotNull}"/>
+									</MultiBinding.Bindings>
+								</MultiBinding>
+							</DataGrid.IsVisible>
+							
 							<DataGrid.Styles>
 								<Style Selector="materialIcons|MaterialIcon">
 									<Setter Property="Width" Value="22"/>

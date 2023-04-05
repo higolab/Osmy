@@ -34,17 +34,17 @@ namespace Osmy.Api
         public async Task<ChecksumVerificationResultCollection?> GetLatestChecksumVerificationResultCollectionAsync(long sbomId, CancellationToken cancellationToken = default)
         {
             var request = new RestRequest($"ChecksumVerificationResults/latest/{sbomId}");
-            var result = await _client.GetAsync<ChecksumVerificationResultCollection>(request, cancellationToken);
+            var response = await _client.ExecuteGetAsync<ChecksumVerificationResultCollection>(request, cancellationToken);
 
-            return result;
+            return ReturnDataIfSuccessful(response);
         }
 
         public async Task<VulnerabilityScanResult?> GetLatestVulnerabilityScanResultAsync(long sbomId, CancellationToken cancellationToken = default)
         {
             var request = new RestRequest($"VulnerabilityScanResults/latest/{sbomId}");
-            var result = await _client.GetAsync<VulnerabilityScanResult>(request, cancellationToken);
+            var response = await _client.ExecuteGetAsync<VulnerabilityScanResult>(request, cancellationToken);
 
-            return result;
+            return ReturnDataIfSuccessful(response);
         }
 
         public async Task<IEnumerable<SbomInfo>> GetSbomsAsync(CancellationToken cancellationToken = default)
@@ -59,42 +59,42 @@ namespace Osmy.Api
         {
             var request = new RestRequest("Sboms", Method.Post);
             request.AddBody(info);
-            var result = await _client.PostAsync<Sbom>(request, cancellationToken);
+            var response = await _client.ExecutePostAsync<Sbom>(request, cancellationToken);
 
-            return result;
+            return ReturnDataIfSuccessful(response);
         }
 
         public async Task<bool> DeleteSbomAsync(long sbomId, CancellationToken cancellationToken = default)
         {
             var request = new RestRequest($"Sboms/{sbomId}", Method.Delete);
-            var result = await _client.DeleteAsync(request, cancellationToken);
+            var response = await _client.DeleteAsync(request, cancellationToken);
 
-            return result.IsSuccessful;
+            return response.IsSuccessful;
         }
 
         public async Task<Sbom?> UpdateSbomAsync(long sbomId, UpdateSbomInfo info, CancellationToken cancellationToken = default)
         {
             var request = new RestRequest($"Sboms/{sbomId}", Method.Put);
             request.AddBody(info);
-            var result = await _client.PutAsync<Sbom>(request, cancellationToken);
+            var response = await _client.ExecutePutAsync<Sbom>(request, cancellationToken);
 
-            return result;
+            return ReturnDataIfSuccessful(response);
         }
 
         public VulnerabilityScanResult? GetLatestVulnerabilityScanResult(long sbomId)
         {
             var request = new RestRequest($"VulnerabilityScanResults/latest/{sbomId}");
-            var result = _client.Get<VulnerabilityScanResult>(request);
+            var resopnse = _client.ExecuteGet<VulnerabilityScanResult>(request);
 
-            return result;
+            return ReturnDataIfSuccessful(resopnse);
         }
 
         public ChecksumVerificationResultCollection? GetLatestChecksumVerificationResultCollection(long sbomId)
         {
             var request = new RestRequest($"ChecksumVerificationResults/latest/{sbomId}");
-            var result = _client.Get<ChecksumVerificationResultCollection>(request);
+            var response = _client.ExecuteGet<ChecksumVerificationResultCollection>(request);
 
-            return result;
+            return ReturnDataIfSuccessful(response);
         }
 
         public IEnumerable<SbomInfo> GetSboms()
@@ -105,7 +105,7 @@ namespace Osmy.Api
             return result ?? Enumerable.Empty<SbomInfo>();
         }
 
-        private HttpClient CreateUnixSocketHttpClient(string socketPath)
+        private static HttpClient CreateUnixSocketHttpClient(string socketPath)
         {
             return new HttpClient(new SocketsHttpHandler
             {
@@ -117,6 +117,11 @@ namespace Osmy.Api
                     return new NetworkStream(socket, ownsSocket: true);
                 }
             });
+        }
+
+        private static T? ReturnDataIfSuccessful<T>(RestResponse<T> response)
+        {
+            return response.IsSuccessful ? response.Data : default;
         }
     }
 }
