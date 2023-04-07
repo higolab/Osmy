@@ -1,13 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Osmy.Service.Data;
 using Osmy.Service.Data.ChecksumVerification;
-using Osmy.Service.Data.Sbom;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 
 namespace Osmy.Service.Services
 {
-    internal class ChecksumVerificationService : QueueingBackgroundService<Sbom, ChecksumVerificationResultCollection>
+    internal class ChecksumVerificationService : QueueingBackgroundService<long>
     {
         //private readonly IAppNotificationService _appNotificationService;
 
@@ -27,14 +26,14 @@ namespace Osmy.Service.Services
             return Task.WhenAll(base.ExecuteAsync(stoppingToken), autoValidationTask);
         }
 
-        protected override Task<ChecksumVerificationResultCollection> ProcessAsync(Sbom sbom, CancellationToken cancellationToken)
+        protected override Task ProcessAsync(long sbomId, CancellationToken cancellationToken)
         {
-            return VerifyChecksumAsync(sbom, cancellationToken);
+            return VerifyChecksumAsync(sbomId, cancellationToken);
         }
 
-        public Task<ChecksumVerificationResultCollection> Verify(Sbom sbom)
+        public Task Verify(long sbomId)
         {
-            return EnqueueManual(sbom);
+            return EnqueueManual(sbomId);
         }
 
         private async Task StartAutoValidationRequest(CancellationToken stoppingToken)
@@ -70,25 +69,28 @@ namespace Osmy.Service.Services
 
                 foreach (var sbomId in sbomIdsNeedScan)
                 {
-                    var sbom = context.Sboms
-                        .Include(x => x.Files)
-                        .ThenInclude(x => x.Checksums)
-                        .First(x => x.Id == sbomId);
-                    var result = await EnqueueAuto(sbom, stoppingToken).ConfigureAwait(false);
-                    context.ChecksumVerificationResults.Add(result);
-                    await context.SaveChangesAsync(stoppingToken);
+                    await EnqueueAuto(sbomId, stoppingToken);
                 }
 
                 //_appNotificationService.NotifyChecksumMismatch();
 
-                await Task.Delay(AutoScanCheckInterval, stoppingToken).ConfigureAwait(false);
+                await Task.Delay(AutoScanCheckInterval, stoppingToken);
             }
         }
 
-        private async Task<ChecksumVerificationResultCollection> VerifyChecksumAsync(Sbom sbom, CancellationToken cancellationToken)
+        private static async Task VerifyChecksumAsync(long sbomId, CancellationToken cancellationToken)
         {
-            if (sbom.LocalDirectory is null) { throw new ArgumentException($"{nameof(sbom.LocalDirectory)} cannot be null"); }
             var executed = DateTime.Now;
+
+            using var dbContext = new SoftwareDbContext();
+            var sbom = await dbContext.Sboms.Include(x => x.Files)
+                .ThenInclude(x => x.Checksums)
+                .FirstOrDefaultAsync(x => x.Id == sbomId, cancellationToken)
+                ?? throw new InvalidOperationException($"SBOM(id={sbomId}) is not found");
+            if (sbom.LocalDirectory is null)
+            {
+                throw new ArgumentException($"{nameof(sbom.LocalDirectory)} cannot be null");
+            }
 
             var results = sbom.Files.Select(async file =>
             {
@@ -97,7 +99,7 @@ namespace Osmy.Service.Services
                 if (File.Exists(path))
                 {
                     string sha1Hash = file.Checksums.First(x => x.Algorithm == Core.Data.Sbom.ChecksumAlgorithm.SHA1).Value;
-                    byte[] localFileHash = await ComputeSHA1Async(path, cancellationToken).ConfigureAwait(false);
+                    byte[] localFileHash = await ComputeSHA1Async(path, cancellationToken);
                     bool isValid = CompareHash(sha1Hash, localFileHash);
                     result = isValid ? Core.Data.Sbom.ChecksumVerification.ChecksumCorrectness.Correct : Core.Data.Sbom.ChecksumVerification.ChecksumCorrectness.Incorrect;
                 }
@@ -105,7 +107,9 @@ namespace Osmy.Service.Services
                 return new ChecksumVerificationResult(file, result);
             });
 
-            return new ChecksumVerificationResultCollection(executed, sbom, await Task.WhenAll(results).ConfigureAwait(false));
+            var resultCollection = new ChecksumVerificationResultCollection(executed, sbom, await Task.WhenAll(results));
+            dbContext.ChecksumVerificationResults.Add(resultCollection);
+            await dbContext.SaveChangesAsync(cancellationToken);
         }
 
         private static async Task<byte[]> ComputeSHA1Async(string filePath, CancellationToken cancellationToken)
@@ -113,8 +117,8 @@ namespace Osmy.Service.Services
             HashAlgorithm hashAlgorithm = SHA1.Create();
 
             using var stream = File.OpenRead(filePath);
-            var localFileHash = await hashAlgorithm.ComputeHashAsync(stream, cancellationToken).ConfigureAwait(false);
-            
+            var localFileHash = await hashAlgorithm.ComputeHashAsync(stream, cancellationToken);
+
             return localFileHash;
         }
 

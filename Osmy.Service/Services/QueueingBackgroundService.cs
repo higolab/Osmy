@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Collections.Concurrent;
 
 namespace Osmy.Service.Services
 {
@@ -87,6 +83,92 @@ namespace Osmy.Service.Services
             {
                 Value = value;
                 Tcs = new TaskCompletionSource<TOut>();
+            }
+        }
+    }
+
+    internal abstract class QueueingBackgroundService<T> : BackgroundService
+    {
+        private readonly ConcurrentQueue<Request> _manualQueue = new();
+        private readonly ConcurrentQueue<Request> _autoQueue = new();
+
+        public TimeSpan ProcessInterval { get; set; } = TimeSpan.FromMilliseconds(500);
+
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            return Task.Run(() => StartQueueProcessing(stoppingToken), stoppingToken);
+        }
+
+        protected Task EnqueueAuto(T item, CancellationToken cancellationToken = default)
+        {
+            var request = _manualQueue.Concat(_autoQueue).FirstOrDefault(x => x?.Value?.Equals(item) ?? false);
+            if (request is null)
+            {
+                request = new Request(item);
+                _autoQueue.Enqueue(request);
+            }
+
+            using (cancellationToken.Register(() => request.Tcs.TrySetCanceled()))
+            {
+                return request.Tcs.Task;
+            }
+        }
+
+        protected Task EnqueueManual(T item, CancellationToken cancellationToken = default)
+        {
+            var request = _manualQueue.FirstOrDefault(x => x?.Value?.Equals(item) ?? false);
+            if (request is null)
+            {
+                request = new Request(item);
+                _manualQueue.Enqueue(request);
+            }
+
+            using (cancellationToken.Register(() => request.Tcs.TrySetCanceled()))
+            {
+                return request.Tcs.Task;
+            }
+        }
+
+        protected abstract Task ProcessAsync(T item, CancellationToken cancellationToken);
+
+        private async Task StartQueueProcessing(CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                Request? request = null;
+                try
+                {
+                    if (_manualQueue.TryDequeue(out request) || _autoQueue.TryDequeue(out request))
+                    {
+                        if (request.Tcs.Task.IsCanceled) { continue; }
+                        await ProcessAsync(request.Value, cancellationToken).ConfigureAwait(false);
+                        request.Tcs.TrySetResult();
+                    }
+                    else
+                    {
+                        await Task.Delay(ProcessInterval, cancellationToken).ConfigureAwait(false);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    try
+                    {
+                        request?.Tcs.TrySetException(ex);
+                    }
+                    catch { }   // TODO logging
+                }
+            }
+        }
+
+        record Request
+        {
+            public T Value { get; }
+            public TaskCompletionSource Tcs { get; }
+
+            public Request(T value)
+            {
+                Value = value;
+                Tcs = new TaskCompletionSource();
             }
         }
     }

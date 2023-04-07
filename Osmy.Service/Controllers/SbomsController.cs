@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Osmy.Core.Data.Sbom;
 using Osmy.Service.Data;
 using Osmy.Service.Data.Sbom;
 using Osmy.Service.Data.Sbom.Spdx;
+using Osmy.Service.Services;
 
 namespace Osmy.Service.Controllers
 {
@@ -12,10 +14,12 @@ namespace Osmy.Service.Controllers
     public class SbomsController : ControllerBase
     {
         private readonly ILogger<SbomsController> _logger;
+        private readonly IServiceProvider _serviceProvider;
 
-        public SbomsController(ILogger<SbomsController> logger)
+        public SbomsController(ILogger<SbomsController> logger, IServiceProvider serviceProvider)
         {
             _logger = logger;
+            _serviceProvider = serviceProvider;
         }
 
         [HttpGet]
@@ -48,6 +52,13 @@ namespace Osmy.Service.Controllers
             dbContext.Sboms.Add(sbom);
             await dbContext.SaveChangesAsync();
 
+            if (sbom.LocalDirectory is not null)
+            {
+                // チェックサム検証の実行キューに追加
+                var checksumService = _serviceProvider.GetRequiredService<ChecksumVerificationService>();
+                _ = checksumService.Verify(sbom.Id);
+            }
+
             return CreatedAtAction(nameof(Get), new { id = sbom.Id }, SbomDataConverter.ConvertSbom(sbom));
         }
 
@@ -65,11 +76,18 @@ namespace Osmy.Service.Controllers
             {
                 sbom.Name = updateSbomInfo.Name;
             }
+
+            var needVerification = (sbom.LocalDirectory != updateSbomInfo.LocalDirectory) && updateSbomInfo.LocalDirectory is not null;
             sbom.LocalDirectory = updateSbomInfo.LocalDirectory;
 
             await dbContext.SaveChangesAsync();
 
-            // TODO チェックサム検証の実行待ちリストに登録？
+            if (needVerification)
+            {
+                // チェックサム検証の実行キューに追加
+                var checksumService = _serviceProvider.GetRequiredService<ChecksumVerificationService>();
+                _ = checksumService.Verify(sbom.Id);
+            }
 
             return SbomDataConverter.ConvertSbom(sbom);
         }
