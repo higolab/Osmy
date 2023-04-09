@@ -108,5 +108,32 @@ namespace Osmy.Service.Controllers
 
             return Ok();
         }
+
+        [HttpGet("{sbomId}/related")]
+        public async Task<ActionResult<IEnumerable<SbomInfo>>> GetRelatedSboms(long sbomId)
+        {
+            using var dbContext = new SoftwareDbContext();
+            var queriedSbom = await dbContext.Sboms.Include(x => x.ExternalReferences).FirstOrDefaultAsync(x => x.Id == sbomId);
+            return queriedSbom switch
+            {
+                Spdx => dbContext.Sboms
+                .OfType<Spdx>()
+                .AsEnumerable()
+                .Where(sbom => queriedSbom.ExternalReferences.OfType<SpdxExternalReference>()
+                                                             .Any(exref => exref.DocumentNamespace == sbom.DocumentNamespace))
+                .Select(sbom =>
+                {
+                    var isVulnerable = dbContext.ScanResults.Where(result => result.SbomId == sbom.Id)
+                                                            .OrderByDescending(x => x.Executed)
+                                                            .FirstOrDefault()?.IsVulnerable;
+                    var hasFileError = dbContext.ChecksumVerificationResults.Where(result => result.SbomId == sbom.Id)
+                                                                            .OrderByDescending(x => x.Executed)
+                                                                            .FirstOrDefault()?.HasError;
+                    return new SbomInfo(SbomDataConverter.ConvertSbom(sbom), isVulnerable, hasFileError);
+                })
+                .ToArray(),
+                _ => throw new NotSupportedException(),
+            };
+        }
     }
 }

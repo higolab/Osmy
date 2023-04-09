@@ -2,7 +2,8 @@
 using Osmy.Core.Data.Sbom;
 using Osmy.Core.Data.Sbom.ChecksumVerification;
 using Reactive.Bindings;
-using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Osmy.Gui.ViewModels
 {
@@ -45,7 +46,7 @@ namespace Osmy.Gui.ViewModels
             //});
 
             ScanResult = new ReactivePropertySlim<VulnerabilityScanResult?>(FetchLatestScanResult());
-            RelatedSboms = new ReactivePropertySlim<SbomInfo[]>(FetchRelatedSboms());
+            RelatedSboms = new ReactivePropertySlim<SbomInfo[]>(FetchRelatedSboms().ToArray());
         }
 
         //private void OnSoftwareVulnerabilityScanned()
@@ -65,27 +66,10 @@ namespace Osmy.Gui.ViewModels
             return client.GetLatestChecksumVerificationResultCollection(Sbom.Value.Id);
         }
 
-        private SbomInfo[] FetchRelatedSboms()
+        private IEnumerable<SbomInfo> FetchRelatedSboms()
         {
-            // TODO
-            //using var dbContext = new ManagedSoftwareContext();
-            //return Sbom.Value switch
-            //{
-            //    Spdx => dbContext.Sboms
-            //    .OfType<Spdx>()
-            //    .AsEnumerable()
-            //    .Where(sbom => Sbom.Value.ExternalReferences.OfType<SpdxExternalReference>().Any(exref => exref.DocumentNamespace == sbom.DocumentNamespace))
-            //    .Select(sbom =>
-            //    {
-            //        var isVulnerable = dbContext.ScanResults.Where(x => x.SbomId == sbom.Id).AsEnumerable().MaxBy(x => x.Executed)?.IsVulnerable ?? false;
-            //        var hasFileError = dbContext.ChecksumVerificationResults.Where(x => x.SbomId == sbom.Id).OrderByDescending(x => x.Executed).FirstOrDefault()?.HasError ?? false;
-            //        return new SbomInfo(sbom, isVulnerable, hasFileError);
-            //    })
-            //    .ToArray(),
-            //    _ => throw new NotSupportedException(),
-            //};
-
-            return Array.Empty<SbomInfo>();
+            using var client = new RestClient();
+            return client.GetRelatedSboms(Sbom.Value.Id);
         }
 
         private async void OnPathSelected()

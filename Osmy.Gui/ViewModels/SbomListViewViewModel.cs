@@ -52,6 +52,7 @@ namespace Osmy.Gui.ViewModels
         {
             var store = new AddSbomDialogViewModel();
             var result = await ShowAddSbomDialog.Handle(store);
+            if (result is null) { return; }
 
             //throw new NotImplementedException();
             //Sbom sbom;

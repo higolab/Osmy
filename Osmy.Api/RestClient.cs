@@ -2,6 +2,7 @@
 using Osmy.Core.Data.Sbom.ChecksumVerification;
 using RestSharp;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace Osmy.Api
 {
@@ -100,6 +101,22 @@ namespace Osmy.Api
         public IEnumerable<SbomInfo> GetSboms()
         {
             var request = new RestRequest($"Sboms");
+            var result = _client.Get<IEnumerable<SbomInfo>>(request);
+
+            return result ?? Enumerable.Empty<SbomInfo>();
+        }
+
+        public async Task<IEnumerable<SbomInfo>> GetRelatedSbomsAsync(long sbomId, CancellationToken cancellationToken = default)
+        {
+            var request = new RestRequest($"Sboms/{sbomId}/related");
+            var result = await _client.GetAsync<IEnumerable<SbomInfo>>(request, cancellationToken);
+
+            return result ?? Enumerable.Empty<SbomInfo>();
+        }
+
+        public IEnumerable<SbomInfo> GetRelatedSboms(long sbomId)
+        {
+            var request = new RestRequest($"Sboms/{sbomId}/related");
             var result = _client.Get<IEnumerable<SbomInfo>>(request);
 
             return result ?? Enumerable.Empty<SbomInfo>();
