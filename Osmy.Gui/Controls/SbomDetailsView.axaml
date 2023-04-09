@@ -57,10 +57,18 @@
 							<ColumnDefinition Width="*"/>
 						</Grid.ColumnDefinitions>
 
-						<TextBlock Grid.Row="0" Text="{Binding ScanResult.Value.Executed, StringFormat=Last Scan: {0:yyyy/MM/dd HH:mm:ss}}" Margin="3 0 0 0"/>
+						<TextBlock Grid.Row="0"
+											 Text="{Binding ScanResult.Value.Executed, StringFormat=Last Scan: {0:yyyy/MM/dd HH:mm:ss}}"
+											 IsVisible="{Binding ScanResult.Value, Converter={x:Static ObjectConverters.IsNotNull}}"
+											 Margin="3 0 0 0"/>
+
+						<TextBlock Grid.Row="0" Text="Vulnerability scan is not yet executed"
+											 IsVisible="{Binding ScanResult.Value, Converter={x:Static ObjectConverters.IsNull}}"
+											 Margin="3 0 0 0"/>
 
 						<DataGrid x:Name="scanResult" Grid.Row="1" Items="{Binding ScanResult.Value.Results}" SelectionMode="Extended"
-											CanUserReorderColumns="False" AutoGenerateColumns="False" Margin="0 5" IsReadOnly="True">
+											CanUserReorderColumns="False" AutoGenerateColumns="False" Margin="0 5" IsReadOnly="True"
+											IsVisible="{Binding ScanResult.Value, Converter={x:Static ObjectConverters.IsNotNull}}">
 							<DataGrid.Columns>
 								<DataGridTemplateColumn>
 									<DataTemplate>
