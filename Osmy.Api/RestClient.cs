@@ -59,7 +59,11 @@ namespace Osmy.Api
         public async Task<Sbom?> CreateSbomAsync(AddSbomInfo info, CancellationToken cancellationToken = default)
         {
             var request = new RestRequest("Sboms", Method.Post);
-            request.AddBody(info);
+
+            request.AddParameter("name", info.Name);
+            request.AddParameter("localDirectory", info.LocalDirectory);
+            request.AddFile("file", info.FileName);
+
             var response = await _client.ExecutePostAsync<Sbom>(request, cancellationToken);
 
             return ReturnDataIfSuccessful(response);

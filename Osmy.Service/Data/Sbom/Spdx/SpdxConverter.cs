@@ -6,11 +6,21 @@ using System.Text.RegularExpressions;
 
 namespace Osmy.Service.Data.Sbom.Spdx
 {
-    class SpdxConverter
+    internal class SpdxConverter
     {
         const string ConverterFileName = @"tools-java-jar-with-dependencies.jar";
-        static readonly string ConverterPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Osmy", ConverterFileName);
+        static readonly string ConverterPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "Osmy",
+            ConverterFileName);
 
+        /// <summary>
+        /// 指定されたSPDXドキュメントをJSON形式に変換します．
+        /// </summary>
+        /// <param name="path">SPDXドキュメントのパス</param>
+        /// <returns>JSON形式に変換したデータ</returns>
+        /// <exception cref="FileNotFoundException"></exception>
+        /// <exception cref="SpdxConvertException"></exception>
         public static byte[] ConvertToJson(string path)
         {
             if (!File.Exists(ConverterPath)) { throw new FileNotFoundException(null, path); }
@@ -25,8 +35,7 @@ namespace Osmy.Service.Data.Sbom.Spdx
                 CreateNoWindow = true,
                 RedirectStandardError = true,
             };
-            var process = Process.Start(startInfo);
-            if (process is null) { throw new SpdxConvertException("failed to start process"); }
+            var process = Process.Start(startInfo) ?? throw new SpdxConvertException("failed to start process");
             var error = process.StandardError.ReadToEnd();
             process.WaitForExit();
 
@@ -56,11 +65,45 @@ namespace Osmy.Service.Data.Sbom.Spdx
                 var bytes = File.ReadAllBytes(outputPath);
                 return bytes;
             }
+            catch (Exception ex)
+            {
+                throw new SpdxConvertException("failed to convert", ex);
+            }
             finally
             {
                 try
                 {
                     File.Delete(outputPath);
+                }
+                catch { }
+            }
+        }
+
+        /// <summary>
+        /// 指定されたSPDXドキュメントをJSON形式に変換します．
+        /// </summary>
+        /// <param name="file">SPDXドキュメント</param>
+        /// <returns>JSON形式のデータ</returns>
+        /// <exception cref="FileNotFoundException"></exception>
+        /// <exception cref="SpdxConvertException"></exception>
+        public static byte[] ConvertToJson(IFormFile file)
+        {
+            var fileName = CreateTempFileWithExtension(Path.GetExtension(file.FileName));
+            try
+            {
+                using var fileStream = file.OpenReadStream();
+                using (var tmpFileStream = File.OpenWrite(fileName))
+                {
+                    fileStream.CopyTo(tmpFileStream);
+                }
+
+                return ConvertToJson(fileName);
+            }
+            finally
+            {
+                try
+                {
+                    File.Delete(fileName);
                 }
                 catch { }
             }
@@ -106,6 +149,15 @@ namespace Osmy.Service.Data.Sbom.Spdx
             }
 
             return true;
+        }
+
+        private static string CreateTempFileWithExtension(string extension)
+        {
+            var tmp = Path.GetTempFileName();
+            var fileName = tmp + extension;
+            File.Move(tmp, fileName);
+
+            return fileName;
         }
     }
 

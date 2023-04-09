@@ -44,10 +44,10 @@ namespace Osmy.Service.Data.Sbom.Spdx
         /// 
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="path"></param>
+        /// <param name="file"></param>
         /// <param name="localDirectory"></param>
         /// <remarks>新規追加時に呼び出されます．</remarks>
-        public Spdx(string name, string path, string? localDirectory) : base(name, SpdxConverter.ConvertToJson(path), localDirectory)
+        public Spdx(string name, IFormFile file, string? localDirectory) : base(name, SpdxConverter.ConvertToJson(file), localDirectory)
         {
             // 作成時は内容確認を行う可能性が高いので即時に読みこむ
             _content = new Lazy<SpdxDocumentContent>(new SpdxDocumentContent(new MemoryStream(Content)));

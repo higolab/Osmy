@@ -6,6 +6,7 @@ using Osmy.Service.Data;
 using Osmy.Service.Data.Sbom;
 using Osmy.Service.Data.Sbom.Spdx;
 using Osmy.Service.Services;
+using System.Net;
 
 namespace Osmy.Service.Controllers
 {
@@ -40,14 +41,9 @@ namespace Osmy.Service.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Core.Data.Sbom.Sbom>> Post(AddSbomInfo info)
+        public async Task<ActionResult<Core.Data.Sbom.Sbom>> Post([FromForm] SbomAddRequest request)
         {
-            // TODO
-            // SBOMファイルのデータを送信してもらって，ファイルの解析はこちら側で行う方が良さそう
-            // 基本的に同一PC上で動作しているはずなのでURIを送ってもらっても処理できそうだが，ファイルの閲覧権限で問題が起こるかも
-            // ファイルのデータを送信してもらう方法 https://qiita.com/mserizawa/items/7f1b9e5077fd3a9d336b
-
-            var sbom = new Spdx(info.Name, info.FileName, info.LocalDirectory);
+            var sbom = new Spdx(request.Name, request.File, request.LocalDirectory);
             using var dbContext = new SoftwareDbContext();
             dbContext.Sboms.Add(sbom);
             await dbContext.SaveChangesAsync();
@@ -136,4 +132,6 @@ namespace Osmy.Service.Controllers
             };
         }
     }
+
+    public record SbomAddRequest(string Name, string? LocalDirectory, IFormFile File);
 }
