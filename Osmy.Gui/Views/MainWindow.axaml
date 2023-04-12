@@ -6,12 +6,21 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Osmy.Gui.Views.MainWindow"
+				x:CompileBindings="True"
+				x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="Osmy.Gui">
 
-    <Design.DataContext>
-        <vm:MainWindowViewModel/>
-    </Design.DataContext>
+	<Design.DataContext>
+		<vm:MainWindowViewModel/>
+	</Design.DataContext>
 
-    <controls:SbomListView/>
+	<DockPanel>
+		<Menu DockPanel.Dock="Top">
+			<MenuItem Header="_File"/>
+			<MenuItem Header="_Settings" Command="{Binding OpenSettingDialogCommand}"/>
+		</Menu>
+
+		<controls:SbomListView/>
+	</DockPanel>
 </Window>
