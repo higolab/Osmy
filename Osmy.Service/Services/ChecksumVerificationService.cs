@@ -40,36 +40,37 @@ namespace Osmy.Service.Services
         {
             while (true)
             {
-                using var context = new SoftwareDbContext();
-                //var before = DateTime.Now.Subtract(Settings.Default.ChecksumVerificationInterval);
-                var before = DateTime.Now.Subtract(TimeSpan.FromMinutes(5));    // TODO
-
-                // 前回検証から一定期間経過しているソフトウェアのIDリストを作成
-                var sbomIdsNotVerifiedRecently = context.Sboms
-                    .Where(x => x.LocalDirectory != null)
-                    .Join(context.ChecksumVerificationResults,
-                        sbom => sbom.Id,
-                        validationResult => validationResult.SbomId,
-                        (sbom, verificationResult) => new { Sbom = sbom, VerificationResult = verificationResult })
-                    .GroupBy(x => x.Sbom)
-                    .Select(x => new { SbomId = x.Key.Id, Executed = x.Select(item => item.VerificationResult).Max(item => item.Executed) })
-                    .Where(x => x.Executed <= before)
-                    .Select(x => x.SbomId)
-                    .ToArray();
-
-                // 一度もスキャンされていないソフトウェアのIDリストを作成
-                var neverVerifiedSoftwares = context.Sboms
-                    .Where(x => x.LocalDirectory != null)
-                    .Select(sbom => sbom.Id)
-                    .Except(context.ChecksumVerificationResults.Select(x => x.SbomId).Distinct())
-                    .ToArray();
-
-                // スキャンが必要なソフトウェアのIDリストを作成
-                var sbomIdsNeedScan = sbomIdsNotVerifiedRecently.Union(neverVerifiedSoftwares).ToArray();
-
-                foreach (var sbomId in sbomIdsNeedScan)
+                using (var context = new SoftwareDbContext())
                 {
-                    await EnqueueAuto(sbomId, stoppingToken);
+                    var before = DateTime.Now.Subtract(Settings.ChecksumVerificationInterval);
+
+                    // 前回検証から一定期間経過しているソフトウェアのIDリストを作成
+                    var sbomIdsNotVerifiedRecently = context.Sboms
+                        .Where(x => x.LocalDirectory != null)
+                        .Join(context.ChecksumVerificationResults,
+                            sbom => sbom.Id,
+                            validationResult => validationResult.SbomId,
+                            (sbom, verificationResult) => new { Sbom = sbom, VerificationResult = verificationResult })
+                        .GroupBy(x => x.Sbom)
+                        .Select(x => new { SbomId = x.Key.Id, Executed = x.Select(item => item.VerificationResult).Max(item => item.Executed) })
+                        .Where(x => x.Executed <= before)
+                        .Select(x => x.SbomId)
+                        .ToArray();
+
+                    // 一度もスキャンされていないソフトウェアのIDリストを作成
+                    var neverVerifiedSoftwares = context.Sboms
+                        .Where(x => x.LocalDirectory != null)
+                        .Select(sbom => sbom.Id)
+                        .Except(context.ChecksumVerificationResults.Select(x => x.SbomId).Distinct())
+                        .ToArray();
+
+                    // スキャンが必要なソフトウェアのIDリストを作成
+                    var sbomIdsNeedScan = sbomIdsNotVerifiedRecently.Union(neverVerifiedSoftwares).ToArray();
+
+                    foreach (var sbomId in sbomIdsNeedScan)
+                    {
+                        await EnqueueAuto(sbomId, stoppingToken);
+                    }
                 }
 
                 //_appNotificationService.NotifyChecksumMismatch();
