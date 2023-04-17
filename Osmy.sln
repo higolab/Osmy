@@ -7,11 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Osmy", "Osmy\Osmy.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Osmy.Gui", "Osmy.Gui\Osmy.Gui.csproj", "{E19D6EAF-D85E-4A91-AE4F-F418452C999A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Osmy.Service", "Osmy.Service\Osmy.Service.csproj", "{488E2D9F-6170-4936-96F2-4D021E4848C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Osmy.Server", "Osmy.Server\Osmy.Server.csproj", "{488E2D9F-6170-4936-96F2-4D021E4848C3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Osmy.Core", "Osmy.Core\Osmy.Core.csproj", "{39D2F766-9AFD-48C6-8337-4D25E9B3D6B5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Osmy.Api", "Osmy.Api\Osmy.Api.csproj", "{0FB953FE-A343-4EB3-AE34-BAEE41FB0935}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Osmy.Api", "Osmy.Api\Osmy.Api.csproj", "{0FB953FE-A343-4EB3-AE34-BAEE41FB0935}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
