@@ -1,6 +1,7 @@
 using Avalonia.ReactiveUI;
 using Osmy.Gui.ViewModels;
 using ReactiveUI;
+using System;
 
 namespace Osmy.Gui.Views
 {
@@ -9,7 +10,7 @@ namespace Osmy.Gui.Views
         public SettingDialog()
         {
             InitializeComponent();
-            this.WhenActivated(d => d(ViewModel!.CloseDialogCommand.Subscribe(Close)));
+            this.WhenActivated(d => d(ViewModel!.CloseDialogCommand.Subscribe(result => Close(result))));
         }
     }
 }
