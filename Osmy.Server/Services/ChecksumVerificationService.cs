@@ -42,7 +42,7 @@ namespace Osmy.Server.Services
             {
                 using (var context = new SoftwareDbContext())
                 {
-                    var before = DateTime.Now.Subtract(Settings.ChecksumVerificationInterval);
+                    var before = DateTime.Now.Subtract(Settings.Common.ChecksumVerificationInterval);
 
                     // 前回検証から一定期間経過しているソフトウェアのIDリストを作成
                     var sbomIdsNotVerifiedRecently = context.Sboms

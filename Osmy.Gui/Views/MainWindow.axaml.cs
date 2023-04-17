@@ -12,20 +12,20 @@ namespace Osmy.Gui.Views
         public MainWindow()
         {
             InitializeComponent();
-            this.WhenActivated(d => d(ViewModel!.ShowSettingDialog.RegisterHandler(ShowSettingDialogAsync)));
+            //this.WhenActivated(d => d(ViewModel!.ShowSettingDialog.RegisterHandler(ShowSettingDialogAsync)));
         }
 
-        private async Task ShowSettingDialogAsync(InteractionContext<SettingDialogViewModel, bool> interaction)
-        {
-            var dialog = new SettingDialog
-            {
-                DataContext = interaction.Input
-            };
+        //private async Task ShowSettingDialogAsync(InteractionContext<SettingDialogViewModel, bool> interaction)
+        //{
+        //    var dialog = new SettingDialog
+        //    {
+        //        DataContext = interaction.Input
+        //    };
 
-            var topLevel = GetTopLevel(this);
-            var window = topLevel as Window ?? throw new InvalidOperationException();
-            var result = await dialog.ShowDialog<bool>(window);
-            interaction.SetOutput(result);
-        }
+        //    var topLevel = GetTopLevel(this);
+        //    var window = topLevel as Window ?? throw new InvalidOperationException();
+        //    var result = await dialog.ShowDialog<bool>(window);
+        //    interaction.SetOutput(result);
+        //}
     }
 }

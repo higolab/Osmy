@@ -2,7 +2,6 @@
 using Osmy.Core.Data.Sbom.ChecksumVerification;
 using RestSharp;
 using System.Net.Sockets;
-using System.Threading;
 
 namespace Osmy.Api
 {
@@ -24,7 +23,7 @@ namespace Osmy.Api
         }
 
 #if DEBUG
-        public RestClient() : this(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Osmy", "osmy.service.sock")) { }
+        public RestClient() : this(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Osmy", "osmy.server.sock")) { }
 #endif
 
         public void Dispose()

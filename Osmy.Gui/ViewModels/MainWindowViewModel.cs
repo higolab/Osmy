@@ -4,16 +4,15 @@ namespace Osmy.Gui.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        public ReactiveUI.Interaction<SettingDialogViewModel, bool> ShowSettingDialog { get; } = new();
+        //public ReactiveUI.Interaction<SettingDialogViewModel, bool> ShowSettingDialog { get; } = new();
 
-        public DelegateCommand OpenSettingDialogCommand => _openSettingDialogCommand ??= new DelegateCommand(OpenSettingDialog);
-        private DelegateCommand? _openSettingDialogCommand;
+        //public DelegateCommand OpenSettingDialogCommand => _openSettingDialogCommand ??= new DelegateCommand(OpenSettingDialog);
+        //private DelegateCommand? _openSettingDialogCommand;
 
-        private async void OpenSettingDialog()
-        {
-            var store = new SettingDialogViewModel();
-            var result = await ShowSettingDialog.Handle(store);
-            // TODO
-        }
+        //private async void OpenSettingDialog()
+        //{
+        //    var store = new SettingDialogViewModel();
+        //    var result = await ShowSettingDialog.Handle(store);
+        //}
     }
 }
