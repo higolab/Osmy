@@ -38,6 +38,7 @@ namespace Osmy.Server.Services
                 .ToArray();
             if (names.Length == 0) { return; }
 
+            if (!Settings.Notification.Email.IsEnabled) { return; };
             var contentBuilder = new StringBuilder();
             contentBuilder.AppendFormat("Vulnerabilities detected in {0} software{1}.", names.Length,
                                         names.Length > 1 ? "s" : string.Empty);
@@ -65,6 +66,7 @@ namespace Osmy.Server.Services
                 .ToArray();
             if (names.Length == 0) { return; }
 
+            if (!Settings.Notification.Email.IsEnabled) { return; };
             var contentBuilder = new StringBuilder();
             contentBuilder.AppendFormat("Checksum mismatch detected in {0} software{1}.", names.Length,
                                         names.Length > 1 ? "s" : string.Empty);
