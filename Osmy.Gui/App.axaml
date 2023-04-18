@@ -1,0 +1,56 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:Osmy.Gui"
+             x:Class="Osmy.Gui.App">
+	<Application.DataTemplates>
+		<local:ViewLocator/>
+	</Application.DataTemplates>
+
+	<Application.Styles>
+		<FluentTheme/>
+		<StyleInclude Source="avares://Material.Icons.Avalonia/App.xaml"/>
+		<StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
+
+		<!--HeaderedContentControlの基本スタイル-->
+		<Style Selector="HeaderedContentControl">
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate>
+						<StackPanel>
+							<ContentPresenter Content="{TemplateBinding	Header}" ContentTemplate="{TemplateBinding HeaderTemplate}" Classes="Header"/>
+							<ContentPresenter Content="{TemplateBinding	Content}" ContentTemplate="{TemplateBinding	ContentTemplate}"/>
+						</StackPanel>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
+		<!--GroupBox形式のHeaderedContentControlのスタイル-->
+		<Style Selector="HeaderedContentControl.GroupBox">
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate>
+						<StackPanel>
+							<ContentPresenter Content="{TemplateBinding Header}"/>
+							<Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="5">
+								<ContentPresenter Content="{TemplateBinding Content}"/>
+							</Border>
+						</StackPanel>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
+		<!--テキストをヘッダーに用いる場合のスタイル-->
+		<Style Selector="TextBlock.AccentText">
+			<Setter Property="Foreground" Value="RoyalBlue"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+		</Style>
+
+		<!--ヘッダを表示するContentPresenter内のTextBlockのスタイル-->
+		<Style Selector="ContentPresenter.Header TextBlock">
+			<Setter Property="Foreground" Value="RoyalBlue"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+		</Style>
+	</Application.Styles>
+</Application>
