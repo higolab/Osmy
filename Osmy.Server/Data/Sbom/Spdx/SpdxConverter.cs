@@ -25,7 +25,19 @@ namespace Osmy.Server.Data.Sbom.Spdx
         {
             if (!File.Exists(ConverterPath)) { throw new FileNotFoundException(null, path); }
 
-            var outputPath = $"{Path.GetTempFileName()}.spdx.json";
+            /*
+             * 出力先ファイルパスの作成
+             * tools-javaは指定したパスに既にファイルが存在するとエラーになるため，
+             * 一時ファイルのファイル名にJSON形式のSPDXドキュメントの拡張子.spdx.jsonを付加して出力先ファイルパスとする
+             * ファイル名の取得に使用した一時ファイルは不要なので削除する
+             */
+            var tmpFilePath = Path.GetTempFileName();
+            var outputPath = $"{tmpFilePath}.spdx.json";
+            try
+            {
+                File.Delete(tmpFilePath);
+            }
+            catch { }
 
             var startInfo = new ProcessStartInfo()
             {
