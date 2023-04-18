@@ -11,6 +11,10 @@
   </PropertyGroup>
 	<ItemGroup>
 		<AvaloniaResource Include="Assets\**" />
+		<AvaloniaXaml Remove="Models\**" />
+		<Compile Remove="Models\**" />
+		<EmbeddedResource Remove="Models\**" />
+		<None Remove="Models\**" />
 		<None Remove=".gitignore" />
 	</ItemGroup>
   <ItemGroup>
@@ -52,8 +56,5 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Models\" />
   </ItemGroup>
 </Project>
