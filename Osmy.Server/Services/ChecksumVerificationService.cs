@@ -73,7 +73,9 @@ namespace Osmy.Server.Services
                     }
                 }
 
-                //_appNotificationService.NotifyChecksumMismatch();
+                // TODO
+                var appNotificationService = new AppNotificationService();
+                appNotificationService.NotifyChecksumMismatch();
 
                 await Task.Delay(AutoScanCheckInterval, stoppingToken);
             }

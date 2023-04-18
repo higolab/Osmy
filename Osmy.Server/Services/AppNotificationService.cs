@@ -1,7 +1,10 @@
 ﻿//using Microsoft.Toolkit.Uwp.Notifications;
 
+using MailKit.Net.Smtp;
 using Microsoft.EntityFrameworkCore;
+using MimeKit;
 using Osmy.Server.Data;
+using System.Text;
 
 namespace Osmy.Server.Services
 {
@@ -35,9 +38,18 @@ namespace Osmy.Server.Services
                 .ToArray();
             if (names.Length == 0) { return; }
 
-            //var toastBuilder = new ToastContentBuilder();
-            //toastBuilder.AddText($"Vulnerabilities detected in {names.Length} software{(names.Length > 1 ? "s" : null)}");
-            //toastBuilder.Show(toast => { toast.Tag = VulnsNotifyTag; });
+            var contentBuilder = new StringBuilder();
+            contentBuilder.AppendFormat("Vulnerabilities detected in {0} software{1}.", names.Length,
+                                        names.Length > 1 ? "s" : string.Empty);
+            contentBuilder.AppendLine();
+            contentBuilder.AppendLine("=====");
+            foreach (var name in names)
+            {
+                contentBuilder.AppendLine(name);
+            }
+            contentBuilder.AppendLine("=====");
+
+            SendMail("Vulnerabilities Detected", contentBuilder.ToString());
         }
 
         public void NotifyChecksumMismatch()
@@ -53,9 +65,55 @@ namespace Osmy.Server.Services
                 .ToArray();
             if (names.Length == 0) { return; }
 
-            //var toastBuilder = new ToastContentBuilder();
-            //toastBuilder.AddText($"Checksum mismatch detected in {names.Length} software{(names.Length > 1 ? "s" : null)}");
-            //toastBuilder.Show(toast => { toast.Tag = ChecksumMismatchNotifyTag; });
+            var contentBuilder = new StringBuilder();
+            contentBuilder.AppendFormat("Checksum mismatch detected in {0} software{1}.", names.Length,
+                                        names.Length > 1 ? "s" : string.Empty);
+            contentBuilder.AppendLine();
+            contentBuilder.AppendLine("=====");
+            foreach (var name in names)
+            {
+                contentBuilder.AppendLine(name);
+            }
+            contentBuilder.AppendLine("=====");
+
+            SendMail("Checksum Mismatch Detected", contentBuilder.ToString());
+        }
+
+        private static void SendMail(string title, string content)
+        {
+            var msg = new MimeMessage();
+            var from = $"{Settings.Notification.Email.Username}@{Settings.Notification.Email.Host}";
+            msg.From.Add(new MailboxAddress("Osmy", from));
+
+            // to
+            foreach (var to in Settings.Notification.Email.To)
+            {
+                msg.To.Add(new MailboxAddress(to, to));
+            }
+
+            // cc
+            foreach (var cc in Settings.Notification.Email.Cc)
+            {
+                msg.Cc.Add(new MailboxAddress(cc, cc));
+            }
+
+            // bcc
+            foreach (var bcc in Settings.Notification.Email.Bcc)
+            {
+                msg.Bcc.Add(new MailboxAddress(bcc, bcc));
+            }
+
+            msg.Subject = $"Osmy Notification - {title}";
+            var text = new TextPart("Plain")
+            {
+                Text = content
+            };
+            msg.Body = text;
+
+            using var client = new SmtpClient();
+            client.Connect(Settings.Notification.Email.Host, Settings.Notification.Email.Port, MailKit.Security.SecureSocketOptions.Auto);
+            client.Authenticate(Settings.Notification.Email.Username, Settings.Notification.Email.Password);
+            client.Send(msg);
         }
     }
 
