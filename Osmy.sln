@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Osmy.Core", "Osmy.Core\Osmy
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Osmy.Api", "Osmy.Api\Osmy.Api.csproj", "{0FB953FE-A343-4EB3-AE34-BAEE41FB0935}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Osmy.Cli", "Osmy.Cli\Osmy.Cli.csproj", "{B5E3CE34-2CEC-4107-8262-03AC04508905}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{0FB953FE-A343-4EB3-AE34-BAEE41FB0935}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0FB953FE-A343-4EB3-AE34-BAEE41FB0935}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0FB953FE-A343-4EB3-AE34-BAEE41FB0935}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5E3CE34-2CEC-4107-8262-03AC04508905}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5E3CE34-2CEC-4107-8262-03AC04508905}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5E3CE34-2CEC-4107-8262-03AC04508905}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5E3CE34-2CEC-4107-8262-03AC04508905}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
