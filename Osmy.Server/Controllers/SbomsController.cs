@@ -73,6 +73,10 @@ namespace Osmy.Server.Controllers
                 sbom.Name = updateSbomInfo.Name;
             }
 
+            if(!string.IsNullOrEmpty(updateSbomInfo.LocalDirectory) && !Directory.Exists(updateSbomInfo.LocalDirectory))
+            {
+                return BadRequest($"specified directory does not exists.");
+            }
             var needVerification = (sbom.LocalDirectory != updateSbomInfo.LocalDirectory) && updateSbomInfo.LocalDirectory is not null;
             sbom.LocalDirectory = updateSbomInfo.LocalDirectory;
 

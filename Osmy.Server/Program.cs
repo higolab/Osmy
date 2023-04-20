@@ -36,8 +36,10 @@ namespace Osmy.Server
             });
 
             // 脆弱性診断とチェックサムの検証の定期実行サービスを登録
-            builder.Services.AddHostedService<VulnerabilityScanService>();
-            builder.Services.AddHostedService<ChecksumVerificationService>();
+            builder.Services.AddSingleton<VulnerabilityScanService>();
+            builder.Services.AddHostedService(p => p.GetRequiredService<VulnerabilityScanService>());
+            builder.Services.AddSingleton<ChecksumVerificationService>();
+            builder.Services.AddHostedService(p => p.GetRequiredService<ChecksumVerificationService>());
 
             var app = builder.Build();
 
