@@ -50,9 +50,13 @@ namespace Osmy.Server.Controllers
 
             if (sbom.LocalDirectory is not null)
             {
+                // 脆弱性診断のキューに追加
+                var vulnerabilityScanService = _serviceProvider.GetRequiredService<VulnerabilityScanService>();
+                _ = vulnerabilityScanService.ScanAsync(sbom.Id);
+
                 // チェックサム検証の実行キューに追加
                 var checksumService = _serviceProvider.GetRequiredService<ChecksumVerificationService>();
-                _ = checksumService.Verify(sbom.Id);
+                _ = checksumService.VerifyAsync(sbom.Id);
             }
 
             return CreatedAtAction(nameof(Get), new { id = sbom.Id }, SbomDataConverter.ConvertSbom(sbom));
@@ -86,7 +90,7 @@ namespace Osmy.Server.Controllers
             {
                 // チェックサム検証の実行キューに追加
                 var checksumService = _serviceProvider.GetRequiredService<ChecksumVerificationService>();
-                _ = checksumService.Verify(sbom.Id);
+                _ = checksumService.VerifyAsync(sbom.Id);
             }
 
             return SbomDataConverter.ConvertSbom(sbom);

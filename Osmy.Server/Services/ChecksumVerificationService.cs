@@ -31,9 +31,9 @@ namespace Osmy.Server.Services
             return VerifyChecksumAsync(sbomId, cancellationToken);
         }
 
-        public Task Verify(long sbomId)
+        public Task VerifyAsync(long sbomId, CancellationToken cancellationToken = default)
         {
-            return EnqueueManual(sbomId);
+            return EnqueueManual(sbomId, cancellationToken);
         }
 
         private async Task StartAutoValidationRequest(CancellationToken stoppingToken)
