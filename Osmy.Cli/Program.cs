@@ -37,17 +37,15 @@ namespace Osmy.Cli
             var num = sbomInfos.Length;
             if (num == 0) { return 0; }
 
-            const int margin = 2;
-            var idWidth = Math.Max("ID".Length + margin, (int)Math.Ceiling(Math.Log10(num) + margin));
-            var nameWidth = Math.Max("Name".Length + margin, sbomInfos.Select(x => x.Sbom.Name.Length).Max() + margin);
+            var idWidth = Math.Max("ID".Length, (int)Math.Ceiling(Math.Log10(num)));
+            var nameWidth = Math.Max("Name".Length, sbomInfos.Max(x => x.Sbom.Name.Length));
+            var localDirWidth = Math.Max("Local Directory".Length, sbomInfos.Max(x => x.Sbom.LocalDirectory?.Length) ?? 0);
 
-            Console.WriteLine("ID".PadRight(idWidth) + "Name".PadRight(nameWidth) + "Local Directory");
+            var writer = new TableWriter(idWidth, nameWidth, localDirWidth);
+            writer.WriteHeader("ID", "Name", "Local Directory");
             foreach (var sbomInfo in sbomInfos)
             {
-                Console.Write(sbomInfo.Sbom.Id.ToString().PadRight(idWidth));
-                Console.Write(sbomInfo.Sbom.Name.PadRight(nameWidth));
-                Console.Write(sbomInfo.Sbom.LocalDirectory);
-                Console.WriteLine();
+                writer.WriteRow(sbomInfo.Sbom.Id.ToString(), sbomInfo.Sbom.Name, sbomInfo.Sbom.LocalDirectory);
             }
 
             return 0;
@@ -73,7 +71,8 @@ namespace Osmy.Cli
             Console.WriteLine("Name: " + info.Sbom.Name);
             Console.WriteLine("Local Directory: " + info.Sbom.LocalDirectory);
 
-            // TODO 結果表示の改善
+            Console.WriteLine();
+
             if (vulnsScanResult is null)
             {
                 Console.WriteLine("Vulnerability scan has not yet executed.");
@@ -88,11 +87,18 @@ namespace Osmy.Cli
                 {
                     Console.WriteLine("No vulnerability detected.");
                 }
+
+                var packageNameWidth = Math.Max("Name".Length, vulnsScanResult.Results.Max(x => x.Package.Name.Length));
+                var packageVersionWidth = Math.Max("Version".Length, vulnsScanResult.Results.Max(x => x.Package.Version?.Length) ?? 0);
+                var writer = new TableWriter(1, packageNameWidth, packageVersionWidth);
+                writer.WriteHeader(string.Empty, "Name", "Version");
                 foreach (var package in vulnsScanResult.Results)
                 {
-                    Console.WriteLine($"{(package.IsVulnerable ? '*' : ' ')} {package.Package.Name} {package.Package.Version}");
+                    writer.WriteRow(package.IsVulnerable ? "*" : string.Empty, package.Package.Name, package.Package.Version);
                 }
             }
+
+            Console.WriteLine();
 
             if (checksumVerificationResult is null)
             {
@@ -110,9 +116,13 @@ namespace Osmy.Cli
                     Console.WriteLine("No problem.");
                 }
 
+                var fileNameWidth = Math.Max("File Name".Length, checksumVerificationResult.Results.Max(x => x.SbomFile.FileName.Length));
+                var resultWidth = 12;
+                var writer = new TableWriter(fileNameWidth, resultWidth);
+                writer.WriteHeader("File Name", "Result");
                 foreach (var result in checksumVerificationResult.Results)
                 {
-                    Console.WriteLine($"{result.SbomFile.FileName} {result.Result}");
+                    writer.WriteRow(result.SbomFile.FileName, result.Result.ToString());
                 }
             }
 
