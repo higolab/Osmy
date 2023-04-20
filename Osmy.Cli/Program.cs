@@ -1,6 +1,7 @@
 ﻿using CommandLine;
 using Osmy.Api;
 using Osmy.Core.Data.Sbom;
+using Osmy.Core.Data.Sbom.ChecksumVerification;
 
 namespace Osmy.Cli
 {
@@ -41,11 +42,17 @@ namespace Osmy.Cli
             var nameWidth = Math.Max("Name".Length, sbomInfos.Max(x => x.Sbom.Name.Length));
             var localDirWidth = Math.Max("Local Directory".Length, sbomInfos.Max(x => x.Sbom.LocalDirectory?.Length) ?? 0);
 
-            var writer = new TableWriter(idWidth, nameWidth, localDirWidth);
-            writer.WriteHeader("ID", "Name", "Local Directory");
+            Console.WriteLine("V: Has vulnerabilities");
+            Console.WriteLine("F: File checksum mismatched or file is missing");
+            Console.WriteLine();
+
+            var writer = new TableWriter(2, idWidth, nameWidth, localDirWidth);
+            writer.WriteHeader(string.Empty, "ID", "Name", "Local Directory");
             foreach (var sbomInfo in sbomInfos)
             {
-                writer.WriteRow(sbomInfo.Sbom.Id.ToString(), sbomInfo.Sbom.Name, sbomInfo.Sbom.LocalDirectory);
+                var v = sbomInfo.IsVulnerable == true ? "V" : " ";
+                var f = sbomInfo.HasFileError == true ? "F" : " ";
+                writer.WriteRow(v + f, sbomInfo.Sbom.Id.ToString(), sbomInfo.Sbom.Name, sbomInfo.Sbom.LocalDirectory);
             }
 
             return 0;
@@ -90,11 +97,13 @@ namespace Osmy.Cli
 
                 var packageNameWidth = Math.Max("Name".Length, vulnsScanResult.Results.Max(x => x.Package.Name.Length));
                 var packageVersionWidth = Math.Max("Version".Length, vulnsScanResult.Results.Max(x => x.Package.Version?.Length) ?? 0);
-                var writer = new TableWriter(1, packageNameWidth, packageVersionWidth);
-                writer.WriteHeader(string.Empty, "Name", "Version");
+                var vulnsWidth = Math.Max("Vulnerability".Length, vulnsScanResult.Results.Max(x => x.VulnerabilityList.Vulnerabilities?.Sum(y => y.Id.Length + 1) - 1) ?? 0);
+                var writer = new TableWriter(1, packageNameWidth, packageVersionWidth, vulnsWidth);
+                writer.WriteHeader(string.Empty, "Name", "Version", "Vulnerability");
                 foreach (var package in vulnsScanResult.Results)
                 {
-                    writer.WriteRow(package.IsVulnerable ? "*" : string.Empty, package.Package.Name, package.Package.Version);
+                    var vulns = string.Join(" ", package.VulnerabilityList.Vulnerabilities?.Select(x => x.Id) ?? Enumerable.Empty<string>());
+                    writer.WriteRow(package.IsVulnerable ? "*" : string.Empty, package.Package.Name, package.Package.Version, vulns);
                 }
             }
 
@@ -118,11 +127,12 @@ namespace Osmy.Cli
 
                 var fileNameWidth = Math.Max("File Name".Length, checksumVerificationResult.Results.Max(x => x.SbomFile.FileName.Length));
                 var resultWidth = 12;
-                var writer = new TableWriter(fileNameWidth, resultWidth);
-                writer.WriteHeader("File Name", "Result");
+                var writer = new TableWriter(1, fileNameWidth, resultWidth);
+                writer.WriteHeader(string.Empty, "File Name", "Result");
                 foreach (var result in checksumVerificationResult.Results)
                 {
-                    writer.WriteRow(result.SbomFile.FileName, result.Result.ToString());
+                    var hasError = result.Result != ChecksumCorrectness.Correct ? "*" : string.Empty;
+                    writer.WriteRow(hasError, result.SbomFile.FileName, result.Result.ToString());
                 }
             }
 
