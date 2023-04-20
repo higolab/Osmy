@@ -56,7 +56,7 @@ namespace Osmy.Server.Data
         private static void SaveSettingFile<T>(T setting, string name)
         {
             var path = Path.Combine(SettingDirectory, $"{name}.json");
-            using var stream = File.OpenWrite(path);
+            using var stream = new FileStream(path, FileMode.Create);
             using var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true });
             JsonSerializer.Serialize(writer, setting);
         }
