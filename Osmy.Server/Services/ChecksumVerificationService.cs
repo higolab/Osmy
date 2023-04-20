@@ -86,10 +86,15 @@ namespace Osmy.Server.Services
             var executed = DateTime.Now;
 
             using var dbContext = new SoftwareDbContext();
-            var sbom = await dbContext.Sboms.Include(x => x.Files)
-                .ThenInclude(x => x.Checksums)
-                .FirstOrDefaultAsync(x => x.Id == sbomId, cancellationToken)
+            var sbom = await dbContext.Sboms.FirstOrDefaultAsync(x => x.Id == sbomId, cancellationToken)
                 ?? throw new InvalidOperationException($"SBOM(id={sbomId}) is not found");
+            /* 
+             * #17のワークアラウンド
+             * Sbom.Contentが複製されてメモリ消費量が大きくなるのを防ぐため，ファイルとチェックサムはSBOM情報と分けて取得する
+             */
+            var files = dbContext.Files.Include(x => x.Checksums).Where(x => x.SbomId == sbomId).ToList();
+            sbom.Files = files;
+
             if (sbom.LocalDirectory is null)
             {
                 throw new ArgumentException($"{nameof(sbom.LocalDirectory)} cannot be null");

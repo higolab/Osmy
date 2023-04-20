@@ -15,6 +15,8 @@ namespace Osmy.Server.Data
 
         public DbSet<ChecksumVerificationResultCollection> ChecksumVerificationResults { get; set; }
 
+        public DbSet<SbomFile> Files { get; set; }
+
         public SoftwareDbContext()
         {
             var appDataDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -47,6 +49,8 @@ namespace Osmy.Server.Data
             modelBuilder.Entity<SbomExternalReference>()
                 .HasDiscriminator()
                 .HasValue<SpdxExternalReference>("external_ref_spdx");
+
+            modelBuilder.Entity<SbomFile>().ToTable("SbomFile");
         }
     }
 }
