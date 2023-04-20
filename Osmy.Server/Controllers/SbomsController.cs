@@ -1,12 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using Osmy.Core.Data.Sbom;
 using Osmy.Server.Data;
 using Osmy.Server.Data.Sbom;
 using Osmy.Server.Data.Sbom.Spdx;
 using Osmy.Server.Services;
-using System.Net;
 
 namespace Osmy.Server.Controllers
 {
@@ -31,10 +29,18 @@ namespace Osmy.Server.Controllers
 
             IEnumerable<SbomInfo> GetInternal()
             {
-                foreach (var sbom in dbContext.Sboms.Include(x => x.ExternalReferences).Include(x => x.Files).ThenInclude(x => x.Checksums))
+                foreach (var sbom in dbContext.Sboms.Include(x => x.ExternalReferences))
                 {
-                    var isVulnerable = dbContext.ScanResults.Where(x => x.SbomId == sbom.Id).AsEnumerable().MaxBy(x => x.Executed)?.IsVulnerable ?? false;
+                    /* 
+                     * #17のワークアラウンド
+                     * Sbom.Contentが複製されてメモリ消費量が大きくなるのを防ぐため，ファイルとチェックサムはSBOM情報と分けて取得する
+                     */
+                    var files = dbContext.Files.Where(x => x.SbomId == sbom.Id).Include(x => x.Checksums).ToList();
+                    sbom.Files = files;
+
+                    var isVulnerable = dbContext.ScanResults.Where(x => x.SbomId == sbom.Id).OrderByDescending(x => x.Executed).FirstOrDefault()?.IsVulnerable ?? false;
                     var hasFileError = dbContext.ChecksumVerificationResults.Where(x => x.SbomId == sbom.Id).OrderByDescending(x => x.Executed).FirstOrDefault()?.HasError ?? false;
+                    
                     yield return new SbomInfo(SbomDataConverter.ConvertSbom(sbom), isVulnerable, hasFileError);
                 }
             }
@@ -77,7 +83,7 @@ namespace Osmy.Server.Controllers
                 sbom.Name = updateSbomInfo.Name;
             }
 
-            if(!string.IsNullOrEmpty(updateSbomInfo.LocalDirectory) && !Directory.Exists(updateSbomInfo.LocalDirectory))
+            if (!string.IsNullOrEmpty(updateSbomInfo.LocalDirectory) && !Directory.Exists(updateSbomInfo.LocalDirectory))
             {
                 return BadRequest($"specified directory does not exists.");
             }
