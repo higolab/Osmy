@@ -93,8 +93,14 @@ namespace Osmy.Server.Data.Sbom.Spdx
                     stream.Dispose();
                 }
 
+                var describedPackageIds = document.Relationships
+                    .Where(x => x.SpdxElementId == document.SPDXID && x.RelationshipType == SpdxModels.RelationshipType.DESCRIBES)
+                    .Select(x => x.RelatedSpdxElement)
+                    .Concat(document.DocumentDescribes ?? Enumerable.Empty<string>())
+                    .Distinct()
+                    .ToArray();
                 Packages = document.Packages
-                    .Select(x => new SpdxSoftwarePackage(x.Name, x.VersionInfo, document.DocumentDescribes.Contains(x.SPDXID), x.SPDXID))
+                    .Select(x => new SpdxSoftwarePackage(x.Name, x.VersionInfo, describedPackageIds.Contains(x.SPDXID), x.SPDXID))
                     .ToList();
                 RootPackages = Packages.Where(x => x.IsRootPackage).ToList().AsReadOnly();
                 DependencyGraph = CreateDependencyGraph(document);
