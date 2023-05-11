@@ -6,8 +6,9 @@
     <!--Avalonia doesen't support TrimMode=link currently,but we are working on that https://github.com/AvaloniaUI/Avalonia/issues/6892 -->
     <TrimMode>copyused</TrimMode>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-		<VersionPrefix>0.0.1</VersionPrefix>
+		<VersionPrefix>0.9.0</VersionPrefix>
 		<VersionSuffix></VersionSuffix>
+		<PublishSingleFile>true</PublishSingleFile>
   </PropertyGroup>
 	<ItemGroup>
 		<AvaloniaResource Include="Assets\**" />
