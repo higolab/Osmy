@@ -19,7 +19,7 @@
 ### サーバー（Osmy.Server）
 
 Linux で実行する場合は，`/var/run/Osmy`および`/var/lib/Osmy`以下に書き込みを行うため，root 権限が必要です．
-また，SPDXドキュメントのフォーマット変換のために，[spdx/tools-java](https://github.com/spdx/tools-java)
+また，SPDXドキュメントのフォーマット変換のために，[spdx/tools-java](https://github.com/spdx/tools-java)を利用しているため，Java 11以上をインストールし，`java`コマンドにパスを通してください．
 
 ```powershell
 # Ubuntu
