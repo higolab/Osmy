@@ -1,11 +1,12 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using Osmy.Core.Configuration;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace Osmy.Server.Data
 {
     public static class Settings
     {
-        private static string SettingDirectory { get; }
+        private static string SettingDirectory => DefaultServerConfig.SettingDirectory;
 
         public static CommonSetting Common { get; set; }
 
@@ -13,9 +14,6 @@ namespace Osmy.Server.Data
 
         static Settings()
         {
-            var appDataDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            SettingDirectory = Path.Join(appDataDir, "Osmy", "Setting");
-
             Load();
         }
 

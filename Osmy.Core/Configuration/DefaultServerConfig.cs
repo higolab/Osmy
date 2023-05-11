@@ -33,5 +33,21 @@
                 };
             }
         }
+
+        /// <summary>
+        /// 設定ディレクトリ
+        /// </summary>
+        public static string SettingDirectory
+        {
+            get
+            {
+                return Environment.OSVersion.Platform switch
+                {
+                    PlatformID.Win32NT => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Osmy"),
+                    PlatformID.Unix => "/etc/Osmy",
+                    _ => throw new NotSupportedException(),
+                };
+            }
+        }
     }
 }

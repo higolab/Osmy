@@ -95,15 +95,18 @@ namespace Osmy.Cli
                     Console.WriteLine("No vulnerability detected.");
                 }
 
-                var packageNameWidth = Math.Max("Name".Length, vulnsScanResult.Results.Max(x => x.Package.Name.Length));
-                var packageVersionWidth = Math.Max("Version".Length, vulnsScanResult.Results.Max(x => x.Package.Version?.Length) ?? 0);
-                var vulnsWidth = Math.Max("Vulnerability".Length, vulnsScanResult.Results.Max(x => x.VulnerabilityList.Vulnerabilities?.Sum(y => y.Id.Length + 1) - 1) ?? 0);
-                var writer = new TableWriter(1, packageNameWidth, packageVersionWidth, vulnsWidth);
-                writer.WriteHeader(string.Empty, "Name", "Version", "Vulnerability");
-                foreach (var package in vulnsScanResult.Results)
+                if (vulnsScanResult.Results.Any())
                 {
-                    var vulns = string.Join(" ", package.VulnerabilityList.Vulnerabilities?.Select(x => x.Id) ?? Enumerable.Empty<string>());
-                    writer.WriteRow(package.IsVulnerable ? "*" : string.Empty, package.Package.Name, package.Package.Version, vulns);
+                    var packageNameWidth = Math.Max("Name".Length, vulnsScanResult.Results.Max(x => x.Package.Name.Length));
+                    var packageVersionWidth = Math.Max("Version".Length, vulnsScanResult.Results.Max(x => x.Package.Version?.Length) ?? 0);
+                    var vulnsWidth = Math.Max("Vulnerability".Length, vulnsScanResult.Results.Max(x => x.VulnerabilityList.Vulnerabilities?.Sum(y => y.Id.Length + 1) - 1) ?? 0);
+                    var writer = new TableWriter(1, packageNameWidth, packageVersionWidth, vulnsWidth);
+                    writer.WriteHeader(string.Empty, "Name", "Version", "Vulnerability");
+                    foreach (var package in vulnsScanResult.Results)
+                    {
+                        var vulns = string.Join(" ", package.VulnerabilityList.Vulnerabilities?.Select(x => x.Id) ?? Enumerable.Empty<string>());
+                        writer.WriteRow(package.IsVulnerable ? "*" : string.Empty, package.Package.Name, package.Package.Version, vulns);
+                    }
                 }
             }
 
@@ -117,7 +120,7 @@ namespace Osmy.Cli
             {
                 if (checksumVerificationResult.HasError)
                 {
-                    var problemCount = checksumVerificationResult.Results.Count(x => x.Result != Core.Data.Sbom.ChecksumVerification.ChecksumCorrectness.Correct);
+                    var problemCount = checksumVerificationResult.Results.Count(x => x.Result != ChecksumCorrectness.Correct);
                     Console.WriteLine($"{problemCount} problem(s) exists.");
                 }
                 else
@@ -125,14 +128,17 @@ namespace Osmy.Cli
                     Console.WriteLine("No problem.");
                 }
 
-                var fileNameWidth = Math.Max("File Name".Length, checksumVerificationResult.Results.Max(x => x.SbomFile.FileName.Length));
-                var resultWidth = 12;
-                var writer = new TableWriter(1, fileNameWidth, resultWidth);
-                writer.WriteHeader(string.Empty, "File Name", "Result");
-                foreach (var result in checksumVerificationResult.Results)
+                if (checksumVerificationResult.Results.Any())
                 {
-                    var hasError = result.Result != ChecksumCorrectness.Correct ? "*" : string.Empty;
-                    writer.WriteRow(hasError, result.SbomFile.FileName, result.Result.ToString());
+                    var fileNameWidth = Math.Max("File Name".Length, checksumVerificationResult.Results.Max(x => x.SbomFile.FileName.Length));
+                    var resultWidth = 12;
+                    var writer = new TableWriter(1, fileNameWidth, resultWidth);
+                    writer.WriteHeader(string.Empty, "File Name", "Result");
+                    foreach (var result in checksumVerificationResult.Results)
+                    {
+                        var hasError = result.Result != ChecksumCorrectness.Correct ? "*" : string.Empty;
+                        writer.WriteRow(hasError, result.SbomFile.FileName, result.Result.ToString());
+                    }
                 }
             }
 
