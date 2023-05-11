@@ -10,11 +10,6 @@ namespace Osmy.Server.Services
     {
         //private readonly IAppNotificationService _appNotificationService;
 
-        /// <summary>
-        /// 自動診断が必要なソフトウェアが存在するかをチェックする間隔
-        /// </summary>
-        public TimeSpan AutoScanCheckInterval { get; set; } = TimeSpan.FromMinutes(5);
-
         public ChecksumVerificationService(/*IAppNotificationService appNotificationService*/)
         {
             //_appNotificationService = appNotificationService;
@@ -42,42 +37,19 @@ namespace Osmy.Server.Services
             {
                 using (var context = new SoftwareDbContext())
                 {
-                    var before = DateTime.Now.Subtract(Settings.Common.ChecksumVerificationInterval);
-
-                    // 前回検証から一定期間経過しているソフトウェアのIDリストを作成
-                    var sbomIdsNotVerifiedRecently = context.Sboms
-                        .Where(x => x.LocalDirectory != null)
-                        .Join(context.ChecksumVerificationResults,
-                            sbom => sbom.Id,
-                            validationResult => validationResult.SbomId,
-                            (sbom, verificationResult) => new { Sbom = sbom, VerificationResult = verificationResult })
-                        .GroupBy(x => x.Sbom)
-                        .Select(x => new { SbomId = x.Key.Id, Executed = x.Select(item => item.VerificationResult).Max(item => item.Executed) })
-                        .Where(x => x.Executed <= before)
-                        .Select(x => x.SbomId)
-                        .ToArray();
-
-                    // 一度もスキャンされていないソフトウェアのIDリストを作成
-                    var neverVerifiedSoftwares = context.Sboms
-                        .Where(x => x.LocalDirectory != null)
-                        .Select(sbom => sbom.Id)
-                        .Except(context.ChecksumVerificationResults.Select(x => x.SbomId).Distinct())
-                        .ToArray();
-
-                    // スキャンが必要なソフトウェアのIDリストを作成
-                    var sbomIdsNeedScan = sbomIdsNotVerifiedRecently.Union(neverVerifiedSoftwares).ToArray();
-
-                    foreach (var sbomId in sbomIdsNeedScan)
+                    var sbomIds = context.Sboms.Where(x => x.LocalDirectory != null)
+                                               .Select(x => x.Id)
+                                               .ToArray();
+                    foreach (var sbomId in sbomIds)
                     {
                         await EnqueueAuto(sbomId, stoppingToken);
                     }
                 }
 
-                // TODO
                 var appNotificationService = new AppNotificationService();
                 appNotificationService.NotifyChecksumMismatch();
 
-                await Task.Delay(AutoScanCheckInterval, stoppingToken);
+                await Task.Delay(Settings.Common.ChecksumVerificationInterval, stoppingToken);
             }
         }
 
