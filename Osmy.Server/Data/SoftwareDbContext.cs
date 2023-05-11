@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Osmy.Core.Configuration;
 using Osmy.Server.Data.ChecksumVerification;
 using Osmy.Server.Data.Sbom;
 using Osmy.Server.Data.Sbom.Spdx;
@@ -19,14 +20,17 @@ namespace Osmy.Server.Data
 
         public SoftwareDbContext()
         {
-            var appDataDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            var directory = Path.Join(appDataDir, "Osmy");
+            var directory = DefaultServerSettings.DataDirectory;
             DbPath = Path.Join(directory, "softwares.db");
             if (!Directory.Exists(directory))
             {
                 Directory.CreateDirectory(directory);
             }
-            Database.EnsureCreated();   // TODO for debug InvalidOperationExceptionが発生する
+
+            if (!File.Exists(DbPath))
+            {
+                Database.EnsureCreated();   // TODO for debug InvalidOperationExceptionが発生する
+            }
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
