@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Osmy.Core.Configuration;
 using Osmy.Server.Services;
+using System.Diagnostics;
 
 namespace Osmy.Server
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -16,19 +18,19 @@ namespace Osmy.Server
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            string SocketPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Osmy", "Osmy.Server.sock");
+            string socketPath = DefaultServerSettings.UnixSocketPath;
             builder.WebHost.ConfigureKestrel(options =>
             {
-                if (File.Exists(SocketPath))
+                if (File.Exists(socketPath))
                 {
-                    File.Delete(SocketPath);
+                    File.Delete(socketPath);
                 }
                 else
                 {
-                    Directory.CreateDirectory(Path.GetDirectoryName(SocketPath)!);
+                    Directory.CreateDirectory(Path.GetDirectoryName(socketPath)!);
                 }
 
-                options.ListenUnixSocket(SocketPath, listenOptions =>
+                options.ListenUnixSocket(socketPath, listenOptions =>
                 {
                     // MEMO:HttpProtocols.Http2Ç…Ç∑ÇÈÇ∆è„éËÇ≠í êMÇ≈Ç´Ç»Ç©Ç¡ÇΩ
                     listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
@@ -55,7 +57,14 @@ namespace Osmy.Server
 
             app.MapControllers();
 
-            app.Run();
+            await app.StartAsync();
+
+            if (Environment.OSVersion.Platform == PlatformID.Unix && File.Exists(DefaultServerSettings.UnixSocketPath))
+            {
+                Process.Start("chmod", $"a+w {DefaultServerSettings.UnixSocketPath}");
+            }
+
+            await app.WaitForShutdownAsync();
         }
     }
 }

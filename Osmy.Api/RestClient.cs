@@ -1,4 +1,5 @@
-﻿using Osmy.Core.Data.Sbom;
+﻿using Osmy.Core.Configuration;
+using Osmy.Core.Data.Sbom;
 using Osmy.Core.Data.Sbom.ChecksumVerification;
 using RestSharp;
 using System.Net.Sockets;
@@ -14,17 +15,14 @@ namespace Osmy.Api
             _client = new RestSharp.RestClient(baseUrl);
         }
 
-        public RestClient(string unixSocketPath)
+        public RestClient(string? unixSocketPath = null)
         {
+            unixSocketPath ??= DefaultServerSettings.UnixSocketPath;
             _client = new RestSharp.RestClient(CreateUnixSocketHttpClient(unixSocketPath), true, options =>
             {
                 options.BaseUrl = new Uri("http://localhost");
             });
         }
-
-#if DEBUG
-        public RestClient() : this(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Osmy", "osmy.server.sock")) { }
-#endif
 
         public void Dispose()
         {
