@@ -17,7 +17,7 @@ namespace Osmy.Api
 
         public RestClient(string? unixSocketPath = null)
         {
-            unixSocketPath ??= DefaultServerSettings.UnixSocketPath;
+            unixSocketPath ??= DefaultServerConfig.UnixSocketPath;
             _client = new RestSharp.RestClient(CreateUnixSocketHttpClient(unixSocketPath), true, options =>
             {
                 options.BaseUrl = new Uri("http://localhost");

@@ -1,4 +1,5 @@
 ﻿using Octokit;
+using Osmy.Core.Configuration;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Runtime.Serialization;
@@ -9,10 +10,7 @@ namespace Osmy.Server.Data.Sbom.Spdx
     internal class SpdxConverter
     {
         const string ConverterFileName = @"tools-java-jar-with-dependencies.jar";
-        static readonly string ConverterPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "Osmy",
-            ConverterFileName);
+        static readonly string ConverterPath = Path.Combine(DefaultServerConfig.DataDirectory, ConverterFileName);
 
         /// <summary>
         /// 指定されたSPDXドキュメントをJSON形式に変換します．

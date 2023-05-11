@@ -18,7 +18,7 @@ namespace Osmy.Server
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            string socketPath = DefaultServerSettings.UnixSocketPath;
+            string socketPath = DefaultServerConfig.UnixSocketPath;
             builder.WebHost.ConfigureKestrel(options =>
             {
                 if (File.Exists(socketPath))
@@ -59,9 +59,9 @@ namespace Osmy.Server
 
             await app.StartAsync();
 
-            if (Environment.OSVersion.Platform == PlatformID.Unix && File.Exists(DefaultServerSettings.UnixSocketPath))
+            if (Environment.OSVersion.Platform == PlatformID.Unix && File.Exists(DefaultServerConfig.UnixSocketPath))
             {
-                Process.Start("chmod", $"a+w {DefaultServerSettings.UnixSocketPath}");
+                Process.Start("chmod", $"a+w {DefaultServerConfig.UnixSocketPath}");
             }
 
             await app.WaitForShutdownAsync();

@@ -20,7 +20,7 @@ namespace Osmy.Server.Data
 
         public SoftwareDbContext()
         {
-            var directory = DefaultServerSettings.DataDirectory;
+            var directory = DefaultServerConfig.DataDirectory;
             DbPath = Path.Join(directory, "softwares.db");
             if (!Directory.Exists(directory))
             {

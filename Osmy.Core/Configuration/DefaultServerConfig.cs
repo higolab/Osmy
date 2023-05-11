@@ -1,6 +1,6 @@
 ﻿namespace Osmy.Core.Configuration
 {
-    public static class DefaultServerSettings
+    public static class DefaultServerConfig
     {
         /// <summary>
         /// Unixソケットのパス
