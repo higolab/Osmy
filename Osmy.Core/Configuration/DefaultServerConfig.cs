@@ -43,7 +43,7 @@
             {
                 return Environment.OSVersion.Platform switch
                 {
-                    PlatformID.Win32NT => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Osmy"),
+                    PlatformID.Win32NT => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Osmy", "Setting"),
                     PlatformID.Unix => "/etc/Osmy",
                     _ => throw new NotSupportedException(),
                 };
