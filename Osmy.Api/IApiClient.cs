@@ -1,5 +1,4 @@
 ﻿using Osmy.Core.Data.Sbom;
-using Osmy.Core.Data.Sbom.ChecksumVerification;
 
 namespace Osmy.Api
 {
@@ -9,19 +8,15 @@ namespace Osmy.Api
 
         IEnumerable<SbomInfo> GetSboms();
 
+        Task<Sbom?> GetSbomAsync(long sbomId, CancellationToken cancellationToken = default);
+
+        Sbom? GetSbom(long sbomId);
+
         Task<Sbom?> CreateSbomAsync(AddSbomInfo info, CancellationToken cancellationToken = default);
 
         Task<Sbom?> UpdateSbomAsync(long sbomId, UpdateSbomInfo info, CancellationToken cancellationToken = default);
 
         Task<bool> DeleteSbomAsync(long sbomId, CancellationToken cancellationToken = default);
-
-        Task<VulnerabilityScanResult?> GetLatestVulnerabilityScanResultAsync(long sbomId, CancellationToken cancellationToken = default);
-
-        VulnerabilityScanResult? GetLatestVulnerabilityScanResult(long sbomId);
-
-        Task<ChecksumVerificationResultCollection?> GetLatestChecksumVerificationResultCollectionAsync(long sbomId, CancellationToken cancellationToken = default);
-
-        ChecksumVerificationResultCollection? GetLatestChecksumVerificationResultCollection(long sbomId);
 
         Task<IEnumerable<SbomInfo>> GetRelatedSbomsAsync(long sbomId, CancellationToken cancellationToken = default);
 

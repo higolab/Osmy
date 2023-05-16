@@ -28,14 +28,17 @@ namespace Osmy.Server.Services
         public void NotifyVulnerability()
         {
             using var dbContext = new SoftwareDbContext();
-            var names = dbContext.ScanResults
-                .Include(x => x.Sbom)
-                .GroupBy(x => x.SbomId)
-                .AsEnumerable()
-                .Select(g => g.OrderByDescending(x => x.Executed).First())
-                .Where(x => x.IsVulnerable)
-                .Select(x => x.Sbom.Name)
-                .ToArray();
+            //var names = dbContext.ScanResults
+            //    .Include(x => x.Sbom)
+            //    .GroupBy(x => x.SbomId)
+            //    .AsEnumerable()
+            //    .Select(g => g.OrderByDescending(x => x.Executed).First())
+            //    .Where(x => x.IsVulnerable)
+            //    .Select(x => x.Sbom.Name)
+            //    .ToArray();
+            var names = dbContext.Sboms.Where(x => x.IsVulnerable)
+                                       .Select(x => x.Name)
+                                       .ToArray();
             if (names.Length == 0) { return; }
 
             if (!Settings.Notification.Email.IsEnabled) { return; };
@@ -56,13 +59,9 @@ namespace Osmy.Server.Services
         public void NotifyChecksumMismatch()
         {
             using var dbContext = new SoftwareDbContext();
-            var names = dbContext.ChecksumVerificationResults
-                .Include(x => x.Sbom)
-                .GroupBy(x => x.SbomId)
-                .AsEnumerable()
-                .Select(g => g.OrderByDescending(x => x.Executed).First())
-                .Where(x => x.HasError)
-                .Select(x => x.Sbom.Name)
+            var names = dbContext.Sboms
+                .Where(x => x.HasFileError)
+                .Select(x => x.Name)
                 .ToArray();
             if (names.Length == 0) { return; }
 

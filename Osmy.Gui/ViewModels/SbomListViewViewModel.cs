@@ -42,7 +42,7 @@ namespace Osmy.Gui.ViewModels
             //SbomInfos = new ReactivePropertySlim<ObservableCollection<SbomInfo>>(new ObservableCollection<SbomInfo> { new SbomInfo(new Spdx() { Name = "Test" }, true, true) });
             SelectedSbomInfo = new ReactivePropertySlim<SbomInfo?>();
             SelectedSbomVM = SelectedSbomInfo
-                .Select(x => x is null ? null : new SbomDetailsViewViewModel(x.Sbom))
+                .Select(x => x is null ? null : new SbomDetailsViewViewModel(GetSbomFullData(x.Sbom.Id)))
                 .ToReadOnlyReactivePropertySlim();
             DeleteSbomCommand = new ReactiveCommand(SelectedSbomInfo.Select(x => x is not null), false)
                 .WithSubscribe(DeleteSbom, out var disposable);  // TODO disposableの適切なタイミングでの破棄
@@ -128,6 +128,12 @@ namespace Osmy.Gui.ViewModels
         {
             using var client = new RestClient();
             return client.GetSboms();
+        }
+
+        private static Sbom GetSbomFullData(long sbomId)
+        {
+            using var client = new RestClient();
+            return client.GetSbom(sbomId) ?? throw new InvalidOperationException();
         }
     }
 }

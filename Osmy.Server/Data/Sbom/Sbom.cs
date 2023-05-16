@@ -1,12 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Osmy.Server.Data.Sbom.Spdx;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Osmy.Server.Data.Sbom
 {
     /// <summary>
     /// SBOM情報
     /// </summary>
-    public abstract class Sbom
+    public sealed class Sbom
     {
         /// <summary>
         /// ID
@@ -19,44 +21,68 @@ namespace Osmy.Server.Data.Sbom
         public string Name { get; set; }
 
         /// <summary>
+        /// SBOMの形式
+        /// </summary>
+        public SbomFormat Format { get; set; }
+
+        /// <summary>
+        /// URI
+        /// </summary>
+        public Uri Uri { get; set; }
+
+        /// <summary>
         /// ローカルファイルが存在するディレクトリのパス
         /// </summary>
         public string? LocalDirectory { get; set; }
 
         /// <summary>
-        /// ファイル内容のバイト配列
+        /// ファイル内容
         /// </summary>
-        public byte[] Content { get; set; }
+        public RawSbom RawSbom { get; set; }
+
+        /// <summary>
+        /// 最終脆弱性診断実行日時
+        /// </summary>
+        public DateTime? LastVulnerabilityScan { get; set; }
+
+        /// <summary>
+        /// 脆弱性が存在するか
+        /// </summary>
+        public bool IsVulnerable { get; set; }
+
+        /// <summary>
+        /// 最終チェックサム検証日時
+        /// </summary>
+        public DateTime? LastFileCheck { get; set; }
+
+        /// <summary>
+        /// ファイルエラーが存在するか
+        /// </summary>
+        public bool HasFileError { get; set; }
 
         /// <summary>
         /// ファイルリスト
         /// </summary>
-        public List<SbomFile> Files { get; set; }
+        [DeleteBehavior(DeleteBehavior.Cascade)]
+        public List<SbomFileComponent> Files { get; set; }
+
+        /// <summary>
+        /// パッケージリスト
+        /// </summary>
+        [DeleteBehavior(DeleteBehavior.Cascade)]
+        public List<SbomPackageComponent> Packages { get; set; }
 
         /// <summary>
         /// 外部参照
         /// </summary>
-        [DeleteBehavior(DeleteBehavior.Cascade)]
-        public List<SbomExternalReference> ExternalReferences { get; set; }
+        //[DeleteBehavior(DeleteBehavior.Cascade)]
+        public List<SbomExternalReferenceComponent> ExternalReferences { get; set; }
 
         /// <summary>
         /// ルートパッケージリスト
         /// </summary>
         [NotMapped]
-        public abstract IReadOnlyCollection<SbomPackage> RootPackages { get; }
-
-        /// <summary>
-        /// パッケージリスト
-        /// </summary>
-        [NotMapped]
-        public abstract List<SbomPackage> Packages { get; }
-
-        /// <summary>
-        /// パッケージの依存関係グラフ
-        /// </summary>
-        [NotMapped]
-        public abstract DependencyGraph DependencyGraph { get; }
-
+        public IEnumerable<SbomPackageComponent> RootPackages => Packages.Where(x => x.IsRootPackage);
 
         /// <summary>
         /// インスタンスを作成します．
@@ -65,33 +91,59 @@ namespace Osmy.Server.Data.Sbom
         public Sbom()
         {
             Name = string.Empty;
-            Content = Array.Empty<byte>();
-            Files = new List<SbomFile>();
-            ExternalReferences = new List<SbomExternalReference>();
+            RawSbom = default!;
+            Uri = default!;
+            Files = new List<SbomFileComponent>();
+            Packages = new List<SbomPackageComponent>();
+            ExternalReferences = new List<SbomExternalReferenceComponent>();
         }
-
-        /// <summary>
-        /// 指定したパスのファイル情報からインスタンスを作成します．
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="filePath"></param>
-        /// <param name="localDirectory"></param>
-        /// <remarks>データ新規追加時に呼び出されます．</remarks>
-        public Sbom(string name, string filePath, string? localDirectory = null) : this(name, File.ReadAllBytes(filePath), localDirectory) { }
 
         /// <summary>
         /// 指定したコンテンツからインスタンスを作成します．
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="content"></param>
+        /// <param name="file"></param>
         /// <param name="localDirectory"></param>
-        public Sbom(string name, byte[] content, string? localDirectory = null)
+        /// <remarks>新規追加時に呼び出されます．</remarks>
+        public Sbom(string name, IFormFile file, string? localDirectory)
         {
             Name = name;
-            Content = content;
+            Format = SbomFormat.Spdx_2_2_Json;
+            RawSbom = new RawSbom(SpdxConverter.ConvertToJson(file));
             LocalDirectory = localDirectory;
-            Files = new List<SbomFile>();
-            ExternalReferences = new List<SbomExternalReference>();
+
+            ParseSpdx();
         }
+
+        [MemberNotNull(nameof(Uri), nameof(Files), nameof(Packages), nameof(ExternalReferences))]
+        private void ParseSpdx()
+        {
+            using var stream = new MemoryStream(RawSbom.Data);
+            var spdxContent = new SpdxDocumentParseHelper(this, stream);
+
+            Uri = spdxContent.Uri;
+
+            Files = spdxContent.Files;
+            Packages = spdxContent.Packages;
+            ExternalReferences = spdxContent.ExternalReferences;
+        }
+    }
+
+    public class RawSbom
+    {
+        public int Id { get; set; }
+        public byte[] Data { get; set; }
+
+        public RawSbom() : this(Array.Empty<byte>()) { }
+
+        public RawSbom(byte[] data)
+        {
+            Data = data;
+        }
+    }
+
+    public enum SbomFormat
+    {
+        Spdx_2_2_Json,
     }
 }

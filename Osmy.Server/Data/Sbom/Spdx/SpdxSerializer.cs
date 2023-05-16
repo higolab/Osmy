@@ -45,7 +45,7 @@ namespace Osmy.Server.Data.Sbom.Spdx
             var options = CycloneDX.Spdx.Serialization.JsonSerializer.GetJsonSerializerOptions_v2_2();
             options.Converters.Insert(0, new ExternalRefCategoryJsonConverter());
 
-            JsonSerializer.Serialize<SpdxModels.SpdxDocument>(stream, document, options);
+            JsonSerializer.Serialize(stream, document, options);
         }
     }
 

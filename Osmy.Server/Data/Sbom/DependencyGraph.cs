@@ -2,7 +2,7 @@
 
 namespace Osmy.Server.Data.Sbom
 {
-    public class DependencyGraph : BidirectionalGraph<SbomPackage, IEdge<SbomPackage>>
+    public class DependencyGraph : BidirectionalGraph<SbomPackageComponent, IEdge<SbomPackageComponent>>
     {
 
     }
