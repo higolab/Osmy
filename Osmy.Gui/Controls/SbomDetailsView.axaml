@@ -107,7 +107,7 @@
 								<TextBlock.IsVisible>
 									<MultiBinding Converter="{x:Static converters:ShortCircuitBoolConverters.And}">
 										<Binding Path="SelectedItem" ElementName="scanResult" Converter="{x:Static ObjectConverters.IsNotNull}"/>
-										<ReflectionBinding Path="SelectedItem.VulnerabilityList.Vulnerabilities" ElementName="scanResult" Converter="{x:Static ObjectConverters.IsNull}"/>
+										<ReflectionBinding Path="SelectedItem.Vulnerabilities" ElementName="scanResult" Converter="{x:Static converters:CollectionConverters.Empty}"/>
 									</MultiBinding>
 								</TextBlock.IsVisible>
 							</TextBlock>
