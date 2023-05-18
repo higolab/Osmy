@@ -21,25 +21,16 @@ namespace Osmy.Server.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Core.Data.Sbom.Sbom> Get()
+        public async Task<IEnumerable<Core.Data.Sbom.Sbom>> Get()
         {
             using var dbContext = new SoftwareDbContext();
-            return GetInternal().ToArray();
-
-            IEnumerable<Core.Data.Sbom.Sbom> GetInternal()
-            {
-                foreach (var sbom in dbContext.Sboms.Include(x => x.ExternalReferences))
-                {
-                    /* 
-                     * #17のワークアラウンド
-                     * Sbom.Contentが複製されてメモリ消費量が大きくなるのを防ぐため，ファイルとチェックサムはSBOM情報と分けて取得する
-                     */
-                    var files = dbContext.Files.Where(x => x.SbomId == sbom.Id).Include(x => x.Checksums).ToList();
-                    sbom.Files = files;
-
-                    yield return SbomDataConverter.ConvertSbom(sbom);
-                }
-            }
+            return await dbContext.Sboms.Include(x => x.Packages)
+                                        .ThenInclude(x => x.Vulnerabilities)
+                                        .Include(x => x.Files)
+                                        .Include(x => x.ExternalReferences)
+                                        .AsAsyncEnumerable()
+                                        .Select(SbomDataConverter.ConvertSbom)
+                                        .ToArrayAsync();
         }
 
         [HttpGet("{sbomId}")]
