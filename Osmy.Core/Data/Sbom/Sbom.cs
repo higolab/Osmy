@@ -46,6 +46,26 @@
         private byte[] _content = Array.Empty<byte>();
 
         /// <summary>
+        /// 最終脆弱性診断実行日時
+        /// </summary>
+        public DateTime? LastVulnerabilityScan { get; set; }
+
+        /// <summary>
+        /// 脆弱性が存在するか
+        /// </summary>
+        public bool IsVulnerable { get; set; }
+
+        /// <summary>
+        /// 最終チェックサム検証日時
+        /// </summary>
+        public DateTime? LastFileCheck { get; set; }
+
+        /// <summary>
+        /// ファイルエラーが存在するか
+        /// </summary>
+        public bool HasFileError { get; set; }
+
+        /// <summary>
         /// ファイルリスト
         /// </summary>
         public IEnumerable<SbomFile> Files
@@ -54,16 +74,6 @@
             set => SetProperty(ref _files, value);
         }
         private IEnumerable<SbomFile> _files = Enumerable.Empty<SbomFile>();
-
-        /// <summary>
-        /// 外部参照
-        /// </summary>
-        public IEnumerable<ExternalReference> ExternalReferences
-        {
-            get => _externalReferences;
-            set => SetProperty(ref _externalReferences, value);
-        }
-        private IEnumerable<ExternalReference> _externalReferences = Enumerable.Empty<ExternalReference>();
 
         /// <summary>
         /// パッケージリスト
@@ -76,17 +86,39 @@
         private IEnumerable<SbomPackage> _packages = Enumerable.Empty<SbomPackage>();
 
         /// <summary>
+        /// 外部参照
+        /// </summary>
+        public IEnumerable<ExternalReference> ExternalReferences
+        {
+            get => _externalReferences;
+            set => SetProperty(ref _externalReferences, value);
+        }
+        private IEnumerable<ExternalReference> _externalReferences = Enumerable.Empty<ExternalReference>();
+
+        /// <summary>
         /// インスタンスを作成します．
         /// </summary>
         /// <remarks>ORMで使用するために用意しています．</remarks>
         public Sbom() { }
 
-        public Sbom(long id, string name, string? localDirectory, byte[] content, IEnumerable<SbomFile> files, IEnumerable<ExternalReference> externalReferences, IEnumerable<SbomPackage> packages)
+        public Sbom(long id,
+                    string name,
+                    string? localDirectory,
+                    DateTime? lastVulnerabilityScan,
+                    bool isVulnerable,
+                    DateTime? lastFileCheck,
+                    bool hasFileError,
+                    IEnumerable<SbomFile> files,
+                    IEnumerable<ExternalReference> externalReferences,
+                    IEnumerable<SbomPackage> packages)
         {
             Id = id;
             Name = name;
             LocalDirectory = localDirectory;
-            Content = content;
+            LastVulnerabilityScan = lastVulnerabilityScan;
+            IsVulnerable = isVulnerable;
+            LastFileCheck = lastFileCheck;
+            HasFileError = hasFileError;
             Files = files;
             ExternalReferences = externalReferences;
             Packages = packages;

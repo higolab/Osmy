@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Osmy.Core.Data.Sbom;
 using Osmy.Server.Data;
 using Osmy.Server.Data.Sbom;
-using Osmy.Server.Data.Sbom.Spdx;
 using Osmy.Server.Services;
 
 namespace Osmy.Server.Controllers
@@ -22,34 +21,39 @@ namespace Osmy.Server.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<SbomInfo> Get()
+        public async Task<IEnumerable<Core.Data.Sbom.Sbom>> Get()
         {
             using var dbContext = new SoftwareDbContext();
-            return GetInternal().ToArray();
+            return await dbContext.Sboms.Include(x => x.Packages)
+                                        .ThenInclude(x => x.Vulnerabilities)
+                                        .Include(x => x.Files)
+                                        .Include(x => x.ExternalReferences)
+                                        .AsAsyncEnumerable()
+                                        .Select(SbomDataConverter.ConvertSbom)
+                                        .ToArrayAsync();
+        }
 
-            IEnumerable<SbomInfo> GetInternal()
+        [HttpGet("{sbomId}")]
+        public async Task<ActionResult<Core.Data.Sbom.Sbom>> Get(long sbomId)
+        {
+            using var dbContext = new SoftwareDbContext();
+            var sbom = await dbContext.Sboms.Include(x => x.Packages)
+                                            .ThenInclude(x => x.Vulnerabilities)
+                                            .Include(x => x.Files)
+                                            .Include(x => x.ExternalReferences)
+                                            .FirstOrDefaultAsync(x => x.Id == sbomId);
+            if (sbom is null)
             {
-                foreach (var sbom in dbContext.Sboms.Include(x => x.ExternalReferences))
-                {
-                    /* 
-                     * #17のワークアラウンド
-                     * Sbom.Contentが複製されてメモリ消費量が大きくなるのを防ぐため，ファイルとチェックサムはSBOM情報と分けて取得する
-                     */
-                    var files = dbContext.Files.Where(x => x.SbomId == sbom.Id).Include(x => x.Checksums).ToList();
-                    sbom.Files = files;
-
-                    var isVulnerable = dbContext.ScanResults.Where(x => x.SbomId == sbom.Id).OrderByDescending(x => x.Executed).FirstOrDefault()?.IsVulnerable ?? false;
-                    var hasFileError = dbContext.ChecksumVerificationResults.Where(x => x.SbomId == sbom.Id).OrderByDescending(x => x.Executed).FirstOrDefault()?.HasError ?? false;
-                    
-                    yield return new SbomInfo(SbomDataConverter.ConvertSbom(sbom), isVulnerable, hasFileError);
-                }
+                return NotFound();
             }
+
+            return SbomDataConverter.ConvertSbom(sbom);
         }
 
         [HttpPost]
         public async Task<ActionResult<Core.Data.Sbom.Sbom>> Post([FromForm] SbomAddRequest request)
         {
-            var sbom = new Spdx(request.Name, request.File, request.LocalDirectory);
+            var sbom = new Data.Sbom.Sbom(request.Name, request.File, request.LocalDirectory);
             using var dbContext = new SoftwareDbContext();
             dbContext.Sboms.Add(sbom);
             await dbContext.SaveChangesAsync();
@@ -58,7 +62,7 @@ namespace Osmy.Server.Controllers
             {
                 // 脆弱性診断のキューに追加
                 var vulnerabilityScanService = _serviceProvider.GetRequiredService<VulnerabilityScanService>();
-                _ = vulnerabilityScanService.ScanAsync(sbom.Id);
+                _ = VulnerabilityScanService.ScanAsync(sbom.Id);
 
                 // チェックサム検証の実行キューに追加
                 var checksumService = _serviceProvider.GetRequiredService<ChecksumVerificationService>();
@@ -120,27 +124,18 @@ namespace Osmy.Server.Controllers
         }
 
         [HttpGet("{sbomId}/related")]
-        public async Task<ActionResult<IEnumerable<SbomInfo>>> GetRelatedSboms(long sbomId)
+        public async Task<ActionResult<IEnumerable<Core.Data.Sbom.Sbom>>> GetRelatedSboms(long sbomId)
         {
             using var dbContext = new SoftwareDbContext();
             var queriedSbom = await dbContext.Sboms.Include(x => x.ExternalReferences).FirstOrDefaultAsync(x => x.Id == sbomId);
+
             return queriedSbom switch
             {
-                Spdx => dbContext.Sboms
-                .OfType<Spdx>()
+                Data.Sbom.Sbom => dbContext.ExternalReferences
+                .Where(x => x.SbomId == sbomId)
+                .Join(dbContext.Sboms, externalRef => externalRef.Uri, sbom => sbom.Uri, (externalRef, sbom) => sbom)
                 .AsEnumerable()
-                .Where(sbom => queriedSbom.ExternalReferences.OfType<SpdxExternalReference>()
-                                                             .Any(exref => exref.DocumentNamespace == sbom.DocumentNamespace))
-                .Select(sbom =>
-                {
-                    var isVulnerable = dbContext.ScanResults.Where(result => result.SbomId == sbom.Id)
-                                                            .OrderByDescending(x => x.Executed)
-                                                            .FirstOrDefault()?.IsVulnerable;
-                    var hasFileError = dbContext.ChecksumVerificationResults.Where(result => result.SbomId == sbom.Id)
-                                                                            .OrderByDescending(x => x.Executed)
-                                                                            .FirstOrDefault()?.HasError;
-                    return new SbomInfo(SbomDataConverter.ConvertSbom(sbom), isVulnerable, hasFileError);
-                })
+                .Select(SbomDataConverter.ConvertSbom)
                 .ToArray(),
                 _ => throw new NotSupportedException(),
             };

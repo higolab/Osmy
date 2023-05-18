@@ -1,7 +1,6 @@
 ﻿using CommandLine;
 using Osmy.Api;
 using Osmy.Core.Data.Sbom;
-using Osmy.Core.Data.Sbom.ChecksumVerification;
 
 namespace Osmy.Cli
 {
@@ -39,8 +38,8 @@ namespace Osmy.Cli
             if (num == 0) { return 0; }
 
             var idWidth = Math.Max("ID".Length, (int)Math.Ceiling(Math.Log10(num)));
-            var nameWidth = Math.Max("Name".Length, sbomInfos.Max(x => x.Sbom.Name.Length));
-            var localDirWidth = Math.Max("Local Directory".Length, sbomInfos.Max(x => x.Sbom.LocalDirectory?.Length) ?? 0);
+            var nameWidth = Math.Max("Name".Length, sbomInfos.Max(sbom => sbom.Name.Length));
+            var localDirWidth = Math.Max("Local Directory".Length, sbomInfos.Max(sbom => sbom.LocalDirectory?.Length) ?? 0);
 
             Console.WriteLine("V: Has vulnerabilities");
             Console.WriteLine("F: File checksum mismatched or file is missing");
@@ -52,7 +51,7 @@ namespace Osmy.Cli
             {
                 var v = sbomInfo.IsVulnerable == true ? "V" : " ";
                 var f = sbomInfo.HasFileError == true ? "F" : " ";
-                writer.WriteRow(v + f, sbomInfo.Sbom.Id.ToString(), sbomInfo.Sbom.Name, sbomInfo.Sbom.LocalDirectory);
+                writer.WriteRow(v + f, sbomInfo.Id.ToString(), sbomInfo.Name, sbomInfo.LocalDirectory);
             }
 
             return 0;
@@ -61,66 +60,62 @@ namespace Osmy.Cli
         static async Task<int> RunShowAndReturnExitCodeAsync(ShowOptions opt)
         {
             using var client = new RestClient();
-            var infoTask = client.GetSbomsAsync();
-            var vulnsTask = client.GetLatestVulnerabilityScanResultAsync(opt.Id);
-            var checksumTask = client.GetLatestChecksumVerificationResultCollectionAsync(opt.Id);
-            await ShowProgressAndWait(Task.WhenAll(infoTask, vulnsTask, checksumTask), "Fetching software info...");
+            var sbomTask = client.GetSbomAsync(opt.Id);
+            await ShowProgressAndWait(sbomTask, "Fetching software info...");
 
-            var info = (await infoTask).FirstOrDefault(x => x.Sbom.Id == opt.Id);
-            if (info is null)
+            var sbom = await sbomTask;
+            if (sbom is null)
             {
                 Console.Error.WriteLine("Software of specified id was not found.");
                 return 1;
             }
 
-            var vulnsScanResult = await vulnsTask;
-            var checksumVerificationResult = await checksumTask;
-            Console.WriteLine("Name: " + info.Sbom.Name);
-            Console.WriteLine("Local Directory: " + info.Sbom.LocalDirectory);
+            Console.WriteLine("Name: " + sbom.Name);
+            Console.WriteLine("Local Directory: " + sbom.LocalDirectory);
 
             Console.WriteLine();
 
-            if (vulnsScanResult is null)
+            if (sbom.LastVulnerabilityScan is null)
             {
                 Console.WriteLine("Vulnerability scan has not yet executed.");
             }
             else
             {
-                if (vulnsScanResult.IsVulnerable)
+                if (sbom.IsVulnerable)
                 {
-                    Console.WriteLine($"{vulnsScanResult.Results.Count(x => x.IsVulnerable)} vulnerabilities detected");
+                    Console.WriteLine($"{sbom.Packages.Count(pkg => pkg.Vulnerabilities.Any())} vulnerabilities detected");
                 }
                 else
                 {
                     Console.WriteLine("No vulnerability detected.");
                 }
 
-                if (vulnsScanResult.Results.Any())
+                if (sbom.Packages.Any())
                 {
-                    var packageNameWidth = Math.Max("Name".Length, vulnsScanResult.Results.Max(x => x.Package.Name.Length));
-                    var packageVersionWidth = Math.Max("Version".Length, vulnsScanResult.Results.Max(x => x.Package.Version?.Length) ?? 0);
-                    var vulnsWidth = Math.Max("Vulnerability".Length, vulnsScanResult.Results.Max(x => x.VulnerabilityList.Vulnerabilities?.Sum(y => y.Id.Length + 1) - 1) ?? 0);
+                    var packageNameWidth = Math.Max("Name".Length, sbom.Packages.Max(x => x.Name.Length));
+                    var packageVersionWidth = Math.Max("Version".Length, sbom.Packages.Max(x => x.Version?.Length) ?? 0);
+                    var vulnsWidth = Math.Max("Vulnerability".Length, sbom.Packages.Max(x => x.Vulnerabilities.Sum(y => y.Id.Length + 1) - 1));
                     var writer = new TableWriter(1, packageNameWidth, packageVersionWidth, vulnsWidth);
                     writer.WriteHeader(string.Empty, "Name", "Version", "Vulnerability");
-                    foreach (var package in vulnsScanResult.Results)
+                    foreach (var package in sbom.Packages)
                     {
-                        var vulns = string.Join(" ", package.VulnerabilityList.Vulnerabilities?.Select(x => x.Id) ?? Enumerable.Empty<string>());
-                        writer.WriteRow(package.IsVulnerable ? "*" : string.Empty, package.Package.Name, package.Package.Version, vulns);
+                        var vulns = string.Join(" ", package.Vulnerabilities.Select(x => x.Id));
+                        writer.WriteRow(package.Vulnerabilities.Any() ? "*" : string.Empty, package.Name, package.Version, vulns);
                     }
                 }
             }
 
             Console.WriteLine();
 
-            if (checksumVerificationResult is null)
+            if (sbom.LastFileCheck is null)
             {
                 Console.WriteLine("Checksum verificatoin has not yet executed.");
             }
             else
             {
-                if (checksumVerificationResult.HasError)
+                if (sbom.HasFileError)
                 {
-                    var problemCount = checksumVerificationResult.Results.Count(x => x.Result != ChecksumCorrectness.Correct);
+                    var problemCount = sbom.Files.Count(file => file.Status != ChecksumCorrectness.Correct);
                     Console.WriteLine($"{problemCount} problem(s) exists.");
                 }
                 else
@@ -128,16 +123,16 @@ namespace Osmy.Cli
                     Console.WriteLine("No problem.");
                 }
 
-                if (checksumVerificationResult.Results.Any())
+                if (sbom.Files.Any())
                 {
-                    var fileNameWidth = Math.Max("File Name".Length, checksumVerificationResult.Results.Max(x => x.SbomFile.FileName.Length));
+                    var fileNameWidth = Math.Max("File Name".Length, sbom.Files.Max(x => x.FileName.Length));
                     var resultWidth = 12;
                     var writer = new TableWriter(1, fileNameWidth, resultWidth);
                     writer.WriteHeader(string.Empty, "File Name", "Result");
-                    foreach (var result in checksumVerificationResult.Results)
+                    foreach (var file in sbom.Files)
                     {
-                        var hasError = result.Result != ChecksumCorrectness.Correct ? "*" : string.Empty;
-                        writer.WriteRow(hasError, result.SbomFile.FileName, result.Result.ToString());
+                        var hasError = file.Status != ChecksumCorrectness.Correct ? "*" : string.Empty;
+                        writer.WriteRow(hasError, file.FileName, file.ToString());
                     }
                 }
             }
@@ -159,7 +154,7 @@ namespace Osmy.Cli
             using var client = new RestClient();
             var fetchTask = client.GetSbomsAsync();
             await ShowProgressAndWait(fetchTask, "Fetching current info...");
-            var current = (await fetchTask).First(x => x.Sbom.Id == opt.Id);
+            var currentSbom = (await fetchTask).First(sbom => sbom.Id == opt.Id);
 
             if (opt.LocalDirectory == "unset")
             {
@@ -167,7 +162,7 @@ namespace Osmy.Cli
             }
             else if (opt.LocalDirectory is null)
             {
-                opt.LocalDirectory = current.Sbom.LocalDirectory;
+                opt.LocalDirectory = currentSbom.LocalDirectory;
             }
             else if (!Directory.Exists(opt.LocalDirectory))
             {
@@ -175,7 +170,7 @@ namespace Osmy.Cli
                 return 1;
             }
 
-            var updateTask = client.UpdateSbomAsync(opt.Id, new UpdateSbomInfo(opt.Name ?? current.Sbom.Name, opt.LocalDirectory));
+            var updateTask = client.UpdateSbomAsync(opt.Id, new UpdateSbomInfo(opt.Name ?? currentSbom.Name, opt.LocalDirectory));
             await ShowProgressAndWait(updateTask, "Updating software info...");
 
             return 0;

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Osmy.Core.Configuration;
+using Osmy.Server.Data;
 using Osmy.Server.Data.Sbom.Spdx;
 using Osmy.Server.Services;
 using System.Diagnostics;

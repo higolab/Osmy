@@ -1,7 +1,8 @@
-﻿namespace Osmy.Core.Data.Sbom.ChecksumVerification
+﻿namespace Osmy.Core.Data.Sbom
 {
     public enum ChecksumCorrectness
     {
+        NotChecked,
         Incorrect,
         Correct,
         FileNotFound,

@@ -28,7 +28,7 @@
 																	IsVisible="{Binding Value.HasFileError, RelativeSource={RelativeSource AncestorType=local:SbomInfoView}, Converter={x:Static converters:NullCoalescingConverters.DefaultFalse}}"/>
 		</Viewbox>
 
-		<TextBlock Grid.Column="2" Text="{Binding Value.Sbom.Name, RelativeSource={RelativeSource AncestorType=local:SbomInfoView}}"
+		<TextBlock Grid.Column="2" Text="{Binding Value.Name, RelativeSource={RelativeSource AncestorType=local:SbomInfoView}}"
 							 Margin="5 0 0 0" VerticalAlignment="Center"/>
 	</Grid>
 </UserControl>

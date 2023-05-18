@@ -18,9 +18,9 @@ namespace Osmy.Gui.ViewModels
 
         public ReactiveUI.Interaction<AddSbomDialogViewModel, SelectedSbomInfo?> ShowAddSbomDialog { get; } = new();
 
-        public ReactivePropertySlim<ObservableCollection<SbomInfo>> SbomInfos { get; }
+        public ReactivePropertySlim<ObservableCollection<Sbom>> SbomInfos { get; }
 
-        public ReactivePropertySlim<SbomInfo?> SelectedSbomInfo { get; }
+        public ReactivePropertySlim<Sbom?> SelectedSbomInfo { get; }
 
         public ReadOnlyReactivePropertySlim<SbomDetailsViewViewModel?> SelectedSbomVM { get; }
 
@@ -38,11 +38,11 @@ namespace Osmy.Gui.ViewModels
             //_messageBoxService = messageBoxService;
             //_logger = logger;
 
-            SbomInfos = new ReactivePropertySlim<ObservableCollection<SbomInfo>>(new ObservableCollection<SbomInfo>(FetchSbomInfos()));
+            SbomInfos = new ReactivePropertySlim<ObservableCollection<Sbom>>(new ObservableCollection<Sbom>(FetchSbomInfos()));
             //SbomInfos = new ReactivePropertySlim<ObservableCollection<SbomInfo>>(new ObservableCollection<SbomInfo> { new SbomInfo(new Spdx() { Name = "Test" }, true, true) });
-            SelectedSbomInfo = new ReactivePropertySlim<SbomInfo?>();
+            SelectedSbomInfo = new ReactivePropertySlim<Sbom?>();
             SelectedSbomVM = SelectedSbomInfo
-                .Select(x => x is null ? null : new SbomDetailsViewViewModel(x.Sbom))
+                .Select(x => x is null ? null : new SbomDetailsViewViewModel(GetSbomFullData(x.Id)))
                 .ToReadOnlyReactivePropertySlim();
             DeleteSbomCommand = new ReactiveCommand(SelectedSbomInfo.Select(x => x is not null), false)
                 .WithSubscribe(DeleteSbom, out var disposable);  // TODO disposableの適切なタイミングでの破棄
@@ -90,7 +90,7 @@ namespace Osmy.Gui.ViewModels
             // TODO sbomInfoのIsVulnerableとHasFileErrorをnullに設定するので，nullのものを定期的にチェックして最新の結果を取得する処理を追加したい
             if (sbom is not null)
             {
-                SbomInfos.Value.Add(new SbomInfo(sbom, null, sbom.LocalDirectory is null ? false : null));
+                SbomInfos.Value.Add(sbom);
             }
         }
 
@@ -99,7 +99,7 @@ namespace Osmy.Gui.ViewModels
             if (SelectedSbomInfo.Value is null) { return; }
 
             using var client = new RestClient();
-            if (await client.DeleteSbomAsync(SelectedSbomInfo.Value.Sbom.Id))
+            if (await client.DeleteSbomAsync(SelectedSbomInfo.Value.Id))
             {
                 SbomInfos.Value.Remove(SelectedSbomInfo.Value);
             }
@@ -124,10 +124,16 @@ namespace Osmy.Gui.ViewModels
         //    await dbContext.SaveChangesAsync().ConfigureAwait(false);
         //}
 
-        private static IEnumerable<SbomInfo> FetchSbomInfos()
+        private static IEnumerable<Sbom> FetchSbomInfos()
         {
             using var client = new RestClient();
             return client.GetSboms();
+        }
+
+        private static Sbom GetSbomFullData(long sbomId)
+        {
+            using var client = new RestClient();
+            return client.GetSbom(sbomId) ?? throw new InvalidOperationException();
         }
     }
 }

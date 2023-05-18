@@ -1,8 +1,10 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
+using Osmy.Core.Data.Sbom;
 using System;
 using System.Globalization;
+using System.Linq;
 
 namespace Osmy.Gui.Controls
 {
@@ -73,7 +75,7 @@ namespace Osmy.Gui.Controls
     {
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (value is bool isVulnerable && isVulnerable)
+            if (value is SbomPackage package && package.Vulnerabilities.Any())
             {
                 return Brushes.Pink;
             }

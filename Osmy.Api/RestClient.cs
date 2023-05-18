@@ -1,6 +1,5 @@
 ﻿using Osmy.Core.Configuration;
 using Osmy.Core.Data.Sbom;
-using Osmy.Core.Data.Sbom.ChecksumVerification;
 using RestSharp;
 using System.Net.Sockets;
 
@@ -29,28 +28,12 @@ namespace Osmy.Api
             _client.Dispose();
         }
 
-        public async Task<ChecksumVerificationResultCollection?> GetLatestChecksumVerificationResultCollectionAsync(long sbomId, CancellationToken cancellationToken = default)
-        {
-            var request = new RestRequest($"ChecksumVerificationResults/latest/{sbomId}");
-            var response = await _client.ExecuteGetAsync<ChecksumVerificationResultCollection>(request, cancellationToken);
-
-            return ReturnDataIfSuccessful(response);
-        }
-
-        public async Task<VulnerabilityScanResult?> GetLatestVulnerabilityScanResultAsync(long sbomId, CancellationToken cancellationToken = default)
-        {
-            var request = new RestRequest($"VulnerabilityScanResults/latest/{sbomId}");
-            var response = await _client.ExecuteGetAsync<VulnerabilityScanResult>(request, cancellationToken);
-
-            return ReturnDataIfSuccessful(response);
-        }
-
-        public async Task<IEnumerable<SbomInfo>> GetSbomsAsync(CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<Sbom>> GetSbomsAsync(CancellationToken cancellationToken = default)
         {
             var request = new RestRequest("sboms");
-            var sboms = await _client.GetAsync<IEnumerable<SbomInfo>>(request, cancellationToken).ConfigureAwait(false);
+            var sboms = await _client.GetAsync<IEnumerable<Sbom>>(request, cancellationToken).ConfigureAwait(false);
 
-            return sboms ?? Enumerable.Empty<SbomInfo>();
+            return sboms ?? Enumerable.Empty<Sbom>();
         }
 
         public async Task<Sbom?> CreateSbomAsync(AddSbomInfo info, CancellationToken cancellationToken = default)
@@ -83,44 +66,44 @@ namespace Osmy.Api
             return ReturnDataIfSuccessful(response);
         }
 
-        public VulnerabilityScanResult? GetLatestVulnerabilityScanResult(long sbomId)
+        public IEnumerable<Sbom> GetSboms()
         {
-            var request = new RestRequest($"VulnerabilityScanResults/latest/{sbomId}");
-            var resopnse = _client.ExecuteGet<VulnerabilityScanResult>(request);
+            var request = new RestRequest("Sboms");
+            var result = _client.Get<IEnumerable<Sbom>>(request);
 
-            return ReturnDataIfSuccessful(resopnse);
+            return result ?? Enumerable.Empty<Sbom>();
         }
 
-        public ChecksumVerificationResultCollection? GetLatestChecksumVerificationResultCollection(long sbomId)
+        public Task<Sbom?> GetSbomAsync(long sbomId, CancellationToken cancellationToken = default)
         {
-            var request = new RestRequest($"ChecksumVerificationResults/latest/{sbomId}");
-            var response = _client.ExecuteGet<ChecksumVerificationResultCollection>(request);
+            var request = new RestRequest($"Sboms/{sbomId}");
+            var result = _client.GetAsync<Sbom>(request, cancellationToken);
 
-            return ReturnDataIfSuccessful(response);
+            return result;
         }
 
-        public IEnumerable<SbomInfo> GetSboms()
+        public Sbom? GetSbom(long sbomId)
         {
-            var request = new RestRequest($"Sboms");
-            var result = _client.Get<IEnumerable<SbomInfo>>(request);
+            var request = new RestRequest($"Sboms/{sbomId}");
+            var result = _client.Get<Sbom>(request);
 
-            return result ?? Enumerable.Empty<SbomInfo>();
+            return result;
         }
 
-        public async Task<IEnumerable<SbomInfo>> GetRelatedSbomsAsync(long sbomId, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<Sbom>> GetRelatedSbomsAsync(long sbomId, CancellationToken cancellationToken = default)
         {
             var request = new RestRequest($"Sboms/{sbomId}/related");
-            var result = await _client.GetAsync<IEnumerable<SbomInfo>>(request, cancellationToken);
+            var result = await _client.GetAsync<IEnumerable<Sbom>>(request, cancellationToken);
 
-            return result ?? Enumerable.Empty<SbomInfo>();
+            return result ?? Enumerable.Empty<Sbom>();
         }
 
-        public IEnumerable<SbomInfo> GetRelatedSboms(long sbomId)
+        public IEnumerable<Sbom> GetRelatedSboms(long sbomId)
         {
             var request = new RestRequest($"Sboms/{sbomId}/related");
-            var result = _client.Get<IEnumerable<SbomInfo>>(request);
+            var result = _client.Get<IEnumerable<Sbom>>(request);
 
-            return result ?? Enumerable.Empty<SbomInfo>();
+            return result ?? Enumerable.Empty<Sbom>();
         }
 
         private static HttpClient CreateUnixSocketHttpClient(string socketPath)

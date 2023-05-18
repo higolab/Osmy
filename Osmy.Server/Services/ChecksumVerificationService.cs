@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Osmy.Core.Data.Sbom;
 using Osmy.Server.Data;
-using Osmy.Server.Data.ChecksumVerification;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 
@@ -58,14 +58,10 @@ namespace Osmy.Server.Services
             var executed = DateTime.Now;
 
             using var dbContext = new SoftwareDbContext();
-            var sbom = await dbContext.Sboms.FirstOrDefaultAsync(x => x.Id == sbomId, cancellationToken)
+            var sbom = await dbContext.Sboms.Include(x => x.Files)
+                                            .ThenInclude(x => x.Checksums)
+                                            .FirstOrDefaultAsync(x => x.Id == sbomId, cancellationToken)
                 ?? throw new InvalidOperationException($"SBOM(id={sbomId}) is not found");
-            /* 
-             * #17のワークアラウンド
-             * Sbom.Contentが複製されてメモリ消費量が大きくなるのを防ぐため，ファイルとチェックサムはSBOM情報と分けて取得する
-             */
-            var files = dbContext.Files.Include(x => x.Checksums).Where(x => x.SbomId == sbomId).ToList();
-            sbom.Files = files;
 
             if (sbom.LocalDirectory is null)
             {
@@ -75,20 +71,20 @@ namespace Osmy.Server.Services
             var results = sbom.Files.Select(async file =>
             {
                 string path = Path.Combine(sbom.LocalDirectory, file.FileName);
-                var result = Core.Data.Sbom.ChecksumVerification.ChecksumCorrectness.FileNotFound;
+                var result = ChecksumCorrectness.FileNotFound;
                 if (File.Exists(path))
                 {
                     string sha1Hash = file.Checksums.First(x => x.Algorithm == Core.Data.Sbom.ChecksumAlgorithm.SHA1).Value;
                     byte[] localFileHash = await ComputeSHA1Async(path, cancellationToken);
                     bool isValid = CompareHash(sha1Hash, localFileHash);
-                    result = isValid ? Core.Data.Sbom.ChecksumVerification.ChecksumCorrectness.Correct : Core.Data.Sbom.ChecksumVerification.ChecksumCorrectness.Incorrect;
+                    result = isValid ? ChecksumCorrectness.Correct : ChecksumCorrectness.Incorrect;
                 }
 
-                return new ChecksumVerificationResult(file, result);
+                file.Status = result;
             });
+            await Task.WhenAll(results);
+            sbom.LastFileCheck = executed;
 
-            var resultCollection = new ChecksumVerificationResultCollection(executed, sbom, await Task.WhenAll(results));
-            dbContext.ChecksumVerificationResults.Add(resultCollection);
             await dbContext.SaveChangesAsync(cancellationToken);
         }
 

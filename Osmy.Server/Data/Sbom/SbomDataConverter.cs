@@ -1,15 +1,9 @@
-﻿using Osmy.Server.Data.ChecksumVerification;
-using Target = Osmy.Core.Data.Sbom;
+﻿using Target = Osmy.Core.Data.Sbom;
 
 namespace Osmy.Server.Data.Sbom
 {
     public static class SbomDataConverter
     {
-        public static Target.VulnerabilityScanResult ConvertVulnerabilityScanResult(VulnerabilityScanResult from)
-        {
-            return new Target.VulnerabilityScanResult(from.Id, from.SbomId, from.Executed, ConvertPackageScanResults(from.Results));
-        }
-
         public static Target.Sbom ConvertSbom(Sbom from)
         {
             //return new Target.Sbom();
@@ -17,80 +11,70 @@ namespace Osmy.Server.Data.Sbom
                 from.Id,
                 from.Name,
                 from.LocalDirectory,
-                from.Content,
+                from.LastVulnerabilityScan,
+                from.IsVulnerable,
+                from.LastFileCheck,
+                from.HasFileError,
                 ConvertSbomFiles(from.Files),
                 ConvertExternalReferences(from.ExternalReferences),
                 ConvertSbomPackages(from.Packages)
                 );
         }
 
-        public static Target.PackageScanResult ConvertPackageScanResult(PackageScanResult from)
+        public static Target.SbomPackage ConvertSbomPackage(SbomPackageComponent from)
         {
-            return new Target.PackageScanResult(from.Id, ConvertSbomPackage(from.Package), from.IsVulnerable, from.ResultJson);
+            return new Target.SbomPackage(from.Id,
+                                          from.Name,
+                                          from.Version,
+                                          from.IsRootPackage,
+                                          from.IsDependentPackage,
+                                          ConvertVulnerabilityDataList(from.Vulnerabilities));
         }
 
-        public static IEnumerable<Target.PackageScanResult> ConvertPackageScanResults(IEnumerable<PackageScanResult> from)
+        public static IEnumerable<Target.SbomPackage> ConvertSbomPackages(IEnumerable<SbomPackageComponent> from)
         {
-            foreach (PackageScanResult result in from)
-            {
-                yield return ConvertPackageScanResult(result);
-            }
-        }
-
-        public static Target.SbomPackage ConvertSbomPackage(SbomPackage from)
-        {
-            return new Target.SbomPackage(from.Id, from.Name, from.Version, from.IsRootPackage);
-        }
-
-        public static IEnumerable<Target.SbomPackage> ConvertSbomPackages(IEnumerable<SbomPackage> from)
-        {
-            foreach (SbomPackage result in from)
+            foreach (SbomPackageComponent result in from)
             {
                 yield return ConvertSbomPackage(result);
             }
         }
 
-        public static Target.ChecksumVerification.ChecksumVerificationResultCollection ConvertChecksumVerificationResultCollection(ChecksumVerificationResultCollection from)
-        {
-            return new Target.ChecksumVerification.ChecksumVerificationResultCollection(from.Id, from.Executed, from.SbomId, ConvertChecksumVerificationResults(from.Results));
-        }
-
-        public static IEnumerable<Target.ChecksumVerification.ChecksumVerificationResult> ConvertChecksumVerificationResults(IEnumerable<ChecksumVerificationResult> from)
-        {
-            foreach (ChecksumVerificationResult result in from)
-            {
-                yield return ConvertChecksumVerificationResult(result);
-            }
-        }
-
-        public static Target.ChecksumVerification.ChecksumVerificationResult ConvertChecksumVerificationResult(ChecksumVerificationResult from)
-        {
-            return new Target.ChecksumVerification.ChecksumVerificationResult(ConvertSbomFile(from.SbomFile), from.Result);
-        }
-
-        public static Target.SbomFile ConvertSbomFile(SbomFile from)
+        public static Target.SbomFile ConvertSbomFile(SbomFileComponent from)
         {
             return new Target.SbomFile(from.Id, from.SbomId, from.FileName, from.Checksums);
         }
 
-        public static IEnumerable<Target.SbomFile> ConvertSbomFiles(IEnumerable<SbomFile> from)
+        public static IEnumerable<Target.SbomFile> ConvertSbomFiles(IEnumerable<SbomFileComponent> from)
         {
-            foreach (SbomFile result in from)
+            foreach (SbomFileComponent result in from)
             {
                 yield return ConvertSbomFile(result);
             }
         }
 
-        public static Target.ExternalReference ConvertExternalReference(SbomExternalReference from)
+        public static Target.ExternalReference ConvertExternalReference(SbomExternalReferenceComponent from)
         {
             return new Target.ExternalReference(from.Id);
         }
 
-        public static IEnumerable<Target.ExternalReference> ConvertExternalReferences(IEnumerable<SbomExternalReference> from)
+        public static IEnumerable<Target.ExternalReference> ConvertExternalReferences(IEnumerable<SbomExternalReferenceComponent> from)
         {
-            foreach (SbomExternalReference result in from)
+            foreach (SbomExternalReferenceComponent result in from)
             {
                 yield return ConvertExternalReference(result);
+            }
+        }
+
+        public static Target.VulnerabilityData ConvertVulnerabilityData(VulnerabilityData from)
+        {
+            return new Target.VulnerabilityData(from.Id, from.Modified, from.Data);
+        }
+
+        public static IEnumerable<Target.VulnerabilityData> ConvertVulnerabilityDataList(IEnumerable<VulnerabilityData> from)
+        {
+            foreach (VulnerabilityData vulnerability in from)
+            {
+                yield return ConvertVulnerabilityData(vulnerability);
             }
         }
     }

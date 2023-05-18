@@ -1,6 +1,5 @@
 ﻿using Osmy.Api;
 using Osmy.Core.Data.Sbom;
-using Osmy.Core.Data.Sbom.ChecksumVerification;
 using Reactive.Bindings;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,9 +13,7 @@ namespace Osmy.Gui.ViewModels
         /// </summary>
         public ReactivePropertySlim<Sbom> Sbom { get; }
 
-        public ReactivePropertySlim<VulnerabilityScanResult?> ScanResult { get; }
-        public ReactivePropertySlim<ChecksumVerificationResultCollection?> ChecksumVerificationResults { get; }
-        public ReactivePropertySlim<SbomInfo[]> RelatedSboms { get; set; }
+        public ReactivePropertySlim<Sbom[]> RelatedSboms { get; set; }
 
         public DelegateCommand PathSelectedCommand => _pathSelectedCommand ??= new DelegateCommand(OnPathSelected);
         private DelegateCommand? _pathSelectedCommand;
@@ -27,7 +24,6 @@ namespace Osmy.Gui.ViewModels
         public SbomDetailsViewViewModel(Sbom sbom)
         {
             Sbom = new ReactivePropertySlim<Sbom>(sbom);
-            ChecksumVerificationResults = new ReactivePropertySlim<ChecksumVerificationResultCollection?>(FetchChecksumVerificationResult());
 
             //sbom.VulnerabilityScanned += OnSoftwareVulnerabilityScanned;
             //// TODO Disposableの処理
@@ -45,8 +41,7 @@ namespace Osmy.Gui.ViewModels
             //    }
             //});
 
-            ScanResult = new ReactivePropertySlim<VulnerabilityScanResult?>(FetchLatestScanResult());
-            RelatedSboms = new ReactivePropertySlim<SbomInfo[]>(FetchRelatedSboms().ToArray());
+            RelatedSboms = new ReactivePropertySlim<Sbom[]>(FetchRelatedSboms().ToArray());
         }
 
         //private void OnSoftwareVulnerabilityScanned()
@@ -54,19 +49,7 @@ namespace Osmy.Gui.ViewModels
         //    ScanResult.Value = FetchLatestScanResult();
         //}
 
-        private VulnerabilityScanResult? FetchLatestScanResult()
-        {
-            using var client = new RestClient();
-            return client.GetLatestVulnerabilityScanResult(Sbom.Value.Id);
-        }
-
-        private ChecksumVerificationResultCollection? FetchChecksumVerificationResult()
-        {
-            using var client = new RestClient();
-            return client.GetLatestChecksumVerificationResultCollection(Sbom.Value.Id);
-        }
-
-        private IEnumerable<SbomInfo> FetchRelatedSboms()
+        private IEnumerable<Sbom> FetchRelatedSboms()
         {
             using var client = new RestClient();
             return client.GetRelatedSboms(Sbom.Value.Id);

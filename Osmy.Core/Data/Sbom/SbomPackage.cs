@@ -1,26 +1,32 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Osmy.Core.Data.Sbom
+﻿namespace Osmy.Core.Data.Sbom
 {
     /// <summary>
     /// パッケージ
     /// </summary>
     public class SbomPackage
     {
-        [Key]
         public int Id { get; set; }
         public string Name { get; set; }
         public string? Version { get; set; }
         public bool IsRootPackage { get; set; }
+        public bool IsDependentPackage { get; set; }
+        public IEnumerable<VulnerabilityData> Vulnerabilities { get; set; }
 
-        public SbomPackage() : this(default, string.Empty, default, default) { }
+        public SbomPackage() : this(default, string.Empty, default, default, default, Enumerable.Empty<VulnerabilityData>()) { }
 
-        public SbomPackage(int id, string name, string? version, bool isRootPackage)
+        public SbomPackage(int id,
+                           string name,
+                           string? version,
+                           bool isRootPackage,
+                           bool isDependentPackage,
+                           IEnumerable<VulnerabilityData> vulnerabilities)
         {
             Id = id;
             Name = name;
             Version = version;
             IsRootPackage = isRootPackage;
+            IsDependentPackage = isDependentPackage;
+            Vulnerabilities = vulnerabilities;
         }
     }
 }

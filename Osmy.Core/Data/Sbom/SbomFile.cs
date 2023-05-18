@@ -10,6 +10,8 @@ namespace Osmy.Core.Data.Sbom
 
         public string FileName { get; set; }
 
+        public ChecksumCorrectness Status { get; set; }
+
         public IEnumerable<SbomFileChecksum> Checksums { get; set; }
 
         public SbomFile()
