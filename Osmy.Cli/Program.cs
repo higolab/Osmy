@@ -38,8 +38,8 @@ namespace Osmy.Cli
             if (num == 0) { return 0; }
 
             var idWidth = Math.Max("ID".Length, (int)Math.Ceiling(Math.Log10(num)));
-            var nameWidth = Math.Max("Name".Length, sbomInfos.Max(x => x.Sbom.Name.Length));
-            var localDirWidth = Math.Max("Local Directory".Length, sbomInfos.Max(x => x.Sbom.LocalDirectory?.Length) ?? 0);
+            var nameWidth = Math.Max("Name".Length, sbomInfos.Max(sbom => sbom.Name.Length));
+            var localDirWidth = Math.Max("Local Directory".Length, sbomInfos.Max(sbom => sbom.LocalDirectory?.Length) ?? 0);
 
             Console.WriteLine("V: Has vulnerabilities");
             Console.WriteLine("F: File checksum mismatched or file is missing");
@@ -51,7 +51,7 @@ namespace Osmy.Cli
             {
                 var v = sbomInfo.IsVulnerable == true ? "V" : " ";
                 var f = sbomInfo.HasFileError == true ? "F" : " ";
-                writer.WriteRow(v + f, sbomInfo.Sbom.Id.ToString(), sbomInfo.Sbom.Name, sbomInfo.Sbom.LocalDirectory);
+                writer.WriteRow(v + f, sbomInfo.Id.ToString(), sbomInfo.Name, sbomInfo.LocalDirectory);
             }
 
             return 0;
@@ -83,7 +83,7 @@ namespace Osmy.Cli
             {
                 if (sbom.IsVulnerable)
                 {
-                    Console.WriteLine($"{sbom.Packages.Count(x => x.Vulnerabilities.Any())} vulnerabilities detected");
+                    Console.WriteLine($"{sbom.Packages.Count(pkg => pkg.Vulnerabilities.Any())} vulnerabilities detected");
                 }
                 else
                 {
@@ -115,7 +115,7 @@ namespace Osmy.Cli
             {
                 if (sbom.HasFileError)
                 {
-                    var problemCount = sbom.Files.Count(x => x.Status != ChecksumCorrectness.Correct);
+                    var problemCount = sbom.Files.Count(file => file.Status != ChecksumCorrectness.Correct);
                     Console.WriteLine($"{problemCount} problem(s) exists.");
                 }
                 else
@@ -154,7 +154,7 @@ namespace Osmy.Cli
             using var client = new RestClient();
             var fetchTask = client.GetSbomsAsync();
             await ShowProgressAndWait(fetchTask, "Fetching current info...");
-            var current = (await fetchTask).First(x => x.Sbom.Id == opt.Id);
+            var currentSbom = (await fetchTask).First(sbom => sbom.Id == opt.Id);
 
             if (opt.LocalDirectory == "unset")
             {
@@ -162,7 +162,7 @@ namespace Osmy.Cli
             }
             else if (opt.LocalDirectory is null)
             {
-                opt.LocalDirectory = current.Sbom.LocalDirectory;
+                opt.LocalDirectory = currentSbom.LocalDirectory;
             }
             else if (!Directory.Exists(opt.LocalDirectory))
             {
@@ -170,7 +170,7 @@ namespace Osmy.Cli
                 return 1;
             }
 
-            var updateTask = client.UpdateSbomAsync(opt.Id, new UpdateSbomInfo(opt.Name ?? current.Sbom.Name, opt.LocalDirectory));
+            var updateTask = client.UpdateSbomAsync(opt.Id, new UpdateSbomInfo(opt.Name ?? currentSbom.Name, opt.LocalDirectory));
             await ShowProgressAndWait(updateTask, "Updating software info...");
 
             return 0;

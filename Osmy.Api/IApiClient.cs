@@ -4,9 +4,9 @@ namespace Osmy.Api
 {
     public interface IApiClient : IDisposable
     {
-        Task<IEnumerable<SbomInfo>> GetSbomsAsync(CancellationToken cancellationToken = default);
+        Task<IEnumerable<Sbom>> GetSbomsAsync(CancellationToken cancellationToken = default);
 
-        IEnumerable<SbomInfo> GetSboms();
+        IEnumerable<Sbom> GetSboms();
 
         Task<Sbom?> GetSbomAsync(long sbomId, CancellationToken cancellationToken = default);
 
@@ -18,8 +18,8 @@ namespace Osmy.Api
 
         Task<bool> DeleteSbomAsync(long sbomId, CancellationToken cancellationToken = default);
 
-        Task<IEnumerable<SbomInfo>> GetRelatedSbomsAsync(long sbomId, CancellationToken cancellationToken = default);
+        Task<IEnumerable<Sbom>> GetRelatedSbomsAsync(long sbomId, CancellationToken cancellationToken = default);
 
-        IEnumerable<SbomInfo> GetRelatedSboms(long sbomId);
+        IEnumerable<Sbom> GetRelatedSboms(long sbomId);
     }
 }

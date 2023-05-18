@@ -13,7 +13,7 @@ namespace Osmy.Gui.ViewModels
         /// </summary>
         public ReactivePropertySlim<Sbom> Sbom { get; }
 
-        public ReactivePropertySlim<SbomInfo[]> RelatedSboms { get; set; }
+        public ReactivePropertySlim<Sbom[]> RelatedSboms { get; set; }
 
         public DelegateCommand PathSelectedCommand => _pathSelectedCommand ??= new DelegateCommand(OnPathSelected);
         private DelegateCommand? _pathSelectedCommand;
@@ -41,7 +41,7 @@ namespace Osmy.Gui.ViewModels
             //    }
             //});
 
-            RelatedSboms = new ReactivePropertySlim<SbomInfo[]>(FetchRelatedSboms().ToArray());
+            RelatedSboms = new ReactivePropertySlim<Sbom[]>(FetchRelatedSboms().ToArray());
         }
 
         //private void OnSoftwareVulnerabilityScanned()
@@ -49,7 +49,7 @@ namespace Osmy.Gui.ViewModels
         //    ScanResult.Value = FetchLatestScanResult();
         //}
 
-        private IEnumerable<SbomInfo> FetchRelatedSboms()
+        private IEnumerable<Sbom> FetchRelatedSboms()
         {
             using var client = new RestClient();
             return client.GetRelatedSboms(Sbom.Value.Id);

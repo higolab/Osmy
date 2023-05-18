@@ -21,12 +21,12 @@ namespace Osmy.Server.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<SbomInfo> Get()
+        public IEnumerable<Core.Data.Sbom.Sbom> Get()
         {
             using var dbContext = new SoftwareDbContext();
             return GetInternal().ToArray();
 
-            IEnumerable<SbomInfo> GetInternal()
+            IEnumerable<Core.Data.Sbom.Sbom> GetInternal()
             {
                 foreach (var sbom in dbContext.Sboms.Include(x => x.ExternalReferences))
                 {
@@ -37,7 +37,7 @@ namespace Osmy.Server.Controllers
                     var files = dbContext.Files.Where(x => x.SbomId == sbom.Id).Include(x => x.Checksums).ToList();
                     sbom.Files = files;
 
-                    yield return new SbomInfo(SbomDataConverter.ConvertSbom(sbom), sbom.IsVulnerable, sbom.HasFileError);
+                    yield return SbomDataConverter.ConvertSbom(sbom);
                 }
             }
         }
@@ -133,7 +133,7 @@ namespace Osmy.Server.Controllers
         }
 
         [HttpGet("{sbomId}/related")]
-        public async Task<ActionResult<IEnumerable<SbomInfo>>> GetRelatedSboms(long sbomId)
+        public async Task<ActionResult<IEnumerable<Core.Data.Sbom.Sbom>>> GetRelatedSboms(long sbomId)
         {
             using var dbContext = new SoftwareDbContext();
             var queriedSbom = await dbContext.Sboms.Include(x => x.ExternalReferences).FirstOrDefaultAsync(x => x.Id == sbomId);
@@ -144,10 +144,7 @@ namespace Osmy.Server.Controllers
                 .Where(x => x.SbomId == sbomId)
                 .Join(dbContext.Sboms, externalRef => externalRef.Uri, sbom => sbom.Uri, (externalRef, sbom) => sbom)
                 .AsEnumerable()
-                .Select(sbom =>
-                {
-                    return new SbomInfo(SbomDataConverter.ConvertSbom(sbom), sbom.IsVulnerable, sbom.HasFileError);
-                })
+                .Select(SbomDataConverter.ConvertSbom)
                 .ToArray(),
                 _ => throw new NotSupportedException(),
             };

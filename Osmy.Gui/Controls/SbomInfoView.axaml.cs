@@ -11,13 +11,13 @@ namespace Osmy.Gui.Controls
             InitializeComponent();
         }
 
-        public SbomInfo? Value
+        public Sbom? Value
         {
             get { return _value; }
             set { SetAndRaise(ValueProperty, ref _value, value); }
         }
-        private SbomInfo? _value;
-        public static readonly DirectProperty<SbomInfoView, SbomInfo?> ValueProperty =
-            AvaloniaProperty.RegisterDirect<SbomInfoView, SbomInfo?>(nameof(Value), o => o._value, (o, value) => o.Value = value);
+        private Sbom? _value;
+        public static readonly DirectProperty<SbomInfoView, Sbom?> ValueProperty =
+            AvaloniaProperty.RegisterDirect<SbomInfoView, Sbom?>(nameof(Value), o => o._value, (o, value) => o.Value = value);
     }
 }

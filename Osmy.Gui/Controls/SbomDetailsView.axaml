@@ -361,7 +361,7 @@
 													IsVisible="{Binding RelatedSboms.Value.Length, Converter={x:Static converters:CompareConverters.NotEqualsConverter}, ConverterParameter=0}">
 							<ItemsControl.ItemTemplate>
 								<DataTemplate>
-									<controls:SbomInfoView Value="{Binding}" x:DataType="sbom:SbomInfo"/>
+									<controls:SbomInfoView Value="{Binding}" x:DataType="sbom:Sbom"/>
 								</DataTemplate>
 							</ItemsControl.ItemTemplate>
 						</ItemsControl>

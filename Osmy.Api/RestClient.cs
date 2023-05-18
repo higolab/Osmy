@@ -28,12 +28,12 @@ namespace Osmy.Api
             _client.Dispose();
         }
 
-        public async Task<IEnumerable<SbomInfo>> GetSbomsAsync(CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<Sbom>> GetSbomsAsync(CancellationToken cancellationToken = default)
         {
             var request = new RestRequest("sboms");
-            var sboms = await _client.GetAsync<IEnumerable<SbomInfo>>(request, cancellationToken).ConfigureAwait(false);
+            var sboms = await _client.GetAsync<IEnumerable<Sbom>>(request, cancellationToken).ConfigureAwait(false);
 
-            return sboms ?? Enumerable.Empty<SbomInfo>();
+            return sboms ?? Enumerable.Empty<Sbom>();
         }
 
         public async Task<Sbom?> CreateSbomAsync(AddSbomInfo info, CancellationToken cancellationToken = default)
@@ -66,12 +66,12 @@ namespace Osmy.Api
             return ReturnDataIfSuccessful(response);
         }
 
-        public IEnumerable<SbomInfo> GetSboms()
+        public IEnumerable<Sbom> GetSboms()
         {
             var request = new RestRequest("Sboms");
-            var result = _client.Get<IEnumerable<SbomInfo>>(request);
+            var result = _client.Get<IEnumerable<Sbom>>(request);
 
-            return result ?? Enumerable.Empty<SbomInfo>();
+            return result ?? Enumerable.Empty<Sbom>();
         }
 
         public Task<Sbom?> GetSbomAsync(long sbomId, CancellationToken cancellationToken = default)
@@ -90,20 +90,20 @@ namespace Osmy.Api
             return result;
         }
 
-        public async Task<IEnumerable<SbomInfo>> GetRelatedSbomsAsync(long sbomId, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<Sbom>> GetRelatedSbomsAsync(long sbomId, CancellationToken cancellationToken = default)
         {
             var request = new RestRequest($"Sboms/{sbomId}/related");
-            var result = await _client.GetAsync<IEnumerable<SbomInfo>>(request, cancellationToken);
+            var result = await _client.GetAsync<IEnumerable<Sbom>>(request, cancellationToken);
 
-            return result ?? Enumerable.Empty<SbomInfo>();
+            return result ?? Enumerable.Empty<Sbom>();
         }
 
-        public IEnumerable<SbomInfo> GetRelatedSboms(long sbomId)
+        public IEnumerable<Sbom> GetRelatedSboms(long sbomId)
         {
             var request = new RestRequest($"Sboms/{sbomId}/related");
-            var result = _client.Get<IEnumerable<SbomInfo>>(request);
+            var result = _client.Get<IEnumerable<Sbom>>(request);
 
-            return result ?? Enumerable.Empty<SbomInfo>();
+            return result ?? Enumerable.Empty<Sbom>();
         }
 
         private static HttpClient CreateUnixSocketHttpClient(string socketPath)
