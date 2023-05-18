@@ -5,7 +5,7 @@
     /// </summary>
     public class SbomPackage
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string Name { get; set; }
         public string? Version { get; set; }
         public bool IsRootPackage { get; set; }
@@ -14,7 +14,7 @@
 
         public SbomPackage() : this(default, string.Empty, default, default, default, Enumerable.Empty<VulnerabilityData>()) { }
 
-        public SbomPackage(int id,
+        public SbomPackage(long id,
                            string name,
                            string? version,
                            bool isRootPackage,

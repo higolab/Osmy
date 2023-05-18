@@ -9,7 +9,7 @@ namespace Osmy.Server.Data.Sbom
     public sealed class SbomPackageComponent
     {
         [Key]
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         public Sbom Sbom { get; set; }
 

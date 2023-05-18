@@ -6,10 +6,10 @@ namespace Osmy.Server.Data.Sbom
 {
     public sealed class SbomFileComponent
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         public Sbom Sbom { get; set; }
-        public int SbomId { get; set; }
+        public long SbomId { get; set; }
 
         public string FileName { get; set; }
 

@@ -4,9 +4,9 @@ namespace Osmy.Server.Data.Sbom
 {
     public class SbomExternalReferenceComponent
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
 
-        public int SbomId { get; set; }
+        public long SbomId { get; set; }
 
         public Uri Uri { get; set; }
 
