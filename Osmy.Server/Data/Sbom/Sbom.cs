@@ -13,7 +13,7 @@ namespace Osmy.Server.Data.Sbom
         /// <summary>
         /// ID
         /// </summary>
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         /// <summary>
         /// 管理名
@@ -38,6 +38,7 @@ namespace Osmy.Server.Data.Sbom
         /// <summary>
         /// ファイル内容
         /// </summary>
+        [DeleteBehavior(DeleteBehavior.Cascade)]
         public RawSbom RawSbom { get; set; }
 
         /// <summary>
@@ -126,19 +127,6 @@ namespace Osmy.Server.Data.Sbom
             Files = spdxContent.Files;
             Packages = spdxContent.Packages;
             ExternalReferences = spdxContent.ExternalReferences;
-        }
-    }
-
-    public class RawSbom
-    {
-        public int Id { get; set; }
-        public byte[] Data { get; set; }
-
-        public RawSbom() : this(Array.Empty<byte>()) { }
-
-        public RawSbom(byte[] data)
-        {
-            Data = data;
         }
     }
 
