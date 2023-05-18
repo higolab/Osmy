@@ -58,31 +58,31 @@
 						</Grid.ColumnDefinitions>
 
 						<TextBlock Grid.Row="0"
-											 Text="{Binding ScanResult.Value.Executed, StringFormat=Last Scan: {0:yyyy/MM/dd HH:mm:ss}}"
-											 IsVisible="{Binding ScanResult.Value, Converter={x:Static ObjectConverters.IsNotNull}}"
+											 Text="{Binding Sbom.Value.LastVulnerabilityScan, StringFormat=Last Scan: {0:yyyy/MM/dd HH:mm:ss}}"
+											 IsVisible="{Binding Sbom.Value.LastVulnerabilityScan, Converter={x:Static ObjectConverters.IsNotNull}}"
 											 Margin="3 0 0 0"/>
 
 						<TextBlock Grid.Row="0" Text="Vulnerability scan is not yet executed"
-											 IsVisible="{Binding ScanResult.Value, Converter={x:Static ObjectConverters.IsNull}}"
+											 IsVisible="{Binding Sbom.Value.LastVulnerabilityScan, Converter={x:Static ObjectConverters.IsNull}}"
 											 Margin="3 0 0 0"/>
 
-						<DataGrid x:Name="scanResult" Grid.Row="1" Items="{Binding ScanResult.Value.Results}" SelectionMode="Extended"
+						<DataGrid x:Name="scanResult" Grid.Row="1" Items="{Binding Sbom.Value.Packages}" SelectionMode="Extended"
 											CanUserReorderColumns="False" AutoGenerateColumns="False" Margin="0 5" IsReadOnly="True"
-											IsVisible="{Binding ScanResult.Value, Converter={x:Static ObjectConverters.IsNotNull}}">
+											IsVisible="{Binding Sbom.Value.LastVulnerabilityScan, Converter={x:Static ObjectConverters.IsNotNull}}">
 							<DataGrid.Columns>
 								<DataGridTemplateColumn>
 									<DataTemplate>
 										<materialIcons:MaterialIcon Kind="Bug" Foreground="Red" ToolTip.Tip="Vulnerabilities detected"
-																								Height="22" Width="22" IsVisible="{Binding IsVulnerable}"/>
+																								Height="22" Width="22" IsVisible="{Binding Vulnerabilities, Converter={x:Static converters:CollectionConverters.NotEmpty}}"/>
 									</DataTemplate>
 								</DataGridTemplateColumn>
-								<DataGridTextColumn Header="Name" Binding="{Binding Package.Name}"/>
-								<DataGridTextColumn Header="Version" Binding="{Binding Package.Version}"/>
+								<DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
+								<DataGridTextColumn Header="Version" Binding="{Binding Version}"/>
 							</DataGrid.Columns>
 
 							<DataGrid.Styles>
 								<Style Selector="DataGridRow">
-									<Setter Property="Background" Value="{Binding	IsVulnerable, Converter={StaticResource	packageToBackgroundConverter}}" x:DataType="sbom:PackageScanResult"/>
+									<Setter Property="Background" Value="{Binding, Converter={StaticResource packageToBackgroundConverter}}" x:DataType="sbom:SbomPackage"/>
 								</Style>
 							</DataGrid.Styles>
 						</DataGrid>
@@ -113,10 +113,11 @@
 							</TextBlock>
 
 							<ScrollViewer Grid.Row="2">
-								<ItemsControl Items="{ReflectionBinding SelectedItem.VulnerabilityList.Vulnerabilities, ElementName=scanResult}">
+								<ItemsControl Items="{ReflectionBinding SelectedItem.Vulnerabilities, ElementName=scanResult}">
 									<ItemsControl.ItemTemplate>
-										<DataTemplate x:DataType="osv:Vulnerability">
-											<Border BorderBrush="LightGray" BorderThickness="1" Padding="5 0 5 5" Margin="0 5 10 0" CornerRadius="5">
+										<DataTemplate x:DataType="sbom:VulnerabilityData">
+											<Border BorderBrush="LightGray" BorderThickness="1" Padding="5 0 5 5" Margin="0 5 10 0" CornerRadius="5"
+															DataContext="{Binding	Vulnerability}">
 												<Grid>
 													<Grid.RowDefinitions>
 														<RowDefinition Height="Auto"/>
@@ -244,13 +245,13 @@
 							<RowDefinition Height="*"/>
 						</Grid.RowDefinitions>
 
-						<TextBlock Grid.Row="0" Text="{Binding ChecksumVerificationResults.Value.Executed, StringFormat=Last Verification: {0:yyyy/MM/dd HH:mm:ss}}"
+						<TextBlock Grid.Row="0" Text="{Binding Sbom.Value.LastFileCheck, StringFormat=Last Verification: {0:yyyy/MM/dd HH:mm:ss}}"
 											 Margin="3 0 0 0">
 							<TextBlock.IsVisible>
 								<MultiBinding Converter="{x:Static BoolConverters.And}">
 									<MultiBinding.Bindings>
 										<Binding Path="Sbom.Value.LocalDirectory" Converter="{x:Static ObjectConverters.IsNotNull}"/>
-										<Binding Path="ChecksumVerificationResults.Value" Converter="{x:Static ObjectConverters.IsNotNull}"/>
+										<Binding Path="Sbom.Value.LastFileCheck" Converter="{x:Static ObjectConverters.IsNotNull}"/>
 									</MultiBinding.Bindings>
 								</MultiBinding>
 							</TextBlock.IsVisible>
@@ -261,7 +262,7 @@
 								<MultiBinding Converter="{x:Static BoolConverters.And}">
 									<MultiBinding.Bindings>
 										<Binding Path="Sbom.Value.LocalDirectory" Converter="{x:Static ObjectConverters.IsNotNull}"/>
-										<Binding Path="ChecksumVerificationResults.Value" Converter="{x:Static ObjectConverters.IsNull}"/>
+										<Binding Path="Sbom.Value.LastFileCheck" Converter="{x:Static ObjectConverters.IsNull}"/>
 									</MultiBinding.Bindings>
 								</MultiBinding>
 							</TextBlock.IsVisible>
@@ -271,13 +272,13 @@
 											 IsVisible="{Binding Sbom.Value.LocalDirectory, Converter={x:Static ObjectConverters.IsNull}}"
 											 Margin="3 0 0 0"/>
 
-						<DataGrid Grid.Row="1" Items="{Binding ChecksumVerificationResults.Value.Results}" SelectionMode="Single" Margin="0 5 0 0"
+						<DataGrid Grid.Row="1" Items="{Binding Sbom.Value.Files}" SelectionMode="Single" Margin="0 5 0 0"
 											CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
 							<DataGrid.IsVisible>
 								<MultiBinding Converter="{x:Static BoolConverters.And}">
 									<MultiBinding.Bindings>
 										<Binding Path="Sbom.Value.LocalDirectory" Converter="{x:Static ObjectConverters.IsNotNull}"/>
-										<Binding Path="ChecksumVerificationResults.Value" Converter="{x:Static ObjectConverters.IsNotNull}"/>
+										<Binding Path="Sbom.Value.LastFileCheck" Converter="{x:Static ObjectConverters.IsNotNull}"/>
 									</MultiBinding.Bindings>
 								</MultiBinding>
 							</DataGrid.IsVisible>
@@ -299,8 +300,8 @@
 												<materialIcons:MaterialIcon.IsVisible>
 													<MultiBinding Converter="{x:Static converters:ShortCircuitBoolConverters.And}">
 														<MultiBinding.Bindings>
-															<Binding Path="Result" Converter="{x:Static	converters:CompareConverters.NotEqualsConverter}" ConverterParameter="{x:Static checksumVerification:ChecksumCorrectness.Incorrect}"/>
-															<Binding Path="Result" Converter="{x:Static converters:CompareConverters.NotEqualsConverter}" ConverterParameter="{x:Static checksumVerification:ChecksumCorrectness.FileNotFound}"/>
+															<Binding Path="Status" Converter="{x:Static	converters:CompareConverters.NotEqualsConverter}" ConverterParameter="{x:Static sbom:ChecksumCorrectness.Incorrect}"/>
+															<Binding Path="Status" Converter="{x:Static converters:CompareConverters.NotEqualsConverter}" ConverterParameter="{x:Static sbom:ChecksumCorrectness.FileNotFound}"/>
 														</MultiBinding.Bindings>
 													</MultiBinding>
 												</materialIcons:MaterialIcon.IsVisible>
@@ -308,15 +309,15 @@
 
 											<!--チェックサム不一致-->
 											<materialIcons:MaterialIcon Kind="FileAlert" Foreground="Orange" ToolTip.Tip="Checksum Mismatched" Margin="5 0 0 0"
-																									IsVisible="{Binding	Result, Converter={x:Static	converters:CompareConverters.EqualsConverter}, ConverterParameter={x:Static checksumVerification:ChecksumCorrectness.Incorrect}}"/>
+																									IsVisible="{Binding	Status, Converter={x:Static	converters:CompareConverters.EqualsConverter}, ConverterParameter={x:Static sbom:ChecksumCorrectness.Incorrect}}"/>
 
 											<!--存在しないファイル-->
 											<materialIcons:MaterialIcon Kind="FileHidden" Foreground="Gray" ToolTip.Tip="File Not Found"
-																									IsVisible="{Binding Result, Converter={x:Static converters:CompareConverters.EqualsConverter}, ConverterParameter={x:Static checksumVerification:ChecksumCorrectness.FileNotFound}}"/>
+																									IsVisible="{Binding Status, Converter={x:Static converters:CompareConverters.EqualsConverter}, ConverterParameter={x:Static sbom:ChecksumCorrectness.FileNotFound}}"/>
 										</StackPanel>
 									</DataTemplate>
 								</DataGridTemplateColumn>
-								<DataGridTextColumn Header="Name" Binding="{Binding SbomFile.FileName}"/>
+								<DataGridTextColumn Header="Name" Binding="{Binding FileName}"/>
 								<!--空のDataTemplateを設定するとNull参照例外が発生する-->
 								<!--<DataGridTemplateColumn Header="Checksum">
 										<DataTemplate>-->
