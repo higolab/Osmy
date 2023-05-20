@@ -49,6 +49,18 @@ namespace Osmy.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<Core.Data.Sbom.Sbom>> Post([FromForm] SbomAddRequest request)
         {
+            if (request.LocalDirectory is not null)
+            {
+                if (!Path.IsPathFullyQualified(request.LocalDirectory))
+                {
+                    return BadRequest($"{request.LocalDirectory} is not an absolute path.");
+                }
+                else if (!Directory.Exists(request.LocalDirectory))
+                {
+                    return BadRequest($"{request.LocalDirectory} does not exist.");
+                }
+            }
+
             var sbom = new Data.Sbom.Sbom(request.Name, request.File, request.LocalDirectory);
             using var dbContext = new SoftwareDbContext();
             dbContext.Sboms.Add(sbom);
@@ -83,10 +95,18 @@ namespace Osmy.Server.Controllers
                 sbom.Name = updateSbomInfo.Name;
             }
 
-            if (!string.IsNullOrEmpty(updateSbomInfo.LocalDirectory) && !Directory.Exists(updateSbomInfo.LocalDirectory))
+            if (updateSbomInfo.LocalDirectory is not null)
             {
-                return BadRequest($"specified directory does not exists.");
+                if (!Path.IsPathFullyQualified(updateSbomInfo.LocalDirectory))
+                {
+                    return BadRequest($"{updateSbomInfo.LocalDirectory} is not an absolute path.");
+                }
+                else if (!Directory.Exists(updateSbomInfo.LocalDirectory))
+                {
+                    return BadRequest($"{updateSbomInfo.LocalDirectory} does not exist.");
+                }
             }
+
             var needVerification = (sbom.LocalDirectory != updateSbomInfo.LocalDirectory) && updateSbomInfo.LocalDirectory is not null;
             sbom.LocalDirectory = updateSbomInfo.LocalDirectory;
 

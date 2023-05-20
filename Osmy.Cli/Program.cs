@@ -143,6 +143,27 @@ namespace Osmy.Cli
         private static async Task<int> RunAddAndReturnExitCodeAsync(AddOptions opt)
         {
             using var client = new RestClient();
+
+            opt.SbomFile = Path.GetFullPath(opt.SbomFile);
+            if (!File.Exists(opt.SbomFile))
+            {
+                Console.Error.WriteLine($"{opt.SbomFile} does not exist.");
+                return 1;
+            }
+
+            if (opt.LocalDirectory is not null)
+            {
+                if (Directory.Exists(opt.LocalDirectory))
+                {
+                    opt.LocalDirectory = Path.GetFullPath(opt.LocalDirectory);
+                }
+                else
+                {
+                    Console.Error.WriteLine($"{opt.LocalDirectory} does not exist.");
+                    return 1;
+                }
+            }
+
             var addTask = client.CreateSbomAsync(new AddSbomInfo(opt.Name, opt.SbomFile, opt.LocalDirectory));
             await ShowProgressAndWait(addTask, "Adding software...");
 
@@ -166,8 +187,12 @@ namespace Osmy.Cli
             }
             else if (!Directory.Exists(opt.LocalDirectory))
             {
-                Console.Error.WriteLine($"{opt.LocalDirectory} does not exists.");
+                Console.Error.WriteLine($"{opt.LocalDirectory} does not exist.");
                 return 1;
+            }
+            else
+            {
+                opt.LocalDirectory = Path.GetFullPath(opt.LocalDirectory);
             }
 
             var updateTask = client.UpdateSbomAsync(opt.Id, new UpdateSbomInfo(opt.Name ?? currentSbom.Name, opt.LocalDirectory));
