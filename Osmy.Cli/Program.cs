@@ -37,7 +37,7 @@ namespace Osmy.Cli
             var num = sbomInfos.Length;
             if (num == 0) { return 0; }
 
-            var idWidth = Math.Max("ID".Length, (int)Math.Ceiling(Math.Log10(num)));
+            var idWidth = Math.Max("ID".Length, (int)Math.Ceiling(Math.Log10(num)) + 1);
             var nameWidth = Math.Max("Name".Length, sbomInfos.Max(sbom => sbom.Name.Length));
             var localDirWidth = Math.Max("Local Directory".Length, sbomInfos.Max(sbom => sbom.LocalDirectory?.Length) ?? 0);
 
