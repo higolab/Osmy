@@ -24,11 +24,7 @@ namespace Osmy.Server.Controllers
         public async Task<IEnumerable<Core.Data.Sbom.Sbom>> Get()
         {
             using var dbContext = new SoftwareDbContext();
-            return await dbContext.Sboms.Include(x => x.Packages)
-                                        .ThenInclude(x => x.Vulnerabilities)
-                                        .Include(x => x.Files)
-                                        .Include(x => x.ExternalReferences)
-                                        .AsAsyncEnumerable()
+            return await dbContext.Sboms.AsAsyncEnumerable()
                                         .Select(SbomDataConverter.ConvertSbom)
                                         .ToArrayAsync();
         }
