@@ -94,13 +94,23 @@ namespace Osmy.Cli
                 {
                     var packageNameWidth = Math.Max("Name".Length, sbom.Packages.Max(x => x.Name.Length));
                     var packageVersionWidth = Math.Max("Version".Length, sbom.Packages.Max(x => x.Version?.Length) ?? 0);
-                    var vulnsWidth = Math.Max("Vulnerability".Length, sbom.Packages.Max(x => x.Vulnerabilities.Sum(y => y.Id.Length + 1) - 1));
+                    var vulns = sbom.Packages.SelectMany(x => x.Vulnerabilities);
+                    var vulnsWidth = Math.Max("Vulnerability".Length, vulns.Any() ? vulns.Max(x => x.Id.Length) : 0);
                     var writer = new TableWriter(1, packageNameWidth, packageVersionWidth, vulnsWidth);
                     writer.WriteHeader(string.Empty, "Name", "Version", "Vulnerability");
                     foreach (var package in sbom.Packages)
                     {
-                        var vulns = string.Join(" ", package.Vulnerabilities.Select(x => x.Id));
-                        writer.WriteRow(package.Vulnerabilities.Any() ? "*" : string.Empty, package.Name, package.Version, vulns);
+                        writer.WriteRow(package.Vulnerabilities.Any() ? "*" : string.Empty,
+                                        package.Name,
+                                        package.Version,
+                                        package.Vulnerabilities.ElementAtOrDefault(0)?.Id);
+                        if (package.Vulnerabilities.Count() >= 2)
+                        {
+                            foreach (var vuln in package.Vulnerabilities.Skip(1))
+                            {
+                                writer.WriteRow(true, string.Empty, string.Empty, string.Empty, vuln.Id);
+                            }
+                        }
                     }
                 }
             }
@@ -132,7 +142,7 @@ namespace Osmy.Cli
                     foreach (var file in sbom.Files)
                     {
                         var hasError = file.Status != ChecksumCorrectness.Correct ? "*" : string.Empty;
-                        writer.WriteRow(hasError, file.FileName, file.ToString());
+                        writer.WriteRow(hasError, file.FileName, file.Status.ToString());
                     }
                 }
             }
