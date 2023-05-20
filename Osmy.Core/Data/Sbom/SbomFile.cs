@@ -20,11 +20,12 @@ namespace Osmy.Core.Data.Sbom
             Checksums = Enumerable.Empty<SbomFileChecksum>();
         }
 
-        public SbomFile(long id, long sbomId, string fileName, IEnumerable<SbomFileChecksum> checksums)
+        public SbomFile(long id, long sbomId, string fileName, ChecksumCorrectness status, IEnumerable<SbomFileChecksum> checksums)
         {
             Id = id;
             SbomId = sbomId;
             FileName = fileName;
+            Status = status;
             Checksums = checksums.ToList();
         }
     }

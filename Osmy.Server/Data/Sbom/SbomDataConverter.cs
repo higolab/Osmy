@@ -41,7 +41,7 @@ namespace Osmy.Server.Data.Sbom
 
         public static Target.SbomFile ConvertSbomFile(SbomFileComponent from)
         {
-            return new Target.SbomFile(from.Id, from.SbomId, from.FileName, from.Checksums);
+            return new Target.SbomFile(from.Id, from.SbomId, from.FileName, from.Status, from.Checksums);
         }
 
         public static IEnumerable<Target.SbomFile> ConvertSbomFiles(IEnumerable<SbomFileComponent> from)
