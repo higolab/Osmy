@@ -67,7 +67,7 @@ namespace Osmy.Server.Data.Sbom
 
         public static Target.VulnerabilityData ConvertVulnerabilityData(VulnerabilityData from)
         {
-            return new Target.VulnerabilityData(from.Id, from.Modified, from.Data);
+            return new Target.VulnerabilityData(from.Id, from.Modified, from.Data.Data);
         }
 
         public static IEnumerable<Target.VulnerabilityData> ConvertVulnerabilityDataList(IEnumerable<VulnerabilityData> from)

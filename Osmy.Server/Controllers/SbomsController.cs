@@ -35,6 +35,7 @@ namespace Osmy.Server.Controllers
             using var dbContext = new SoftwareDbContext();
             var sbom = await dbContext.Sboms.Include(x => x.Packages)
                                             .ThenInclude(x => x.Vulnerabilities)
+                                            .ThenInclude(x => x.Data)
                                             .Include(x => x.Files)
                                             .Include(x => x.ExternalReferences)
                                             .FirstOrDefaultAsync(x => x.Id == sbomId);
