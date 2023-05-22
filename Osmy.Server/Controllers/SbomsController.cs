@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Osmy.Core.Data.Sbom;
+using Osmy.Core.Util;
 using Osmy.Server.Data;
 using Osmy.Server.Data.Sbom;
 using Osmy.Server.Services;
@@ -50,6 +51,13 @@ namespace Osmy.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<Core.Data.Sbom.Sbom>> Post([FromForm] SbomAddRequest request)
         {
+            // SPDXファイルの拡張子を確認
+            if (!SpdxUtil.HasValidExtension(request.File.FileName))
+            {
+                return BadRequest($"{request.File.FileName} does not have a valid extension for spdx document files.");
+            }
+
+            // ローカルディレクトリが存在するか確認
             if (request.LocalDirectory is not null)
             {
                 if (!Path.IsPathFullyQualified(request.LocalDirectory))
