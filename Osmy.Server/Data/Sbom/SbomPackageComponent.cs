@@ -11,7 +11,7 @@ namespace Osmy.Server.Data.Sbom
         [Key]
         public long Id { get; set; }
 
-        public Sbom Sbom { get; set; }
+        public long SbomId { get; set; }
 
         public string Name { get; set; }
         
@@ -32,7 +32,6 @@ namespace Osmy.Server.Data.Sbom
 
         public SbomPackageComponent(string name, string referenceId, string? version, bool isRootPackage)
         {
-            Sbom = default!;
             Name = name;
             ReferenceId = referenceId;
             Version = version;

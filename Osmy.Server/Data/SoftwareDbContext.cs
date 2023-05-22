@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Osmy.Core.Configuration;
 using Osmy.Server.Data.Sbom;
-using Osmy.Server.Services;
 
 namespace Osmy.Server.Data
 {
@@ -23,6 +22,8 @@ namespace Osmy.Server.Data
         public static string DbPath { get; }
 
         public DbSet<Sbom.Sbom> Sboms { get; set; }
+
+        public DbSet<SbomPackageComponent> Packages { get; set; }
 
         public DbSet<SbomFileComponent> Files { get; set; }
 
@@ -59,6 +60,7 @@ namespace Osmy.Server.Data
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             options.UseSqlite($"Data Source={DbPath}");
+            //options.LogTo(Console.WriteLine, LogLevel.Information);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
