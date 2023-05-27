@@ -32,12 +32,7 @@
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.0-preview5" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.0-preview5" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.0-preview5" />
-    <PackageReference Include="CycloneDX.Spdx" Version="5.2.3" />
     <PackageReference Include="Material.Icons.Avalonia" Version="2.0.0-preview2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.0" />
-    <PackageReference Include="Octokit" Version="4.0.3" />
-    <PackageReference Include="OSV.Client" Version="0.1.1" />
-    <PackageReference Include="QuikGraph" Version="2.5.0" />
     <PackageReference Include="ReactiveProperty" Version="9.0.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
     <PackageReference Include="XamlNameReferenceGenerator" Version="1.6.1" />
