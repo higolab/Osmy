@@ -67,5 +67,16 @@ LC_ALL=C ./Osmy.Gui
 ## ビルド方法
 
 通常のC#プログラムとしてビルド可能です．
-クローンしたソリューションファイルをVisual Studioで開いてビルドを行うか，
-dotnetコマンドを用いてビルドしてください．
+
+ソリューションファイルをVisual Studioで開いてビルドを行うか，
+[PowerShellスクリプト](build/createRelease.ps1)を実行することでビルドできます．
+
+dotnetコマンドを直接実行する場合は以下のように引数を与えます．
+
+```powershell
+# Windows
+dotnet publish <プロジェクトのパス> -o <出力先ディレクトリ> -c Release -r win-x64 -p:PublishReadyToRun=true --no-self-contained
+
+# Linux
+dotnet publish <プロジェクトのパス> -o <出力先ディレクトリ> -c Release -r linux-x64 -p:PublishReadyToRun=true --no-self-contained
+```
