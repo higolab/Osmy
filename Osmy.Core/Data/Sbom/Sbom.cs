@@ -36,16 +36,6 @@
         private string? _localDirectory;
 
         /// <summary>
-        /// ファイル内容のバイト配列
-        /// </summary>
-        public byte[] Content
-        {
-            get => _content;
-            set => SetProperty(ref _content, value);
-        }
-        private byte[] _content = Array.Empty<byte>();
-
-        /// <summary>
         /// 最終脆弱性診断実行日時
         /// </summary>
         public DateTime? LastVulnerabilityScan { get; set; }
