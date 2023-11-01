@@ -74,7 +74,7 @@ namespace Osmy.Server.Services
                 var result = ChecksumCorrectness.FileNotFound;
                 if (File.Exists(path))
                 {
-                    string sha1Hash = file.Checksums.First(x => x.Algorithm == Core.Data.Sbom.ChecksumAlgorithm.SHA1).Value;
+                    string sha1Hash = file.Checksums.First(x => x.Algorithm == ChecksumAlgorithm.SHA1).Value;
                     byte[] localFileHash = await ComputeSHA1Async(path, cancellationToken);
                     bool isValid = CompareHash(sha1Hash, localFileHash);
                     result = isValid ? ChecksumCorrectness.Correct : ChecksumCorrectness.Incorrect;
@@ -84,6 +84,7 @@ namespace Osmy.Server.Services
             });
             await Task.WhenAll(results);
             sbom.LastFileCheck = executed;
+            sbom.HasFileError = sbom.Files.Any(file => file.Status != ChecksumCorrectness.Correct);
 
             await dbContext.SaveChangesAsync(cancellationToken);
         }
