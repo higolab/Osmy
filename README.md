@@ -52,7 +52,7 @@ LC_ALL=C ./Osmy.Gui
 ./Osmy.Gui
 ```
 
-### Osmy.Cli
+### CLI クライアント（Osmy.Cli）
 
 以下のように引数なしで実行するとヘルプが表示されます．
 
