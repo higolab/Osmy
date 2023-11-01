@@ -21,7 +21,7 @@ namespace Osmy.Server.Data.Sbom.Spdx
         /// <exception cref="SpdxConvertException"></exception>
         public static byte[] ConvertToJson(string path)
         {
-            if (!File.Exists(ConverterPath)) { throw new FileNotFoundException(null, path); }
+            if (!File.Exists(ConverterPath)) { throw new FileNotFoundException(null, ConverterPath); }
 
             /*
              * 出力先ファイルパスの作成
