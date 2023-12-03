@@ -22,13 +22,11 @@
 
 		<Grid Grid.Column="0" Margin="5">
 			<Grid.RowDefinitions>
-				<RowDefinition Height="Auto"/>
 				<RowDefinition Height="*"/>
 				<RowDefinition Height="Auto"/>
 			</Grid.RowDefinitions>
 
-			<TextBlock Grid.Row="0" Text="SBOMs"/>
-			<ListBox Grid.Row="1" Items="{Binding SbomInfos.Value}"
+			<ListBox Grid.Row="0" Items="{Binding SbomInfos.Value}"
                SelectedItem="{Binding SelectedSbomInfo.Value}" SelectionMode="Single">
 				<ListBox.ItemTemplate>
 					<DataTemplate>
@@ -37,7 +35,7 @@
 				</ListBox.ItemTemplate>
 			</ListBox>
 
-			<StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+			<StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
 				<Button ToolTip.Tip="Add SBOM" Height="30"
                 Command="{Binding AddSbomCommand}">
 					<StackPanel Orientation="Horizontal">
