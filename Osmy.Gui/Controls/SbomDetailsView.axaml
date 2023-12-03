@@ -73,7 +73,7 @@
                       CanUserReorderColumns="False"
                       IsReadOnly="True"
                       IsVisible="{Binding Sbom.Value.LastVulnerabilityScan, Converter={x:Static ObjectConverters.IsNotNull}}"
-                      Items="{Binding Sbom.Value.Packages}"
+                      ItemsSource="{Binding Sbom.Value.Packages}"
                       SelectionMode="Extended">
               <DataGrid.Columns>
                 <DataGridTemplateColumn>
@@ -132,7 +132,7 @@
               </TextBlock>
 
               <ScrollViewer Grid.Row="2">
-                <ItemsControl Items="{ReflectionBinding SelectedItem.Vulnerabilities, ElementName=scanResult}">
+                <ItemsControl ItemsSource="{ReflectionBinding SelectedItem.Vulnerabilities, ElementName=scanResult}">
                   <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="sbom:VulnerabilityData">
                       <Border Margin="0,5,10,0" Padding="5,0,5,5"
@@ -151,7 +151,7 @@
 
                           <StackPanel Grid.Row="0">
                             <HeaderedContentControl Content="{Binding Id}" Header="ID" />
-                            <ItemsControl Items="{Binding Aliases}">
+                            <ItemsControl ItemsSource="{Binding Aliases}">
                               <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                   <TextBlock Text="{Binding}" />
@@ -168,7 +168,7 @@
 
                           <StackPanel Grid.Row="2">
                             <TextBlock Text="Severity" />
-                            <ItemsControl Items="{Binding Severity}">
+                            <ItemsControl ItemsSource="{Binding Severity}">
                               <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                   <TextBlock TextWrapping="Wrap">
@@ -187,7 +187,7 @@
 
                           <StackPanel Grid.Row="4" Margin="0,5,0,0">
                             <TextBlock Classes="AccentText" Text="Affected" />
-                            <ItemsControl Items="{Binding Affected}">
+                            <ItemsControl ItemsSource="{Binding Affected}">
                               <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                   <HeaderedContentControl Classes="GroupBox">
@@ -241,7 +241,7 @@
                                             </ItemsPanelTemplate>
                                           </ItemsControl.ItemsPanel>
                                         </ItemsControl>-->
-                                        <ItemsControl Margin="2" Items="{Binding Versions}">
+                                        <ItemsControl Margin="2" ItemsSource="{Binding Versions}">
                                           <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                               <Border Margin="0,2,2,2" Padding="3,0"
@@ -283,7 +283,7 @@
                             </Expander.Header>
 
                             <Expander.Content>
-                              <ItemsControl Items="{Binding References}">
+                              <ItemsControl ItemsSource="{Binding References}">
                                 <ItemsControl.ItemTemplate>
                                   <DataTemplate>
                                     <TextBlock TextWrapping="Wrap" ToolTip.Tip="{Binding Url}">
@@ -345,7 +345,7 @@
                       AutoGenerateColumns="False"
                       CanUserReorderColumns="False"
                       IsReadOnly="True"
-                      Items="{Binding Sbom.Value.Files}"
+                      ItemsSource="{Binding Sbom.Value.Files}"
                       SelectionMode="Single">
               <DataGrid.IsVisible>
                 <MultiBinding Converter="{x:Static BoolConverters.And}">
@@ -440,7 +440,7 @@
                        IsVisible="{Binding RelatedSboms.Value.Length, Converter={x:Static converters:CompareConverters.EqualsConverter}, ConverterParameter=0}"
                        Text="No related SBOM" />
 
-            <ItemsControl IsVisible="{Binding RelatedSboms.Value.Length, Converter={x:Static converters:CompareConverters.NotEqualsConverter}, ConverterParameter=0}" Items="{Binding RelatedSboms.Value}">
+            <ItemsControl IsVisible="{Binding RelatedSboms.Value.Length, Converter={x:Static converters:CompareConverters.NotEqualsConverter}, ConverterParameter=0}" ItemsSource="{Binding RelatedSboms.Value}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
                   <controls:SbomInfoView x:DataType="sbom:Sbom" Value="{Binding}" />

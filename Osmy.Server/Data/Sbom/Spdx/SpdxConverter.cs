@@ -184,9 +184,5 @@ namespace Osmy.Server.Data.Sbom.Spdx
         public SpdxConvertException(string? message, Exception? innerException) : base(message, innerException)
         {
         }
-
-        protected SpdxConvertException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
     }
 }

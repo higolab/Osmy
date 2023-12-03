@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Osmy.Server.Data.Sbom.Spdx;
+﻿using Osmy.Server.Data.Sbom.Spdx;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
@@ -38,7 +37,6 @@ namespace Osmy.Server.Data.Sbom
         /// <summary>
         /// ファイル内容
         /// </summary>
-        [DeleteBehavior(DeleteBehavior.Cascade)]
         public RawSbom RawSbom { get; set; }
 
         /// <summary>
@@ -64,19 +62,16 @@ namespace Osmy.Server.Data.Sbom
         /// <summary>
         /// ファイルリスト
         /// </summary>
-        [DeleteBehavior(DeleteBehavior.Cascade)]
         public List<SbomFileComponent> Files { get; set; }
 
         /// <summary>
         /// パッケージリスト
         /// </summary>
-        [DeleteBehavior(DeleteBehavior.Cascade)]
         public List<SbomPackageComponent> Packages { get; set; }
 
         /// <summary>
         /// 外部参照
         /// </summary>
-        //[DeleteBehavior(DeleteBehavior.Cascade)]
         public List<SbomExternalReferenceComponent> ExternalReferences { get; set; }
 
         /// <summary>

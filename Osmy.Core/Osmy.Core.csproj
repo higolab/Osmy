@@ -1,15 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-		<VersionPrefix>0.9.0</VersionPrefix>
+		<VersionPrefix>0.9.1.0</VersionPrefix>
 		<VersionSuffix></VersionSuffix>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CycloneDX.Spdx" Version="5.2.3" />
+    <PackageReference Include="CycloneDX.Spdx" Version="6.0.0" />
     <PackageReference Include="OSV.Client" Version="0.1.1" />
   </ItemGroup>
 

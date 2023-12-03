@@ -107,7 +107,7 @@ namespace Osmy.Gui.Controls
             var storageProvider = GetStorageProvider();
             var dir = Directory.Exists(SelectedPath) ? SelectedPath : Path.GetDirectoryName(SelectedPath);
 
-            return dir is null ? null : await storageProvider.TryGetFolderFromPath(dir);
+            return dir is null ? null : await storageProvider.TryGetFolderFromPathAsync(dir);
         }
 
         private IStorageProvider GetStorageProvider()

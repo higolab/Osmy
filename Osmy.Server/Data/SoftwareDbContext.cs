@@ -67,11 +67,41 @@ namespace Osmy.Server.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // SBOMと脆弱性データは多対多
+            // パッケージ情報と脆弱性データは多対多
             modelBuilder.Entity<SbomPackageComponent>()
                 .HasMany(e => e.Vulnerabilities)
                 .WithMany(e => e.SbomPackageComponents)
                 .UsingEntity<SbomPackageVulnerabilityPair>();
+
+            // 以下はDeleteBehaviorの設定のために記述
+            // MEMO: プロパティに属性を記述する方法はエラーが出て動かなかった
+            modelBuilder.Entity<Sbom.Sbom>()
+                .HasOne(e => e.RawSbom)
+                .WithOne()
+                .HasForeignKey<RawSbom>(e => e.SbomId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Sbom.Sbom>()
+                .HasMany(e => e.Files)
+                .WithOne(e => e.Sbom)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<SbomFileComponent>()
+                .HasMany(e => e.Checksums)
+                .WithOne()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Sbom.Sbom>()
+                .HasMany(e => e.Packages)
+                .WithOne()
+                .HasForeignKey(e => e.SbomId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Sbom.Sbom>()
+                .HasMany(e => e.ExternalReferences)
+                .WithOne()
+                .HasForeignKey(e => e.SbomId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

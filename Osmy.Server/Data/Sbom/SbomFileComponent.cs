@@ -1,5 +1,4 @@
 ﻿using CycloneDX.Spdx.Models.v2_2;
-using Microsoft.EntityFrameworkCore;
 using Osmy.Core.Data.Sbom;
 
 namespace Osmy.Server.Data.Sbom
@@ -15,7 +14,6 @@ namespace Osmy.Server.Data.Sbom
 
         public ChecksumCorrectness Status { get; set; }
 
-        [DeleteBehavior(DeleteBehavior.Cascade)]
         public List<SbomFileChecksum> Checksums { get; set; }
 
         public SbomFileComponent()
