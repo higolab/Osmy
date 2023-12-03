@@ -127,7 +127,15 @@ namespace Osmy.Gui.ViewModels
         private static IEnumerable<Sbom> FetchSbomInfos()
         {
             using var client = new RestClient();
-            return client.GetSboms();
+            try
+            {
+                return client.GetSboms();
+            }
+            catch
+            {
+                // TODO show message dialog
+                return Enumerable.Empty<Sbom>();
+            }
         }
 
         private static Sbom GetSbomFullData(long sbomId)
