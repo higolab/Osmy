@@ -24,14 +24,15 @@ namespace Osmy.Server.Data.Sbom.Spdx
         /// </summary>
         /// <param name="stream">内容のストリーム</param>
         /// <returns>SPDX文書</returns>
-        /// <exception cref="FileFormatException"></exception>
+        /// <exception cref="JsonException"></exception>
         /// <remarks><see cref="ExternalRefCategoryJsonConverter"/>を用いて解析します．</remarks>
         public static SpdxModels.SpdxDocument Deserialize(Stream stream)
         {
             var options = CycloneDX.Spdx.Serialization.JsonSerializer.GetJsonSerializerOptions_v2_2();
             options.Converters.Insert(0, new ExternalRefCategoryJsonConverter());
 
-            return JsonSerializer.Deserialize<SpdxModels.SpdxDocument>(stream, options) ?? throw new IOException(); // TODO 適切な例外の使用
+            return JsonSerializer.Deserialize<SpdxModels.SpdxDocument>(stream, options)
+                ?? throw new JsonException("An SPDX document cannnot be null");
         }
 
         public static void Serialize(SpdxModels.SpdxDocument document, string path)
