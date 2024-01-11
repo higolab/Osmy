@@ -40,7 +40,7 @@
 			<TextBox Grid.Row="0" Grid.Column="1" x:Name="sbomName" Margin="0 5"
                Text="{Binding Name.Value}"/>
 
-			<TextBlock Grid.Row="1" Grid.Column="0" Text="SBOM File"/>
+			<TextBlock Grid.Row="1" Grid.Column="0" Text="SPDX File"/>
 			<controls:PathSelector Grid.Row="1" Grid.Column="1" Margin="0 5"
                              SelectedPath="{Binding SbomFileName.Value}"/>
 

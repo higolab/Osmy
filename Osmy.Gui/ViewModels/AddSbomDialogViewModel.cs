@@ -7,7 +7,7 @@ namespace Osmy.Gui.ViewModels
 {
     public class AddSbomDialogViewModel : ViewModelBase
     {
-        public static string Title => "Add SBOM";
+        public static string Title => "Add Software";
 
         public ReactiveProperty<string> Name { get; }
         public ReactiveProperty<string> SbomFileName { get; }
@@ -20,7 +20,7 @@ namespace Osmy.Gui.ViewModels
             Name = new ReactiveProperty<string>()
                 .SetValidateNotifyError(value => string.IsNullOrWhiteSpace(value) ? "Name cannot be empty." : null);
             SbomFileName = new ReactiveProperty<string>()
-                .SetValidateNotifyError(value => string.IsNullOrWhiteSpace(value) ? "Select a SBOM file." : null);
+                .SetValidateNotifyError(value => string.IsNullOrWhiteSpace(value) ? "Select an SPDX file." : null);
             LocalDirectory = new ReactiveProperty<string?>();
 
             CloseDialogCommand = ReactiveUI.ReactiveCommand.Create<string, SelectedSbomInfo>(CloseDialog,
