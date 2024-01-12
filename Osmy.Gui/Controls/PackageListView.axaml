@@ -1,0 +1,110 @@
+<UserControl x:Class="Osmy.Gui.Controls.PackageListView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:Osmy.Gui.Controls"
+             xmlns:converters="using:Osmy.Gui.Converters"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:sbom="clr-namespace:Osmy.Core.Data.Sbom;assembly=Osmy.Core"
+             d:DesignHeight="450" d:DesignWidth="800"
+             x:DataType="sbom:Sbom" mc:Ignorable="d">
+  <UserControl.Resources>
+    <controls:PackageToBackgroundConverter x:Key="packageToBackgroundConverter" />
+  </UserControl.Resources>
+
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*" />
+      <ColumnDefinition Width="Auto" />
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+
+    <TextBlock Grid.Row="0" Margin="3,0,0,0"
+               IsVisible="{Binding Sbom.Value.LastVulnerabilityScan, Converter={x:Static ObjectConverters.IsNotNull}}"
+               Text="{Binding Sbom.Value.LastVulnerabilityScan, StringFormat=Last Scan: {0:yyyy/MM/dd HH:mm:ss}}" />
+
+    <TextBlock Grid.Row="0" Margin="3,0,0,0"
+               IsVisible="{Binding Sbom.Value.LastVulnerabilityScan, Converter={x:Static ObjectConverters.IsNull}}"
+               Text="Vulnerability scan is not yet executed" />
+
+    <DataGrid x:Name="scanResult" Grid.Row="1"
+              Margin="0,5" AutoGenerateColumns="False"
+              CanUserReorderColumns="False"
+              IsReadOnly="True"
+              IsVisible="{Binding Sbom.Value.LastVulnerabilityScan, Converter={x:Static ObjectConverters.IsNotNull}}"
+              ItemsSource="{Binding Sbom.Value.Packages}"
+              SelectionMode="Extended">
+      <DataGrid.Columns>
+        <DataGridTemplateColumn>
+          <DataTemplate>
+            <materialIcons:MaterialIcon Width="22" Height="22" Foreground="Red"
+                                        IsVisible="{Binding Vulnerabilities, Converter={x:Static converters:CollectionConverters.NotEmpty}}"
+                                        Kind="Bug"
+                                        ToolTip.Tip="Vulnerabilities detected" />
+          </DataTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTextColumn Binding="{Binding Name}" Header="Name" />
+        <DataGridTextColumn Binding="{Binding Version}" Header="Version" />
+      </DataGrid.Columns>
+
+      <DataGrid.Styles>
+        <Style Selector="DataGridRow">
+          <Setter x:DataType="sbom:SbomPackage" Property="Background" Value="{Binding, Converter={StaticResource packageToBackgroundConverter}}" />
+        </Style>
+      </DataGrid.Styles>
+    </DataGrid>
+
+    <GridSplitter Grid.RowSpan="2" Grid.Column="1"
+                  Width="5" Margin="5"
+                  Background="LightGray" />
+
+    <Grid Grid.RowSpan="2" Grid.Column="2">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
+      </Grid.RowDefinitions>
+
+      <StackPanel Grid.Row="0" Margin="0,5,0,0"
+                  Orientation="Horizontal">
+        <materialIcons:MaterialIcon VerticalAlignment="Center"
+                                    Foreground="Red" Kind="Bug" />
+        <TextBlock Margin="5,0,0,0" FontSize="14"
+                   FontWeight="Bold" Foreground="Red"
+                   Text="Vulnerability Details" />
+      </StackPanel>
+
+      <TextBlock Grid.Row="1"
+                 IsVisible="{Binding SelectedItem, ElementName=scanResult, Converter={x:Static ObjectConverters.IsNull}}"
+                 Text="Please select a package" />
+      <TextBlock Grid.Row="1" Text="No vulnerabilities detected in this package">
+        <TextBlock.IsVisible>
+          <MultiBinding Converter="{x:Static converters:ShortCircuitBoolConverters.And}">
+            <Binding Converter="{x:Static ObjectConverters.IsNotNull}"
+                     ElementName="scanResult"
+                     Path="SelectedItem" />
+            <ReflectionBinding Converter="{x:Static converters:CollectionConverters.Empty}"
+                               ElementName="scanResult"
+                               Path="SelectedItem.Vulnerabilities" />
+          </MultiBinding>
+        </TextBlock.IsVisible>
+      </TextBlock>
+
+      <ScrollViewer Grid.Row="2" Padding="0,0,5,0">
+        <ItemsControl ItemsSource="{ReflectionBinding SelectedItem.Vulnerabilities, ElementName=scanResult}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="sbom:VulnerabilityData">
+              <controls:VulnerabilityView DataContext="{Binding Vulnerability}" />
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Grid>
+  </Grid>
+</UserControl>
