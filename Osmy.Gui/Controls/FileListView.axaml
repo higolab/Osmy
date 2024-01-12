@@ -1,0 +1,136 @@
+<UserControl x:Class="Osmy.Gui.Controls.FileListView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="using:Osmy.Gui.Converters"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:sbom="clr-namespace:Osmy.Core.Data.Sbom;assembly=Osmy.Core"
+             d:DesignHeight="450" d:DesignWidth="800"
+             mc:Ignorable="d">
+  <!--  MEMO StackPanelで積むとDataGridの描画に問題が生じるためGridを使用  -->
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+
+    <TextBlock Grid.Row="0" Margin="3,0,0,0"
+               Text="{Binding Sbom.Value.LastFileCheck, StringFormat=Last Verification: {0:yyyy/MM/dd HH:mm:ss}}">
+      <TextBlock.IsVisible>
+        <MultiBinding Converter="{x:Static BoolConverters.And}">
+          <MultiBinding.Bindings>
+            <Binding Converter="{x:Static ObjectConverters.IsNotNull}" Path="Sbom.Value.LocalDirectory" />
+            <Binding Converter="{x:Static ObjectConverters.IsNotNull}" Path="Sbom.Value.LastFileCheck" />
+          </MultiBinding.Bindings>
+        </MultiBinding>
+      </TextBlock.IsVisible>
+    </TextBlock>
+
+    <TextBlock Grid.Row="0" Text="Checksum verification is not yet executed">
+      <TextBlock.IsVisible>
+        <MultiBinding Converter="{x:Static BoolConverters.And}">
+          <MultiBinding.Bindings>
+            <Binding Converter="{x:Static ObjectConverters.IsNotNull}" Path="Sbom.Value.LocalDirectory" />
+            <Binding Converter="{x:Static ObjectConverters.IsNull}" Path="Sbom.Value.LastFileCheck" />
+          </MultiBinding.Bindings>
+        </MultiBinding>
+      </TextBlock.IsVisible>
+    </TextBlock>
+
+    <TextBlock Grid.Row="1" Margin="3,0,0,0"
+               IsVisible="{Binding Sbom.Value.LocalDirectory, Converter={x:Static ObjectConverters.IsNull}}"
+               Text="Local directory is not selected" />
+
+    <DataGrid Grid.Row="1" Margin="0,5,0,0"
+              AutoGenerateColumns="False"
+              CanUserReorderColumns="False"
+              IsReadOnly="True"
+              ItemsSource="{Binding Sbom.Value.Files}"
+              SelectionMode="Single">
+      <DataGrid.IsVisible>
+        <MultiBinding Converter="{x:Static BoolConverters.And}">
+          <MultiBinding.Bindings>
+            <Binding Converter="{x:Static ObjectConverters.IsNotNull}" Path="Sbom.Value.LocalDirectory" />
+            <Binding Converter="{x:Static ObjectConverters.IsNotNull}" Path="Sbom.Value.LastFileCheck" />
+          </MultiBinding.Bindings>
+        </MultiBinding>
+      </DataGrid.IsVisible>
+
+      <DataGrid.Styles>
+        <Style Selector="materialIcons|MaterialIcon">
+          <Setter Property="Width" Value="22" />
+          <Setter Property="Height" Value="22" />
+          <Setter Property="Background" Value="Transparent" />
+        </Style>
+      </DataGrid.Styles>
+
+      <DataGrid.Columns>
+        <DataGridTemplateColumn>
+          <DataTemplate>
+            <StackPanel VerticalAlignment="Center">
+              <!--  問題なし  -->
+              <materialIcons:MaterialIcon Foreground="Green" Kind="FileCheck"
+                                          ToolTip.Tip="Correct">
+                <materialIcons:MaterialIcon.IsVisible>
+                  <MultiBinding Converter="{x:Static converters:ShortCircuitBoolConverters.And}">
+                    <MultiBinding.Bindings>
+                      <Binding Converter="{x:Static converters:CompareConverters.NotEqualsConverter}"
+                               ConverterParameter="{x:Static sbom:ChecksumCorrectness.Incorrect}"
+                               Path="Status" />
+                      <Binding Converter="{x:Static converters:CompareConverters.NotEqualsConverter}"
+                               ConverterParameter="{x:Static sbom:ChecksumCorrectness.FileNotFound}"
+                               Path="Status" />
+                    </MultiBinding.Bindings>
+                  </MultiBinding>
+                </materialIcons:MaterialIcon.IsVisible>
+              </materialIcons:MaterialIcon>
+
+              <!--  チェックサム不一致  -->
+              <materialIcons:MaterialIcon Margin="5,0,0,0" Foreground="Orange"
+                                          IsVisible="{Binding Status, Converter={x:Static converters:CompareConverters.EqualsConverter}, ConverterParameter={x:Static sbom:ChecksumCorrectness.Incorrect}}"
+                                          Kind="FileAlert"
+                                          ToolTip.Tip="Checksum Mismatched" />
+
+              <!--  存在しないファイル  -->
+              <materialIcons:MaterialIcon Foreground="Gray"
+                                          IsVisible="{Binding Status, Converter={x:Static converters:CompareConverters.EqualsConverter}, ConverterParameter={x:Static sbom:ChecksumCorrectness.FileNotFound}}"
+                                          Kind="FileHidden"
+                                          ToolTip.Tip="File Not Found" />
+            </StackPanel>
+          </DataTemplate>
+        </DataGridTemplateColumn>
+        <DataGridTextColumn Binding="{Binding FileName}" Header="Name" />
+        <!--  空のDataTemplateを設定するとNull参照例外が発生する  -->
+        <!--<DataGridTemplateColumn Header="Checksum">
+										<DataTemplate>-->
+        <!--<mah:DropDownButton ItemsSource="{Binding SbomFile.Checksums}" BorderBrush="Transparent" Background="Transparent" ToolTip="Copy to clipboard">
+												<mah:DropDownButton.Content>
+													<iconPacks:PackIconMaterial Kind="ContentCopy"/>
+												</mah:DropDownButton.Content>
+
+												<mah:DropDownButton.ItemTemplate>
+													<DataTemplate>
+														<StackPanel Orientation="Horizontal">
+															<Border BorderBrush="Gray" BorderThickness="1" CornerRadius="2" Padding="5 0" Margin="0 0 3 0"
+																			HorizontalAlignment="Left" Width="60" Background="Transparent">
+																<TextBlock Text="{Binding Algorithm}" HorizontalAlignment="Center"/>
+															</Border>
+															<TextBlock Text="{Binding Value}"/>
+														</StackPanel>
+													</DataTemplate>
+												</mah:DropDownButton.ItemTemplate>
+
+												<mah:DropDownButton.ItemContainerStyle>
+													<Style BasedOn="{StaticResource {x:Type MenuItem}}" TargetType="{x:Type MenuItem}">
+														<Setter Property="Command" Value="{Binding DataContext.CopyChecksumToClipboardCommand, RelativeSource={RelativeSource AncestorType={x:Type v:SbomDetailsView}}}" />
+														<Setter Property="CommandParameter" Value="{Binding Value}" />
+													</Style>
+												</mah:DropDownButton.ItemContainerStyle>
+											</mah:DropDownButton>-->
+        <!--</DataTemplate>
+									</DataGridTemplateColumn>-->
+      </DataGrid.Columns>
+    </DataGrid>
+  </Grid>
+</UserControl>
