@@ -1,57 +1,67 @@
-﻿<Window xmlns="https://github.com/avaloniaui"
-				xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-				xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-				xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-				xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-				xmlns:controls="clr-namespace:Osmy.Gui.Controls"
-				xmlns:local="clr-namespace:Osmy.Gui.Views"
-				xmlns:vm="clr-namespace:Osmy.Gui.ViewModels"
-				mc:Ignorable="d"
-				x:Class="Osmy.Gui.Views.AddSbomDialog"
-				Width="450"
-				CanResize="False" SizeToContent="Height"
-				WindowStartupLocation="CenterOwner"
-				Title="{Binding	Title}">
-	<Grid Margin="5">
-		<Grid.Styles>
-			<Style Selector="TextBlock">
-				<Setter Property="VerticalAlignment" Value="Center"/>
-			</Style>
-		</Grid.Styles>
+﻿<Window x:Class="Osmy.Gui.Views.AddSbomDialog"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:Osmy.Gui.Controls"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:Osmy.Gui.Views"
+        xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:Osmy.Gui.ViewModels"
+        Title="{Binding Title}"
+        Width="450" CanResize="False"
+        Icon="/Assets/osmy-logo.ico"
+        SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        mc:Ignorable="d">
+  <Grid Margin="5">
+    <Grid.Styles>
+      <Style Selector="TextBlock">
+        <Setter Property="VerticalAlignment" Value="Center" />
+      </Style>
+    </Grid.Styles>
 
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto"/>
-			<RowDefinition Height="Auto"/>
-		</Grid.RowDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
 
-		<Grid Grid.Row="0">
-			<Grid.RowDefinitions>
-				<RowDefinition Height="Auto"/>
-				<RowDefinition Height="Auto"/>
-				<RowDefinition Height="Auto"/>
-			</Grid.RowDefinitions>
+    <Grid Grid.Row="0">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
 
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="120"/>
-				<ColumnDefinition Width="*"/>
-			</Grid.ColumnDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="120" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
 
-			<TextBlock Grid.Row="0" Grid.Column="0" Text="Name"/>
-			<TextBox Grid.Row="0" Grid.Column="1" x:Name="sbomName" Margin="0 5"
-               Text="{Binding Name.Value}"/>
+      <TextBlock Grid.Row="0" Grid.Column="0" Text="Name" />
+      <TextBox x:Name="sbomName" Grid.Row="0"
+               Grid.Column="1" Margin="0,5"
+               Text="{Binding Name.Value}" />
 
-			<TextBlock Grid.Row="1" Grid.Column="0" Text="SPDX File"/>
-			<controls:PathSelector Grid.Row="1" Grid.Column="1" Margin="0 5"
-                             SelectedPath="{Binding SbomFileName.Value}"/>
+      <TextBlock Grid.Row="1" Grid.Column="0"
+                 Text="SPDX File" />
+      <controls:PathSelector Grid.Row="1" Grid.Column="1"
+                             Margin="0,5"
+                             SelectedPath="{Binding SbomFileName.Value}" />
 
-			<TextBlock Grid.Row="2" Grid.Column="0" Text="Local Directory"/>
-			<controls:PathSelector Grid.Row="2" Grid.Column="1" Margin="0 5"
-                             SelectedPath="{Binding LocalDirectory.Value}"
-                             PathSelectionMode="Directory"/>
-		</Grid>
+      <TextBlock Grid.Row="2" Grid.Column="0"
+                 Text="Local Directory" />
+      <controls:PathSelector Grid.Row="2" Grid.Column="1"
+                             Margin="0,5"
+                             PathSelectionMode="Directory"
+                             SelectedPath="{Binding LocalDirectory.Value}" />
+    </Grid>
 
-		<StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0 10 0 0">
-			<Button Content="OK" Command="{Binding CloseDialogCommand}" CommandParameter="ok" Width="100"/>
-		</StackPanel>
-	</Grid>
+    <StackPanel Grid.Row="1" Margin="0,10,0,0"
+                HorizontalAlignment="Center"
+                Orientation="Horizontal">
+      <Button Width="100"
+              Command="{Binding CloseDialogCommand}"
+              CommandParameter="ok" Content="OK" />
+    </StackPanel>
+  </Grid>
 </Window>
