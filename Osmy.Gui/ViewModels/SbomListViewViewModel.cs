@@ -54,22 +54,6 @@ namespace Osmy.Gui.ViewModels
             var result = await ShowAddSbomDialog.Handle(store);
             if (result is null) { return; }
 
-            //throw new NotImplementedException();
-            //Sbom sbom;
-            try
-            {
-                // TODO
-                //sbom = new Spdx(result.Name, result.SbomFileName, result.LocalDirectory);
-            }
-            catch (Exception /*ex*/)
-            {
-                // TODO
-                //const string errorMessage = "Failed to load the SBOM file";
-                //_logger.LogError(ex, errorMessage);
-                //_messageBoxService.ShowInformationMessage(errorMessage);
-                return;
-            }
-
             using var client = new RestClient();
             var sbomInfo = new AddSbomInfo(result.Name, result.SbomFileName, result.LocalDirectory);
             var sbom = await client.CreateSbomAsync(sbomInfo);

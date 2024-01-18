@@ -1,7 +1,4 @@
-﻿//using Microsoft.Toolkit.Uwp.Notifications;
-
-using MailKit.Net.Smtp;
-using Microsoft.EntityFrameworkCore;
+﻿using MailKit.Net.Smtp;
 using MimeKit;
 using Osmy.Server.Data;
 using System.Text;
@@ -11,8 +8,6 @@ namespace Osmy.Server.Services
     /// <summary>
     /// アプリ通知サービス
     /// </summary>
-    /// <see cref="https://learn.microsoft.com/ja-jp/windows/apps/design/shell/tiles-and-notifications/send-local-toast?tabs=desktop"/>
-    // TODO マルチプラットフォーム対応の通知方法を検討
     internal class AppNotificationService : IAppNotificationService
     {
         /// <summary>
