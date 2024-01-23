@@ -1,0 +1,220 @@
+<svg width="4006" height="1198" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  xml:space="preserve" overflow="hidden">
+  <g transform="translate(-196 -722)">
+    <style>
+      path:not(.automatic) {
+        stroke: rgb(0, 0, 0);
+      }
+
+      path:not(.box) {
+        fill: rgb(0, 0, 0);
+      }
+
+      path[class~="automatic"] {
+        stroke: #4597A0;
+      }
+
+      rect {
+        stroke: rgb(0, 0, 0);
+      }
+
+      text:not(.automatic) {
+        fill: rgb(0, 0, 0);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        path:not(.automatic) {
+          stroke: rgb(230, 237, 243);
+        }
+
+        path:not(.box) {
+          fill: rgb(230, 237, 243);
+        }
+
+        rect {
+          stroke: rgb(230, 237, 243);
+        }
+
+        text:not(.automatic) {
+          fill: rgb(230, 237, 243);
+        }
+      }
+    </style>
+
+    <rect x="951.5" y="728.5" width="537" height="1110" stroke="#000000" stroke-width="9.16667" stroke-linejoin="round"
+      stroke-miterlimit="10" fill="none" />
+    <rect x="951.5" y="728.5" width="475" height="122" stroke="#000000" stroke-width="9.16667" stroke-linejoin="round"
+      stroke-miterlimit="10" fill="none" />
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="73"
+      transform="matrix(1 0 0 1 983.687 817)">Osmy</text>
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="73"
+      transform="matrix(1 0 0 1 1189.94 817)">Client</text>
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 3264.58 1269)">Package</text>
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 3264.58 1368)">Information</text>
+    <rect x="1576.5" y="728.5" width="1656" height="1110" stroke="#000000" stroke-width="9.16667"
+      stroke-linejoin="round" stroke-miterlimit="10" fill="none" />
+    <g>
+      <g>
+        <g>
+          <path
+            d="M720.5 1155.81C720.5 1171 708.188 1183.31 693 1183.31 677.812 1183.31 665.5 1171 665.5 1155.81 665.5 1140.62 677.812 1128.31 693 1128.31 708.188 1128.31 720.5 1140.62 720.5 1155.81Z" />
+          <path
+            d="M767.938 1297.44 748.688 1215.62C748 1212.87 746.625 1210.12 744.562 1208.06 736.312 1201.19 726.688 1196.37 715.688 1192.94 708.125 1191.56 700.562 1190.19 693 1190.19 685.438 1190.19 677.875 1191.56 670.312 1193.62 659.312 1196.37 649.688 1201.87 641.438 1208.75 639.375 1210.81 638 1213.56 637.312 1216.31L618.062 1298.12C618.062 1298.81 617.375 1300.19 617.375 1301.56 617.375 1309.12 623.562 1315.31 631.125 1315.31 637.312 1315.31 642.812 1310.5 644.188 1305L658.625 1245.19 658.625 1437.69 686.125 1437.69 686.125 1313.94 699.875 1313.94 699.875 1437.69 727.375 1437.69 727.375 1244.5 741.812 1304.31C743.188 1309.81 748.688 1314.62 754.875 1314.62 762.438 1314.62 768.625 1308.44 768.625 1300.87 768.625 1299.5 767.938 1298.12 767.938 1297.44Z" />
+        </g>
+      </g>
+    </g>
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 610.931 1546)">User</text>
+    <g>
+      <g>
+        <g>
+          <path d="M1832.69 967.938 1911.75 967.938 1911.75 974.813 1832.69 974.813Z" />
+          <path d="M1832.69 1019.5 1911.75 1019.5 1911.75 1026.38 1832.69 1026.38Z" />
+          <path d="M1832.69 1071.06 1911.75 1071.06 1911.75 1077.94 1832.69 1077.94Z" />
+          <path d="M1832.69 1122.62 1911.75 1122.62 1911.75 1129.5 1832.69 1129.5Z" />
+          <path
+            d="M1739.87 1184.5 1946.12 1184.5 1946.12 909.5 1739.87 909.5ZM1746.75 916.375 1939.25 916.375 1939.25 1177.62 1746.75 1177.62Z" />
+          <path
+            d="M1774.25 986.844 1805.19 986.844 1805.19 955.906 1774.25 955.906ZM1781.12 962.781 1798.31 962.781 1798.31 979.969 1781.12 979.969Z" />
+          <path
+            d="M1774.25 1038.41 1805.19 1038.41 1805.19 1007.47 1774.25 1007.47ZM1781.12 1014.34 1798.31 1014.34 1798.31 1031.53 1781.12 1031.53Z" />
+          <path
+            d="M1774.25 1089.97 1805.19 1089.97 1805.19 1059.03 1774.25 1059.03ZM1781.12 1065.91 1798.31 1065.91 1798.31 1083.09 1781.12 1083.09Z" />
+          <path
+            d="M1774.25 1141.53 1805.19 1141.53 1805.19 1110.59 1774.25 1110.59ZM1781.12 1117.47 1798.31 1117.47 1798.31 1134.66 1781.12 1134.66Z" />
+        </g>
+      </g>
+    </g>
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 1681.53 1281)">Software</text>
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 1780.64 1380)">List</text>
+    <path class="box"
+      d="M2372.5 1128.67C2372.5 1110.35 2387.35 1095.5 2405.67 1095.5L3115.33 1095.5C3133.65 1095.5 3148.5 1110.35 3148.5 1128.67L3148.5 1261.33C3148.5 1279.65 3133.65 1294.5 3115.33 1294.5L2405.67 1294.5C2387.35 1294.5 2372.5 1279.65 2372.5 1261.33Z"
+      stroke="#000000" stroke-width="9.16667" stroke-linejoin="round" stroke-miterlimit="10" fill="none"
+      fill-rule="evenodd" />
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 2529.6 1172)">File Integrity</text>
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 2557.67 1280)">Verification</text>
+    <path class="box"
+      d="M2372.5 1383.67C2372.5 1365.35 2387.35 1350.5 2405.67 1350.5L3115.33 1350.5C3133.65 1350.5 3148.5 1365.35 3148.5 1383.67L3148.5 1516.33C3148.5 1534.65 3133.65 1549.5 3115.33 1549.5L2405.67 1549.5C2387.35 1549.5 2372.5 1534.65 2372.5 1516.33Z"
+      stroke="#000000" stroke-width="9.16667" stroke-linejoin="round" stroke-miterlimit="10" fill="none"
+      fill-rule="evenodd" />
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 2536.19 1432)">Vulnerability</text>
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 2547.37 1531)">Assessment</text>
+    <g>
+      <g>
+        <g>
+          <path
+            d="M4064.69 1483.56 4064.69 1277.31C4064.69 1257.22 4013.33 1246.38 3965 1246.38 3916.67 1246.38 3865.31 1257.22 3865.31 1277.31L3865.31 1483.56C3865.31 1503.66 3916.67 1514.5 3965 1514.5 4013.33 1514.5 4064.69 1503.66 4064.69 1483.56ZM3965 1253.25C4018.12 1253.25 4057.81 1265.97 4057.81 1277.31 4057.81 1288.66 4018.12 1301.38 3965 1301.38 3911.88 1301.38 3872.19 1288.66 3872.19 1277.31 3872.19 1265.97 3911.88 1253.25 3965 1253.25ZM3872.19 1289.21C3887.76 1301.65 3927.3 1308.25 3965 1308.25 4002.7 1308.25 4042.24 1301.65 4057.81 1289.21L4057.81 1346.06C4057.81 1357.41 4018.12 1370.13 3965 1370.13 3911.88 1370.13 3872.19 1357.41 3872.19 1346.06ZM3872.19 1357.96C3887.76 1370.4 3927.3 1377 3965 1377 4002.7 1377 4042.24 1370.4 4057.81 1357.96L4057.81 1414.81C4057.81 1426.16 4018.12 1438.88 3965 1438.88 3911.88 1438.88 3872.19 1426.16 3872.19 1414.81ZM3872.19 1483.56 3872.19 1426.71C3887.76 1439.15 3927.3 1445.75 3965 1445.75 4002.7 1445.75 4042.24 1439.15 4057.81 1426.71L4057.81 1483.56C4057.81 1494.91 4018.12 1507.63 3965 1507.63 3911.88 1507.63 3872.19 1494.91 3872.19 1483.56Z" />
+          <path
+            d="M4040.63 1335.75C4040.63 1339.55 4037.55 1342.63 4033.75 1342.63 4029.95 1342.63 4026.88 1339.55 4026.88 1335.75 4026.88 1331.95 4029.95 1328.88 4033.75 1328.88 4037.55 1328.88 4040.63 1331.95 4040.63 1335.75Z" />
+          <path
+            d="M4040.63 1404.5C4040.63 1408.3 4037.55 1411.38 4033.75 1411.38 4029.95 1411.38 4026.88 1408.3 4026.88 1404.5 4026.88 1400.7 4029.95 1397.63 4033.75 1397.63 4037.55 1397.63 4040.63 1400.7 4040.63 1404.5Z" />
+          <path
+            d="M4040.63 1473.25C4040.63 1477.05 4037.55 1480.13 4033.75 1480.13 4029.95 1480.13 4026.88 1477.05 4026.88 1473.25 4026.88 1469.45 4029.95 1466.38 4033.75 1466.38 4037.55 1466.38 4040.63 1469.45 4040.63 1473.25Z" />
+        </g>
+      </g>
+    </g>
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 3888.48 1612)">OSV</text>
+    <text font-family="BIZ UDPGothic,BIZ UDPGothic_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 3778.75 1712)">（</text>
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 3820 1712)">Vuln </text>
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 4005.63 1712)">DB</text>
+    <text font-family="BIZ UDPGothic,BIZ UDPGothic_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 4110.47 1712)">）</text>
+    <path
+      d="M3148.5 1399.78 3775.19 1400.98 3775.19 1404.41 3148.5 1403.22ZM3770.63 1388.94 3798.11 1402.74 3770.58 1416.44Z" />
+    <path
+      d="M3798.1 1501.69 3171.41 1499.31 3171.42 1495.87 3798.11 1498.26ZM3175.95 1511.35 3148.5 1497.5 3176.05 1483.85Z" />
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 3264.57 1598)">Vulnerability</text>
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 3264.57 1697)">Information</text>
+    <path class="box automatic"
+      d="M2321.5 985.669C2321.5 911.017 2382.02 850.5 2456.67 850.5L3065.33 850.5C3139.98 850.5 3200.5 911.017 3200.5 985.669L3200.5 1526.33C3200.5 1600.98 3139.98 1661.5 3065.33 1661.5L2456.67 1661.5C2382.02 1661.5 2321.5 1600.98 2321.5 1526.33Z"
+      stroke="#4597A0" stroke-width="9.16667" stroke-linejoin="round" stroke-miterlimit="10" fill="none"
+      fill-rule="evenodd" />
+    <text class="automatic" fill="#4597A0" font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400"
+      font-size="83" transform="matrix(1 0 0 1 2422.75 950)">Automatic Periodic</text>
+    <text class="automatic" fill="#4597A0" font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400"
+      font-size="83" transform="matrix(1 0 0 1 2584.59 1049)">Execution</text>
+    <path d="M0 0 1858.84 0.000360892" stroke="#000000" stroke-width="3.4375" stroke-linejoin="round"
+      stroke-miterlimit="10" fill="none" fill-rule="evenodd" transform="matrix(-1 0 0 1 2552.34 1918.5)" />
+    <path
+      d="M1.71875-1.84119e-06 1.71909 313.977-1.71841 313.977-1.71875 1.84119e-06ZM13.7503 309.394 0.000360892 336.894-13.7497 309.394Z"
+      transform="matrix(1 0 0 -1 693.5 1918.39)" />
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 246.137 1803)">Notification</text>
+    <path
+      d="M1427.51 1044.78 1655.38 1045.54 1655.36 1048.98 1427.49 1048.22ZM1650.83 1033.49 1678.29 1047.34 1650.74 1060.99Z" />
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 2043.18 1006)">SPDX</text>
+    <rect x="1576.5" y="728.5" width="484" height="122" stroke="#000000" stroke-width="9.16667" stroke-linejoin="round"
+      stroke-miterlimit="10" fill="none" />
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="73"
+      transform="matrix(1 0 0 1 1609.46 817)">Osmy</text>
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="73"
+      transform="matrix(1 0 0 1 1815.71 817)">Server</text>
+    <path class="box"
+      d="M1015.5 980.667C1015.5 962.349 1030.35 947.5 1048.67 947.5L1394.33 947.5C1412.65 947.5 1427.5 962.349 1427.5 980.667L1427.5 1113.33C1427.5 1131.65 1412.65 1146.5 1394.33 1146.5L1048.67 1146.5C1030.35 1146.5 1015.5 1131.65 1015.5 1113.33Z"
+      stroke="#000000" stroke-width="9.16667" stroke-linejoin="round" stroke-miterlimit="10" fill="none"
+      fill-rule="evenodd" />
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 1150.57 1024)">Add</text>
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 1059.77 1132)">Software</text>
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 484.283 973)">Software</text>
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 484.283 1072)">Information</text>
+    <path class="box"
+      d="M1014.5 1504.83C1014.5 1486.42 1029.42 1471.5 1047.83 1471.5L1393.17 1471.5C1411.58 1471.5 1426.5 1486.42 1426.5 1504.83L1426.5 1638.17C1426.5 1656.58 1411.58 1671.5 1393.17 1671.5L1047.83 1671.5C1029.42 1671.5 1014.5 1656.58 1014.5 1638.17Z"
+      stroke="#000000" stroke-width="9.16667" stroke-linejoin="round" stroke-miterlimit="10" fill="none"
+      fill-rule="evenodd" />
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 1111.16 1548)">Check</text>
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="92"
+      transform="matrix(1 0 0 1 1075.37 1656)">Results</text>
+    <path d="M0 0 0.000360892 238.088" stroke="#000000" stroke-width="2.29167" stroke-miterlimit="8" fill="none"
+      fill-rule="evenodd" transform="matrix(1 0 0 -1 2552 1918.09)" />
+    <path
+      d="M2005 1039.85 2253.65 1039.85 2253.65 1042.15 2005 1042.15ZM2249.06 1027.25 2276.56 1041 2249.06 1054.75Z" />
+    <path
+      d="M2027.92 1569.85 2276.56 1569.85 2276.56 1572.15 2027.92 1572.15ZM2032.5 1584.75 2005 1571 2032.5 1557.25Z" />
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 2040.8 1532)">Result</text>
+    <path
+      d="M1.48139e-06-1.14583 256.229-1.1455 256.229 1.14616-1.48139e-06 1.14583ZM251.646-13.7497 279.146 0.000360892 251.646 13.7503Z"
+      transform="matrix(-1 0 0 1 1705.15 1571)" />
+    <g>
+      <g>
+        <g>
+          <path
+            d="M1951.69 1674.56 1951.69 1468.31C1951.69 1448.22 1900.33 1437.37 1852 1437.37 1803.67 1437.37 1752.31 1448.22 1752.31 1468.31L1752.31 1674.56C1752.31 1694.66 1803.67 1705.5 1852 1705.5 1900.33 1705.5 1951.69 1694.66 1951.69 1674.56ZM1852 1444.25C1905.12 1444.25 1944.81 1456.97 1944.81 1468.31 1944.81 1479.66 1905.12 1492.37 1852 1492.37 1798.88 1492.37 1759.19 1479.66 1759.19 1468.31 1759.19 1456.97 1798.88 1444.25 1852 1444.25ZM1759.19 1480.21C1774.76 1492.65 1814.3 1499.25 1852 1499.25 1889.7 1499.25 1929.24 1492.65 1944.81 1480.21L1944.81 1537.06C1944.81 1548.41 1905.12 1561.12 1852 1561.12 1798.88 1561.12 1759.19 1548.41 1759.19 1537.06ZM1759.19 1548.96C1774.76 1561.4 1814.3 1568 1852 1568 1889.7 1568 1929.24 1561.4 1944.81 1548.96L1944.81 1605.81C1944.81 1617.16 1905.12 1629.87 1852 1629.87 1798.88 1629.87 1759.19 1617.16 1759.19 1605.81ZM1759.19 1674.56 1759.19 1617.71C1774.76 1630.15 1814.3 1636.75 1852 1636.75 1889.7 1636.75 1929.24 1630.15 1944.81 1617.71L1944.81 1674.56C1944.81 1685.91 1905.12 1698.62 1852 1698.62 1798.88 1698.62 1759.19 1685.91 1759.19 1674.56Z" />
+          <path
+            d="M1927.63 1526.75C1927.63 1530.55 1924.55 1533.62 1920.75 1533.62 1916.95 1533.62 1913.88 1530.55 1913.88 1526.75 1913.88 1522.95 1916.95 1519.87 1920.75 1519.87 1924.55 1519.87 1927.63 1522.95 1927.63 1526.75Z" />
+          <path
+            d="M1927.63 1595.5C1927.63 1599.3 1924.55 1602.37 1920.75 1602.37 1916.95 1602.37 1913.88 1599.3 1913.88 1595.5 1913.88 1591.7 1916.95 1588.62 1920.75 1588.62 1924.55 1588.62 1927.63 1591.7 1927.63 1595.5Z" />
+          <path
+            d="M1927.63 1664.25C1927.63 1668.05 1924.55 1671.12 1920.75 1671.12 1916.95 1671.12 1913.88 1668.05 1913.88 1664.25 1913.88 1660.45 1916.95 1657.37 1920.75 1657.37 1924.55 1657.37 1927.63 1660.45 1927.63 1664.25Z" />
+        </g>
+      </g>
+    </g>
+    <text font-family="Tahoma,Tahoma_MSFontService,sans-serif" font-weight="400" font-size="83"
+      transform="matrix(1 0 0 1 1722.27 1804)">Results</text>
+    <path
+      d="M1013.45 1571.78 826.326 1425.04 827.74 1423.24 1014.86 1569.97ZM822.155 1437.79 809 1410 839.125 1416.15Z" />
+    <path
+      d="M0.636656-0.952682 184.73 122.073 183.456 123.978-0.636656 0.952682ZM187.922 109.046 203.147 135.758 172.642 131.911Z"
+      transform="matrix(1 0 0 -1 812 1181.76)" />
+  </g>
+</svg>
