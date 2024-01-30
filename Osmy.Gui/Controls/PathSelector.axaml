@@ -1,19 +1,29 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
+﻿<TemplatedControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 						 xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:local="clr-namespace:Osmy.Gui.Controls"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
              d:DesignHeight="30" d:DesignWidth="300"
 						 x:Class="Osmy.Gui.Controls.PathSelector"
 						 x:CompileBindings="True">
-  <DockPanel>
-    <Button DockPanel.Dock="Right" VerticalAlignment="Stretch" Click="Button_Click">
-      <materialIcons:MaterialIcon Kind="DotsHorizontal"/>
-    </Button>
-    <TextBox Text="{Binding SelectedPath, RelativeSource={RelativeSource AncestorType=local:PathSelector}}"
-             ToolTip.Tip="{Binding SelectedPath, RelativeSource={RelativeSource AncestorType=local:PathSelector}}"
-             IsReadOnly="True" VerticalAlignment="Stretch" IsTabStop="False"/>
-  </DockPanel>
-</UserControl>
+	<TemplatedControl.Styles>
+		<Style Selector="local|PathSelector">
+			<Setter Property="Template">
+				<ControlTemplate>
+					<DataValidationErrors>
+						<DockPanel>
+							<Button Name="PART_SelectButton" DockPanel.Dock="Right" VerticalAlignment="Stretch">
+								<materialIcons:MaterialIcon Kind="DotsHorizontal"/>
+							</Button>
+							<TextBox Text="{Binding SelectedPath, RelativeSource={RelativeSource AncestorType=local:PathSelector}}"
+											 ToolTip.Tip="{Binding SelectedPath, RelativeSource={RelativeSource AncestorType=local:PathSelector}}"
+											 VerticalAlignment="Stretch"/>
+						</DockPanel>
+					</DataValidationErrors>
+				</ControlTemplate>
+			</Setter>
+		</Style>
+	</TemplatedControl.Styles>
+</TemplatedControl>
