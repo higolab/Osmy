@@ -1,12 +1,12 @@
 ﻿using Osmy.Api;
 using Osmy.Core.Data.Sbom;
+using Osmy.Gui.Util;
 using Reactive.Bindings;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Windows.Input;
 
 namespace Osmy.Gui.ViewModels
 {
@@ -75,6 +75,10 @@ namespace Osmy.Gui.ViewModels
             if (sbom is not null)
             {
                 SbomInfos.Value.Add(sbom);
+            }
+            else
+            {
+                await MessageBoxUtil.ShowErrorDialogAsync($"Failed to add software \"{sbomInfo.Name}\".");
             }
         }
 
