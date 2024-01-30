@@ -1,6 +1,7 @@
 ﻿using CommandLine;
 using Osmy.Api;
 using Osmy.Core.Data.Sbom;
+using Osmy.Core.Util;
 
 namespace Osmy.Cli
 {
@@ -158,6 +159,11 @@ namespace Osmy.Cli
             if (!File.Exists(opt.SbomFile))
             {
                 Console.Error.WriteLine($"{opt.SbomFile} does not exist.");
+                return 1;
+            }
+            if (!SpdxUtil.HasValidExtension(opt.SbomFile))
+            {
+                Console.Error.WriteLine($"\"{opt.SbomFile}\" is not an SPDX file in a supported format.");
                 return 1;
             }
 
