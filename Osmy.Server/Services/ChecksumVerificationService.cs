@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Osmy.Core.Data.Sbom;
 using Osmy.Server.Data;
+using Osmy.Server.Data.Settings;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 
@@ -49,7 +50,7 @@ namespace Osmy.Server.Services
                 var appNotificationService = new AppNotificationService();
                 appNotificationService.NotifyChecksumMismatch();
 
-                await Task.Delay(Settings.Common.ChecksumVerificationInterval, stoppingToken);
+                await Task.Delay(Settings.General.ChecksumVerificationInterval, stoppingToken);
             }
         }
 

@@ -3,7 +3,7 @@
     public static class DefaultServerConfig
     {
         /// <summary>
-        /// Unixソケットのパス
+        /// Default path for Unix sockets used for communication between server and client
         /// </summary>
         public static string UnixSocketPath
         {
@@ -19,7 +19,7 @@
         }
 
         /// <summary>
-        /// データディレクトリのパス
+        /// Default directory path for data files
         /// </summary>
         public static string DataDirectory
         {
@@ -35,9 +35,9 @@
         }
 
         /// <summary>
-        /// 設定ディレクトリ
+        /// Default directory path for configuration files
         /// </summary>
-        public static string SettingDirectory
+        public static string ConfigDirectory
         {
             get
             {
@@ -49,5 +49,15 @@
                 };
             }
         }
+
+        /// <summary>
+        /// Default file name for general setting
+        /// </summary>
+        public static string GeneralSettingFileName => "general.json";
+
+        /// <summary>
+        /// Default file name for notification setting
+        /// </summary>
+        public static string NotificationSettingFileName => "notification.json";
     }
 }
