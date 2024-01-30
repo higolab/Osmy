@@ -1,6 +1,7 @@
 ﻿using MailKit.Net.Smtp;
 using MimeKit;
 using Osmy.Server.Data;
+using Osmy.Server.Data.Settings;
 using System.Text;
 
 namespace Osmy.Server.Services
