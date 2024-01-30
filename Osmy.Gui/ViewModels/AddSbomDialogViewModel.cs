@@ -1,4 +1,5 @@
-﻿using Reactive.Bindings;
+﻿using Osmy.Core.Util;
+using Reactive.Bindings;
 using System;
 using System.Linq;
 using System.Reactive.Linq;
@@ -20,11 +21,12 @@ namespace Osmy.Gui.ViewModels
             Name = new ReactiveProperty<string>()
                 .SetValidateNotifyError(value => string.IsNullOrWhiteSpace(value) ? "Name cannot be empty." : null);
             SbomFileName = new ReactiveProperty<string>()
-                .SetValidateNotifyError(value => string.IsNullOrWhiteSpace(value) ? "Select an SPDX file." : null);
+                .SetValidateNotifyError(value => string.IsNullOrWhiteSpace(value) || !SpdxUtil.HasValidExtension(value) ? "Select an SPDX file." : null);
             LocalDirectory = new ReactiveProperty<string?>();
 
-            CloseDialogCommand = ReactiveUI.ReactiveCommand.Create<string, SelectedSbomInfo>(CloseDialog,
-                Name.ObserveHasErrors.Select(x => !x));
+            var canCloseDialog = Observable.CombineLatest(Name.ObserveHasErrors, SbomFileName.ObserveHasErrors, LocalDirectory.ObserveHasErrors)
+                .Select(x => x.All(hasErrors => !hasErrors));
+            CloseDialogCommand = ReactiveUI.ReactiveCommand.Create<string, SelectedSbomInfo>(CloseDialog, canCloseDialog);
         }
 
         public SelectedSbomInfo CloseDialog(string parameter)

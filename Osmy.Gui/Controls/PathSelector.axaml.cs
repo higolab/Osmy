@@ -1,31 +1,43 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace Osmy.Gui.Controls
 {
-    /// <summary>
-    /// PathSelector.xaml の相互作用ロジック
-    /// </summary>
-    public partial class PathSelector : UserControl
+    [TemplatePart(SelectButtonName, typeof(Button))]
+    public partial class PathSelector : TemplatedControl
     {
+        private const string SelectButtonName = "PART_SelectButton";
+
+        private Button? _selectButton;
+
         public PathSelector()
         {
             InitializeComponent();
+
         }
 
         public string? SelectedPath
         {
-            get { return GetValue(SelectedPathProperty); }
-            set { SetValue(SelectedPathProperty, value); }
+            get { return _selectedPath; }
+            set { SetAndRaise(SelectedPathProperty, ref _selectedPath, value); }
         }
-        public static readonly StyledProperty<string?> SelectedPathProperty =
-            AvaloniaProperty.Register<PathSelector, string?>("SelectedPath", defaultBindingMode: BindingMode.TwoWay);
+        private string? _selectedPath;
+        public static readonly DirectProperty<PathSelector, string?> SelectedPathProperty =
+            AvaloniaProperty.RegisterDirect<PathSelector, string?>(
+                nameof(SelectedPath),
+                o => o.SelectedPath,
+                (o, v) => o.SelectedPath = v,
+                defaultBindingMode: BindingMode.TwoWay,
+                enableDataValidation: true);
 
         public PathSelectionMode PathSelectionMode
         {
@@ -51,7 +63,34 @@ namespace Osmy.Gui.Controls
         public static readonly StyledProperty<object?> PathSelectedCommandParameterProperty =
             AvaloniaProperty.Register<PathSelector, object?>("PathSelectedCommandParameter");
 
-        private void Button_Click(object sender, RoutedEventArgs e) => SelectPath();
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+        {
+            base.OnApplyTemplate(e);
+
+            if (_selectButton is not null)
+            {
+                _selectButton.Click -= OnSelectButtonClicked;
+            }
+
+            _selectButton = e.NameScope.Find(SelectButtonName) as Button;
+
+            if (_selectButton is not null)
+            {
+                _selectButton.Click += OnSelectButtonClicked;
+            }
+        }
+
+        protected override void UpdateDataValidation(AvaloniaProperty property, BindingValueType state, Exception? error)
+        {
+            base.UpdateDataValidation(property, state, error);
+
+            if (property == SelectedPathProperty)
+            {
+                DataValidationErrors.SetError(this, error);
+            }
+        }
+
+        private void OnSelectButtonClicked(object? sender, RoutedEventArgs e) => SelectPath();
 
         private async void SelectPath()
         {

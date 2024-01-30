@@ -1,6 +1,7 @@
 ﻿using CommandLine;
 using Osmy.Api;
 using Osmy.Core.Data.Sbom;
+using Osmy.Core.Util;
 
 namespace Osmy.Cli
 {
@@ -31,9 +32,8 @@ namespace Osmy.Cli
         {
             using var client = new RestClient();
             var fetchTask = client.GetSbomsAsync();
-            await ShowProgressAndWait(fetchTask, "Fetching software info...");
+            var sbomInfos = (await ShowProgressAndWait(fetchTask, "Fetching software info...")).ToArray();
 
-            var sbomInfos = (await fetchTask).ToArray();
             var num = sbomInfos.Length;
             if (num == 0) { return 0; }
 
@@ -61,9 +61,7 @@ namespace Osmy.Cli
         {
             using var client = new RestClient();
             var sbomTask = client.GetSbomAsync(opt.Id);
-            await ShowProgressAndWait(sbomTask, "Fetching software info...");
-
-            var sbom = await sbomTask;
+            var sbom = await ShowProgressAndWait(sbomTask, "Fetching software info...");
             if (sbom is null)
             {
                 Console.Error.WriteLine("Software of specified id was not found.");
@@ -160,6 +158,11 @@ namespace Osmy.Cli
                 Console.Error.WriteLine($"{opt.SbomFile} does not exist.");
                 return 1;
             }
+            if (!SpdxUtil.HasValidExtension(opt.SbomFile))
+            {
+                Console.Error.WriteLine($"\"{opt.SbomFile}\" is not an SPDX file in a supported format.");
+                return 1;
+            }
 
             if (opt.LocalDirectory is not null)
             {
@@ -175,7 +178,12 @@ namespace Osmy.Cli
             }
 
             var addTask = client.CreateSbomAsync(new AddSbomInfo(opt.Name, opt.SbomFile, opt.LocalDirectory));
-            await ShowProgressAndWait(addTask, "Adding software...");
+            var sbom = await ShowProgressAndWait(addTask, "Adding software...");
+            if (sbom is null)
+            {
+                Console.Error.WriteLine("Failed to add software.");
+                return 1;
+            }
 
             return 0;
         }
@@ -184,8 +192,19 @@ namespace Osmy.Cli
         {
             using var client = new RestClient();
             var fetchTask = client.GetSbomsAsync();
-            await ShowProgressAndWait(fetchTask, "Fetching current info...");
-            var currentSbom = (await fetchTask).First(sbom => sbom.Id == opt.Id);
+            var sboms = await ShowProgressAndWait(fetchTask, "Fetching current information...");
+            if (sboms is null)
+            {
+                Console.Error.WriteLine("Failed to fetch software information.");
+                return 1;
+            }
+
+            var currentSbom = sboms.FirstOrDefault(sbom => sbom.Id == opt.Id);
+            if (currentSbom is null)
+            {
+                Console.Error.WriteLine($"Software with ID:{opt.Id} does not exist.");
+                return 1;
+            }
 
             if (opt.LocalDirectory == "unset")
             {
@@ -206,7 +225,12 @@ namespace Osmy.Cli
             }
 
             var updateTask = client.UpdateSbomAsync(opt.Id, new UpdateSbomInfo(opt.Name ?? currentSbom.Name, opt.LocalDirectory));
-            await ShowProgressAndWait(updateTask, "Updating software info...");
+            var sbom = await ShowProgressAndWait(updateTask, "Updating software information...");
+            if (sbom is null)
+            {
+                Console.Error.WriteLine("Failed to update software information.");
+                return 1;
+            }
 
             return 0;
         }
@@ -215,12 +239,17 @@ namespace Osmy.Cli
         {
             using var client = new RestClient();
             var deleteTask = client.DeleteSbomAsync(opt.Id);
-            await ShowProgressAndWait(deleteTask, "Deleting software...");
+            var isSuccess = await ShowProgressAndWait(deleteTask, "Deleting software...");
+            if (!isSuccess)
+            {
+                Console.Error.WriteLine("Failed to delete software information.");
+                return 1;
+            }
 
             return 0;
         }
 
-        private static async Task ShowProgressAndWait(Task task, string message = "")
+        private static async Task<T> ShowProgressAndWait<T>(Task<T> task, string message = "")
         {
             var bars = new char[] { '/', '-', '\\', '|' };
             var (OriginalLeft, OriginalTop) = Console.GetCursorPosition();
@@ -228,7 +257,7 @@ namespace Osmy.Cli
             {
                 if (task.IsCanceled || task.IsCompleted || task.IsFaulted)
                 {
-                    return;
+                    return await task;
                 }
                 var content = message + bars[i % bars.Length];
                 Console.Write(content);

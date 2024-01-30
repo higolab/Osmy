@@ -1,19 +1,17 @@
 ﻿using Osmy.Api;
 using Osmy.Core.Data.Sbom;
+using Osmy.Gui.Util;
 using Reactive.Bindings;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Windows.Input;
 
 namespace Osmy.Gui.ViewModels
 {
     public class SbomListViewViewModel : ViewModelBase
     {
-        //private readonly IDialogService _dialogService;
-        //private readonly IMessageBoxService _messageBoxService;
         //private readonly ILogger _logger;
 
         public ReactiveUI.Interaction<AddSbomDialogViewModel, SelectedSbomInfo?> ShowAddSbomDialog { get; } = new();
@@ -39,7 +37,6 @@ namespace Osmy.Gui.ViewModels
             //_logger = logger;
 
             SbomInfos = new ReactivePropertySlim<ObservableCollection<Sbom>>(new ObservableCollection<Sbom>(FetchSbomInfos()));
-            //SbomInfos = new ReactivePropertySlim<ObservableCollection<SbomInfo>>(new ObservableCollection<SbomInfo> { new SbomInfo(new Spdx() { Name = "Test" }, true, true) });
             SelectedSbomInfo = new ReactivePropertySlim<Sbom?>();
             SelectedSbomVM = SelectedSbomInfo
                 .Select(x => x is null ? null : new SbomDetailsViewViewModel(GetSbomFullData(x.Id)))
@@ -76,6 +73,10 @@ namespace Osmy.Gui.ViewModels
             {
                 SbomInfos.Value.Add(sbom);
             }
+            else
+            {
+                await MessageBoxUtil.ShowErrorDialogAsync($"Failed to add software \"{sbomInfo.Name}\".");
+            }
         }
 
         private async void DeleteSbom()
@@ -86,10 +87,11 @@ namespace Osmy.Gui.ViewModels
             if (await client.DeleteSbomAsync(SelectedSbomInfo.Value.Id))
             {
                 SbomInfos.Value.Remove(SelectedSbomInfo.Value);
+                SelectedSbomInfo.Value = null;
             }
             else
             {
-                // TODO
+                await MessageBoxUtil.ShowErrorDialogAsync($"Failed to delete software \"{SelectedSbomInfo.Value.Name}\".");
             }
         }
 
