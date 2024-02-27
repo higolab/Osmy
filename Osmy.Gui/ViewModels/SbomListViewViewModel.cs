@@ -1,20 +1,26 @@
-﻿using Osmy.Api;
+﻿using DynamicData;
+using Osmy.Api;
 using Osmy.Core.Data.Sbom;
 using Osmy.Gui.Util;
 using Reactive.Bindings;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Osmy.Gui.ViewModels
 {
-    public class SbomListViewViewModel : ViewModelBase
+    public class SbomListViewViewModel : ViewModelBase, IActivatableViewModel
     {
         //private readonly ILogger _logger;
+        public ViewModelActivator Activator { get; }
 
-        public ReactiveUI.Interaction<AddSbomDialogViewModel, SelectedSbomInfo?> ShowAddSbomDialog { get; } = new();
+        public Interaction<AddSbomDialogViewModel, SelectedSbomInfo?> ShowAddSbomDialog { get; } = new();
 
         public ReactivePropertySlim<ObservableCollection<Sbom>> SbomInfos { get; }
 
@@ -25,24 +31,28 @@ namespace Osmy.Gui.ViewModels
         public DelegateCommand AddSbomCommand => _addSbomCommand ??= new DelegateCommand(OpenSbomAddDiaglog);
         private DelegateCommand? _addSbomCommand;
 
-        public ReactiveCommand DeleteSbomCommand { get; }
+        public Reactive.Bindings.ReactiveCommand DeleteSbomCommand { get; }
 
-        //public DelegateCommand ScanVulnsCommand => _scanVulnsCommand ??= new DelegateCommand(ScanVulns);
-        //private DelegateCommand? _scanVulnsCommand;
+        private CancellationTokenSource? _cancelledOnDeactivated;
 
         public SbomListViewViewModel(/*ILogger logger*/)
         {
-            //_dialogService = dialogService;
-            //_messageBoxService = messageBoxService;
             //_logger = logger;
+            Activator = new ViewModelActivator();
+            this.WhenActivated(disposables =>
+            {
+                OnActivated();
+                Disposable.Create(() => OnDeactivated()).DisposeWith(disposables);
+            });
 
             SbomInfos = new ReactivePropertySlim<ObservableCollection<Sbom>>(new ObservableCollection<Sbom>(FetchSbomInfos()));
             SelectedSbomInfo = new ReactivePropertySlim<Sbom?>();
             SelectedSbomVM = SelectedSbomInfo
                 .Select(x => x is null ? null : new SbomDetailsViewViewModel(GetSbomFullData(x.Id)))
                 .ToReadOnlyReactivePropertySlim();
-            DeleteSbomCommand = new ReactiveCommand(SelectedSbomInfo.Select(x => x is not null), false)
-                .WithSubscribe(DeleteSbom, out var disposable);  // TODO disposableの適切なタイミングでの破棄
+            DeleteSbomCommand = new Reactive.Bindings.ReactiveCommand(SelectedSbomInfo.Select(x => x is not null), false);
+            // This disposable is not explicitly destroyed, but that's okay as it doesn't cause memory leaks
+            DeleteSbomCommand.Subscribe(DeleteSbom);
         }
 
         private async void OpenSbomAddDiaglog()
@@ -55,20 +65,6 @@ namespace Osmy.Gui.ViewModels
             var sbomInfo = new AddSbomInfo(result.Name, result.SbomFileName, result.LocalDirectory);
             var sbom = await client.CreateSbomAsync(sbomInfo);
 
-            // TODO 初回スキャンの結果取得
-            //var vulnsScanResult = await Task.Run(() => BackgroundServiceManager.Instance.Resolve<VulnerabilityScanService>().Scan(sbom));
-            //dbContext.ScanResults.Add(vulnsScanResult);
-
-            //ChecksumVerificationResultCollection? checksumVerificationResult = null;
-            //if (sbom.LocalDirectory is not null)
-            //{
-            //    checksumVerificationResult = await Task.Run(() => BackgroundServiceManager.Instance.Resolve<ChecksumVerificationService>().Verify(sbom));
-            //    dbContext.ChecksumVerificationResults.Add(checksumVerificationResult);
-            //}
-            //await dbContext.SaveChangesAsync();
-
-            //SbomInfos.Value.Add(new SbomInfo(sbom, vulnsScanResult.IsVulnerable, checksumVerificationResult?.HasError ?? false));
-            // TODO sbomInfoのIsVulnerableとHasFileErrorをnullに設定するので，nullのものを定期的にチェックして最新の結果を取得する処理を追加したい
             if (sbom is not null)
             {
                 SbomInfos.Value.Add(sbom);
@@ -95,21 +91,6 @@ namespace Osmy.Gui.ViewModels
             }
         }
 
-        //private async void ScanVulns()
-        //{
-        //    if (SelectedSbomInfo.Value is null) { return; }
-
-        //    var container = ContainerLocator.Container;
-        //    var serviceManager = container.Resolve<BackgroundServiceManager>();
-        //    var result = await Task.Run(() => serviceManager.Resolve<VulnerabilityScanService>().Scan(SelectedSbomInfo.Value.Sbom, CancellationToken.None)).ConfigureAwait(false);
-
-        //    using var dbContext = new ManagedSoftwareContext();
-        //    var tmpSbom = dbContext.Sboms.First(x => x.Id == result.Sbom.Id);
-        //    result.Sbom = tmpSbom;
-        //    dbContext.ScanResults.Add(result);
-        //    await dbContext.SaveChangesAsync().ConfigureAwait(false);
-        //}
-
         private static IEnumerable<Sbom> FetchSbomInfos()
         {
             using var client = new RestClient();
@@ -128,6 +109,44 @@ namespace Osmy.Gui.ViewModels
         {
             using var client = new RestClient();
             return client.GetSbom(sbomId) ?? throw new InvalidOperationException();
+        }
+
+        private async Task UpdateToLatestResult(CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                var sbomsNeedUpdate = SbomInfos.Value.Where(IsNeedUpdate).ToArray();
+                using (var client = new RestClient())
+                {
+                    foreach (var current in sbomsNeedUpdate)
+                    {
+                        var updated = await client.GetSbomAsync(current.Id, cancellationToken);
+                        if (updated is not null)
+                        {
+                            SbomInfos.Value.Replace(current, updated);
+                        }
+                    }
+                }
+                await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
+            }
+
+            static bool IsNeedUpdate(Sbom sbom)
+            {
+                return sbom.LastVulnerabilityScan is null
+                    || (sbom.LocalDirectory is not null && sbom.LastFileCheck is null);
+            }
+        }
+
+        private void OnActivated()
+        {
+            _cancelledOnDeactivated = new();
+            _ = UpdateToLatestResult(_cancelledOnDeactivated.Token);
+        }
+
+        private void OnDeactivated()
+        {
+            _cancelledOnDeactivated?.Cancel();
+            _cancelledOnDeactivated?.Dispose();
         }
     }
 }
