@@ -75,13 +75,13 @@ namespace Osmy.Server.Controllers
             dbContext.Sboms.Add(sbom);
             await dbContext.SaveChangesAsync();
 
+            // 脆弱性診断を実行
+            var vulnerabilityScanService = _serviceProvider.GetRequiredService<VulnerabilityScanService>();
+            _ = VulnerabilityScanService.ScanAsync(sbom.Id);
+
+            // チェックサム検証の実行キューに追加
             if (sbom.LocalDirectory is not null)
             {
-                // 脆弱性診断のキューに追加
-                var vulnerabilityScanService = _serviceProvider.GetRequiredService<VulnerabilityScanService>();
-                _ = VulnerabilityScanService.ScanAsync(sbom.Id);
-
-                // チェックサム検証の実行キューに追加
                 var checksumService = _serviceProvider.GetRequiredService<ChecksumVerificationService>();
                 _ = checksumService.VerifyAsync(sbom.Id);
             }
