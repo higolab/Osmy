@@ -7,6 +7,7 @@
         xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:Osmy.Gui.ViewModels"
+				xmlns:v="clr-namespace:Osmy.Gui.Views"
         Title="{Binding Title}"
         Width="450" CanResize="False"
         Icon="/Assets/osmy-logo.ico"
@@ -61,7 +62,8 @@
                 Orientation="Horizontal">
       <Button Width="100"
               Command="{Binding CloseDialogCommand}"
-              CommandParameter="ok" Content="OK" />
+              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type v:AddSbomDialog}}}"
+							Content="OK" />
     </StackPanel>
   </Grid>
 </Window>
