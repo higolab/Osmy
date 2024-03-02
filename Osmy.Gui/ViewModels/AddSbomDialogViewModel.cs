@@ -1,8 +1,14 @@
-﻿using Osmy.Core.Util;
+﻿using Osmy.Api;
+using Osmy.Core.Data.Sbom;
+using Osmy.Core.Util;
+using Osmy.Gui.Util;
+using Osmy.Gui.Views;
 using Reactive.Bindings;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 
 namespace Osmy.Gui.ViewModels
 {
@@ -14,7 +20,7 @@ namespace Osmy.Gui.ViewModels
         public ReactiveProperty<string> SbomFileName { get; }
         public ReactiveProperty<string?> LocalDirectory { get; }
 
-        public ReactiveUI.ReactiveCommand<string, SelectedSbomInfo> CloseDialogCommand { get; }
+        public AsyncReactiveCommand<ICloseable<Sbom>> CloseDialogCommand { get; }
 
         public AddSbomDialogViewModel()
         {
@@ -26,19 +32,24 @@ namespace Osmy.Gui.ViewModels
 
             var canCloseDialog = Observable.CombineLatest(Name.ObserveHasErrors, SbomFileName.ObserveHasErrors, LocalDirectory.ObserveHasErrors)
                 .Select(x => x.All(hasErrors => !hasErrors));
-            CloseDialogCommand = ReactiveUI.ReactiveCommand.Create<string, SelectedSbomInfo>(CloseDialog, canCloseDialog);
+            CloseDialogCommand = new AsyncReactiveCommand<ICloseable<Sbom>>(canCloseDialog).WithSubscribe(CloseDialog);
         }
 
-        public SelectedSbomInfo CloseDialog(string parameter)
+        public async Task CloseDialog(ICloseable<Sbom> closable)
         {
-            if (parameter.Equals("ok", StringComparison.OrdinalIgnoreCase))
+            using var client = new RestClient();
+            var sbomInfo = new AddSbomInfo(Name.Value, SbomFileName.Value, LocalDirectory.Value);
+            
+            var start = DateTime.Now;
+            var sbom = await client.CreateSbomAsync(sbomInfo);
+
+            if (sbom is null)
             {
-                return new SelectedSbomInfo(Name.Value, SbomFileName.Value, LocalDirectory.Value);
+                await MessageBoxUtil.ShowErrorDialogAsync($"Failed to add software \"{sbomInfo.Name}\".");
+                return;
             }
-            else
-            {
-                throw new NotImplementedException();
-            }
+
+            closable.CloseWithResult(sbom);
         }
     }
 

@@ -1,6 +1,6 @@
 using Avalonia.Controls;
-using Avalonia.Controls.Utils;
 using Avalonia.ReactiveUI;
+using Osmy.Core.Data.Sbom;
 using Osmy.Gui.ViewModels;
 using Osmy.Gui.Views;
 using ReactiveUI;
@@ -17,7 +17,7 @@ namespace Osmy.Gui.Controls
             this.WhenActivated(d => d(ViewModel!.ShowAddSbomDialog.RegisterHandler(ShowAddSbomDialogAsync)));
         }
 
-        private async Task ShowAddSbomDialogAsync(InteractionContext<AddSbomDialogViewModel, SelectedSbomInfo?> interaction)
+        private async Task ShowAddSbomDialogAsync(InteractionContext<AddSbomDialogViewModel, Sbom?> interaction)
         {
             var dialog = new AddSbomDialog
             {
@@ -26,7 +26,7 @@ namespace Osmy.Gui.Controls
 
             var topLevel = TopLevel.GetTopLevel(this);
             var window = topLevel as Window ?? throw new InvalidOperationException();
-            var result = await dialog.ShowDialog<SelectedSbomInfo?>(window);
+            var result = await dialog.ShowDialog<Sbom?>(window);
             interaction.SetOutput(result);
         }
     }

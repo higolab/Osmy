@@ -20,7 +20,7 @@ namespace Osmy.Gui.ViewModels
         //private readonly ILogger _logger;
         public ViewModelActivator Activator { get; }
 
-        public Interaction<AddSbomDialogViewModel, SelectedSbomInfo?> ShowAddSbomDialog { get; } = new();
+        public Interaction<AddSbomDialogViewModel, Sbom?> ShowAddSbomDialog { get; } = new();
 
         public ReactivePropertySlim<ObservableCollection<Sbom>> SbomInfos { get; }
 
@@ -58,21 +58,9 @@ namespace Osmy.Gui.ViewModels
         private async void OpenSbomAddDiaglog()
         {
             var store = new AddSbomDialogViewModel();
-            var result = await ShowAddSbomDialog.Handle(store);
-            if (result is null) { return; }
-
-            using var client = new RestClient();
-            var sbomInfo = new AddSbomInfo(result.Name, result.SbomFileName, result.LocalDirectory);
-            var sbom = await client.CreateSbomAsync(sbomInfo);
-
-            if (sbom is not null)
-            {
-                SbomInfos.Value.Add(sbom);
-            }
-            else
-            {
-                await MessageBoxUtil.ShowErrorDialogAsync($"Failed to add software \"{sbomInfo.Name}\".");
-            }
+            var sbom = await ShowAddSbomDialog.Handle(store);
+            if (sbom is null) { return; }
+            SbomInfos.Value.Add(sbom);
         }
 
         private async void DeleteSbom()
