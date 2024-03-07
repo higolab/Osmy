@@ -24,14 +24,6 @@ namespace Osmy.Server.Services
         public void NotifyVulnerability()
         {
             using var dbContext = new SoftwareDbContext();
-            //var names = dbContext.ScanResults
-            //    .Include(x => x.Sbom)
-            //    .GroupBy(x => x.SbomId)
-            //    .AsEnumerable()
-            //    .Select(g => g.OrderByDescending(x => x.Executed).First())
-            //    .Where(x => x.IsVulnerable)
-            //    .Select(x => x.Sbom.Name)
-            //    .ToArray();
             var names = dbContext.Sboms.Where(x => x.IsVulnerable)
                                        .Select(x => x.Name)
                                        .ToArray();
@@ -39,7 +31,7 @@ namespace Osmy.Server.Services
 
             if (!Settings.Notification.Email.IsEnabled) { return; };
             var contentBuilder = new StringBuilder();
-            contentBuilder.AppendFormat("Vulnerabilities detected in {0} software{1}.", names.Length,
+            contentBuilder.AppendFormat("Vulnerabilities detected in {0} piece{1} of software.", names.Length,
                                         names.Length > 1 ? "s" : string.Empty);
             contentBuilder.AppendLine();
             contentBuilder.AppendLine("=====");
@@ -63,7 +55,7 @@ namespace Osmy.Server.Services
 
             if (!Settings.Notification.Email.IsEnabled) { return; };
             var contentBuilder = new StringBuilder();
-            contentBuilder.AppendFormat("Checksum mismatch detected in {0} software{1}.", names.Length,
+            contentBuilder.AppendFormat("File Integrity Errors detected in {0} piece{1} of software.", names.Length,
                                         names.Length > 1 ? "s" : string.Empty);
             contentBuilder.AppendLine();
             contentBuilder.AppendLine("=====");
@@ -73,7 +65,7 @@ namespace Osmy.Server.Services
             }
             contentBuilder.AppendLine("=====");
 
-            SendMail("Checksum Mismatch Detected", contentBuilder.ToString());
+            SendMail("File Integrity Errors Detected", contentBuilder.ToString());
         }
 
         private static void SendMail(string title, string content)
